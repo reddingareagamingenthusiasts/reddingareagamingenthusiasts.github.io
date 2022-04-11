@@ -30,7 +30,7 @@ twitter_username: reddingareagamingenthusiasts
 github_username:  reddingareagamingenthusiasts
 
 # Build settings
-theme: minima
+theme: jekyll-theme-cayman
 plugins:
   - jekyll-feed
 
