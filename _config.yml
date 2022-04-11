@@ -28,7 +28,7 @@ twitter_username: reddingareagamingenthusiasts
 github_username:  reddingareagamingenthusiasts
 
 # Build settings
-theme: jekyll-theme-minimal
+theme: minima
 plugins:
   - jekyll-feed
 
