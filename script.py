@@ -15,6 +15,10 @@ def find_and_replace_links(file_path):
     regex_pattern = f'(https?://[^\s"]*{domain}/[^\s"\'\)]*)'
     links = re.findall(regex_pattern, content)
 
+    if not links:
+        print("No hardcoded links found.")
+        return
+
     # Download assets and update links
     for link in links:
         asset_path = link.split(domain, 1)[1].lstrip("/")
@@ -30,6 +34,9 @@ def find_and_replace_links(file_path):
     # Write updated content to the file
     with open(file_path, "w") as file:
         file.write(content)
+
+    print("Links have been updated.")
+
 
 if __name__ == "__main__":
     find_and_replace_links(html_file)
