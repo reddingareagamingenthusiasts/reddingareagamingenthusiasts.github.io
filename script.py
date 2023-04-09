@@ -12,7 +12,7 @@ def find_and_replace_links(file_path):
         content = file.read()
 
     # Find all links to the specified domain
-    regex_pattern = f'(https?://[^\s"]*{domain}/[^\s"]*)'
+    regex_pattern = f'(https?://[^\s"]*{domain}/[^\s"\'\)]*)'
     links = re.findall(regex_pattern, content)
 
     # Download assets and update links
