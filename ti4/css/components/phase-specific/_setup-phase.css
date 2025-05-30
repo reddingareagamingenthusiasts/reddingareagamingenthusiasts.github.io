@@ -1,0 +1,176 @@
+/* Setup Phase Styles */
+
+/* Player Setup Section */
+.setup-players-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+.setup-player-card {
+    background: rgba(26, 35, 50, 0.8);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    padding: 1.5rem;
+    transition: all var(--transition-normal);
+    width: 100%;
+    max-width: 400px;
+}
+
+.setup-player-card:hover {
+    border-color: var(--accent-secondary);
+    transform: translateX(5px);
+}
+
+/* Player Count Selector */
+.player-count-selector {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background: rgba(26, 35, 50, 0.8);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+}
+
+.player-count-selector select {
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    background: rgba(10, 15, 28, 0.8);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    font-size: 1rem;
+    margin-top: 0.5rem;
+}
+
+/* Setup Options */
+.setup-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+
+.option-box {
+    background: rgba(26, 35, 50, 0.8);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    padding: 1.5rem;
+    transition: all var(--transition-normal);
+}
+
+.option-box:hover {
+    border-color: var(--accent-secondary);
+    transform: translateY(-2px);
+}
+
+.option-box h3 {
+    margin-top: 0;
+    color: var(--accent-secondary);
+    font-size: 1.2rem;
+}
+
+.option-box-description {
+    font-size: 0.9rem;
+    color: rgba(209, 226, 255, 0.8);
+    margin: 0.75rem 0 1.25rem 0;
+}
+
+/* Faction Selection */
+.faction-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+
+.faction-option {
+    border: 2px solid transparent;
+    border-radius: var(--border-radius-md);
+    padding: 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    background: rgba(10, 15, 28, 0.6);
+}
+
+.faction-option:hover {
+    background: rgba(78, 124, 255, 0.1);
+    border-color: var(--accent-secondary);
+}
+
+.faction-option.selected {
+    background: rgba(78, 124, 255, 0.2);
+    border-color: var(--accent-secondary);
+    box-shadow: 0 0 0 2px rgba(78, 124, 255, 0.3);
+}
+
+.faction-option img {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 0.75rem;
+    object-fit: contain;
+}
+
+.faction-option h4 {
+    margin: 0.5rem 0 0 0;
+    font-size: 1rem;
+}
+
+/* Color Selection */
+.color-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin: 1.5rem 0;
+}
+
+.color-option {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+}
+
+.color-option:hover {
+    transform: scale(1.1);
+}
+
+.color-option.selected {
+    border-color: white;
+    box-shadow: 0 0 0 2px var(--accent-secondary);
+}
+
+/* Setup Controls */
+.setup-controls {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .setup-players-container {
+        flex-direction: column;
+    }
+    
+    .setup-player-card {
+        max-width: 100%;
+    }
+    
+    .faction-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+    
+    .setup-controls {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .setup-controls .btn {
+        width: 100%;
+    }
+}

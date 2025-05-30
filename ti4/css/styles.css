@@ -1,0 +1,3612 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Roboto:wght@300;400;500&display=swap');
+
+:root {
+    --primary-color: #0a0f1c;
+    --secondary-color: #1a2332;
+    --accent-color: #ff6b6b;
+    --accent-secondary: #4e7cff;
+    --text-color: #d1e2ff;
+    --border-color: #2d3846;
+    --glow-color: rgba(78, 124, 255, 0.5);
+    --header-font: 'Orbitron', sans-serif;
+    --body-font: 'Roboto', sans-serif;
+    --primary-color-rgb: 10, 15, 28;
+    --secondary-color-rgb: 26, 35, 50;
+    --border-color-rgb: 45, 56, 70;
+    --accent-secondary-rgb: 78, 124, 255;
+    --text-color-rgb: 209, 226, 255; /* Added for .ap-player-faction-icon */
+    --player-color: #ffffff; /* Default player color, will be dynamically set */
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--body-font);
+    background-color: var(--primary-color);
+    background-image: 
+        radial-gradient(circle at 20% 30%, rgba(78, 124, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(255, 107, 107, 0.1) 0%, transparent 50%),
+        url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="%23FFFFFF" fill-opacity="0.1"%3E%3Ccircle cx="2" cy="2" r="1"/%3E%3C/g%3E%3C/svg%3E');
+    color: var(--text-color);
+    min-height: 100vh;
+    padding: 20px;
+    position: relative;
+    margin: 0;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    background: radial-gradient(circle at 50% 50%, transparent 90%, rgba(10, 15, 28, 0.95) 100%);
+    z-index: 1;
+}
+
+.content-wrapper {
+    position: relative;
+    z-index: 2;
+    max-width: 1920px;
+    margin: 0 auto;
+    min-height: calc(100vh - 40px);
+    display: flex;
+    flex-direction: column;
+}
+
+/* Status Phase Step Cards */
+.cards-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.2rem;
+    justify-content: stretch;
+    margin: 2rem 0 2.5rem 0;
+    width: 100%;
+}
+.status-step-card {
+    background: var(--secondary-color);
+    color: #fff;
+    border-radius: 12px;
+    border: 1.5px solid var(--border-color);
+    box-shadow: none;
+    padding: 1.5rem 2rem;
+    min-width: 260px;
+    min-height: 80px;
+    flex: 1 1 320px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.22rem;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+    transition: background 0.15s, border 0.15s;
+    max-width: 100%;
+}
+.status-step-card.current-step {
+    border: 2px solid var(--accent-secondary);
+    background: var(--secondary-color);
+    box-shadow: none;
+    transform: none;
+    z-index: 2;
+}
+.status-step-card .step-number {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 0.4rem;
+}
+.status-step-card .step-text {
+    font-size: 1.08rem;
+    text-align: center;
+    font-weight: 400;
+}
+@media (max-width: 900px) {
+    .cards-wrapper {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .status-step-card {
+        min-width: 90vw;
+        padding: 1.1rem 0.5rem;
+    }
+}
+
+/* Top Right Menu Styles */
+.top-menu-container {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 1000; /* High z-index to be on top */
+}
+
+.menu-toggle-button {
+    background-color: var(--secondary-color);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    width: 45px; /* Slightly larger for a main toggle */
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1.3rem;
+}
+
+.menu-toggle-button:hover {
+    background-color: var(--accent-secondary); /* Use a different accent for menu */
+    color: white;
+    transform: scale(1.1) rotate(90deg); /* Add a little rotation for fun */
+}
+
+.menu-dropdown {
+    display: none; /* Hidden by default */
+    position: absolute;
+    top: 55px; /* Below the toggle button */
+    right: 0;
+    background-color: var(--secondary-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    width: 220px; /* Wider for text */
+    overflow: hidden; /* Ensures items fit within rounded corners */
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+}
+
+.menu-dropdown.open {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.menu-item {
+    display: flex; /* Use flex for icon and text alignment */
+    align-items: center;
+    gap: 10px; /* Space between icon and text */
+    background-color: transparent;
+    color: var(--text-color);
+    border: none;
+    padding: 12px 15px;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-family: var(--body-font);
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.menu-item i {
+    width: 20px; /* Fixed width for icons */
+    text-align: center;
+}
+
+.menu-item:hover {
+    background-color: var(--accent-secondary);
+    color: white;
+}
+
+.menu-item:not(:last-child) {
+    border-bottom: 1px solid var(--border-color); /* Separator lines */
+}
+
+.menu-item:disabled {
+    color: #666;
+    cursor: not-allowed;
+    background-color: transparent; /* Ensure no hover effect on disabled */
+}
+
+.menu-item:disabled:hover {
+    color: #666; /* Keep disabled style on hover */
+    background-color: transparent;
+}
+
+/* Remove old .top-controls, .reset-button, .undo-button if they are no longer used directly */
+/* For example, if the old .reset-button is still in HTML but hidden, its styles might not be needed */
+/* These button styles have been removed as they are no longer needed */
+/* .reset-button, .undo-button { display: none; } */
+
+
+.header {
+    text-align: center;
+    margin-top: 60px; /* Add margin to prevent overlap with top-controls */
+    margin-bottom: 2rem;
+    font-family: var(--header-font);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px var(--glow-color);
+    animation: glow 3s ease-in-out infinite alternate;
+}
+
+.header .fa-space-shuttle {
+    color: var(--accent-secondary);
+    animation: shipFloat 6s ease-in-out infinite;
+    margin-bottom: 1rem;
+}
+
+@keyframes glow {
+    from { text-shadow: 0 0 10px var(--glow-color); }
+    to { text-shadow: 0 0 20px var(--glow-color), 0 0 30px var(--glow-color); }
+}
+
+@keyframes shipFloat {
+    0%, 100% { transform: translateY(0) rotate(-45deg); }
+    50% { transform: translateY(-15px) rotate(-45deg); }
+}
+
+/* New styles for the top bar in active game UI */
+.active-game-top-bar {
+    display: flex;
+    align-items: center; /* Vertically align items in the middle */
+    gap: 0.25rem; /* Further reduced space between round tracker and score track */
+    margin-bottom: 1rem; /* Reduced space below this entire bar */
+    padding: 0.5rem 1rem 0.25rem 1rem; /* top right bottom left - Explicitly small bottom padding */
+    background-color: var(--secondary-color);
+    border-radius: 12px;
+    border: 1px solid rgba(78, 124, 255, 0.3);
+    box-shadow: 0 0 20px rgba(78, 124, 255, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+.round-tracker-widget {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem; /* This gap is for internal elements of round-tracker-widget, keep as is or adjust if icon/text too close */
+    padding-right: 0.25rem; /* Further reduced padding to the right of the round tracker */
+    /* border-right: 1px solid var(--border-color); Optional: if a separator line is desired */
+}
+
+.round-tracker-widget .fa-clock {
+    font-size: 2.2rem; /* Larger clock icon */
+    color: var(--accent-secondary);
+}
+
+.round-tracker-widget .round-info-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.round-tracker-widget .round-info-text .label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    color: var(--text-color);
+    opacity: 0.8;
+    line-height: 1;
+}
+
+.round-tracker-widget .round-info-text .value {
+    font-family: var(--header-font);
+    font-size: 2rem; /* Larger round number */
+    font-weight: bold;
+    color: var(--text-color);
+    line-height: 1.1;
+}
+
+#score-track-container {
+    flex-grow: 1; /* Allow score track to take remaining space */
+    display: flex; /* Ensure its child (.score-track) can be aligned */
+    justify-content: flex-start; /* Align .score-track to the left */
+    /* Existing styles for .score-track and its children will apply */
+}
+
+/* Old .game-info, .game-info-controls-bar, .game-info-left styles are removed */
+/* as their HTML structure is no longer used for this top section. */
+
+.players-grid {
+    display: grid;
+    grid-template-rows: repeat(2, auto);
+    gap: 1.5rem;
+    perspective: 1000px;
+    width: 100%;
+    max-width: 1800px;
+    margin: 1rem auto 0 auto; /* Added top margin */
+    padding-left: 60px; /* Added padding */
+    padding-right: 60px; /* Added padding */
+    box-sizing: border-box; /* Ensure padding is included in the width calculation */
+}
+
+.players-row {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.player-card {
+    width: 300px;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, var(--secondary-color) 0%, rgba(26, 35, 50, 0.9) 100%);
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    transform-style: preserve-3d;
+    animation: cardFloat 6s ease-in-out infinite;
+}
+
+@keyframes cardFloat {
+    0%, 100% { transform: translateY(0) rotateX(0deg); }
+    50% { transform: translateY(-10px) rotateX(2deg); }
+}
+
+.player-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(78, 124, 255, 0.2);
+    border-color: var(--accent-secondary);
+}
+
+.player-card.active {
+    border: 1px solid var(--accent-color);
+    box-shadow: 0 0 20px rgba(255, 107, 107, 0.2);
+    animation: activeCardPulse 2s infinite;
+}
+
+@keyframes activeCardPulse {
+    0%, 100% { box-shadow: 0 0 20px rgba(255, 107, 107, 0.2); }
+    50% { box-shadow: 0 0 30px rgba(255, 107, 107, 0.4); }
+}
+
+.player-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(78, 124, 255, 0.2);
+}
+
+.player-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.player-header h3 {
+    font-family: var(--header-font);
+    font-size: 1.3rem;
+    text-shadow: 0 0 10px rgba(78, 124, 255, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.faction-name {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    font-style: italic;
+    color: var(--text-color);
+}
+
+.score-controls {
+    display: flex;
+    gap: 0.8rem;
+    align-items: center;
+    background: rgba(10, 15, 28, 0.5);
+    padding: 0.5rem;
+    border-radius: 8px;
+}
+
+.score-controls span {
+    font-family: var(--header-font);
+    font-size: 1.4rem;
+    min-width: 2ch;
+    text-align: center;
+    text-shadow: 0 0 10px var(--glow-color);
+}
+
+.btn {
+    padding: 0.6rem 1.2rem;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: linear-gradient(135deg, var(--accent-color) 0%, #ff8f8f 100%);
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: var(--header-font);
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: 0.5s;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+}
+
+.btn:hover::before {
+    left: 100%;
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+#next-round {
+    background: linear-gradient(135deg, var(--accent-secondary) 0%, #6b8fff 100%);
+}
+
+/* Agenda Phase Styles */
+.agenda-phase-wrapper {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+}
+
+.agenda-phase-wrapper .phase-header {
+    text-align: center;
+    margin-bottom: 15px;
+    color: white;
+    font-size: 1.5rem;
+}
+
+/* Agenda Phase Player Boxes */
+.influence-counters-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.agenda-player-box {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    border: 2px solid;
+    border-radius: 8px;
+    background-color: rgba(0, 0, 0, 0.5);
+    width: 180px;
+    min-height: 150px;
+}
+
+/* Player info section (top) */
+.agenda-player-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+.agenda-player-name {
+    font-size: 1.2rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+    position: relative;
+}
+
+.agenda-player-faction {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.agenda-faction-icon {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+}
+
+/* Influence section (bottom) */
+.agenda-influence-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    margin-top: auto;
+    width: 100%;
+}
+
+.agenda-influence-label {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.agenda-influence-counter {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.influence-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-align: center;
+    min-width: 30px;
+}
+
+.influence-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: none;
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.influence-btn:hover {
+    background-color: rgba(255, 255, 255, 0.4);
+}
+
+/* Agenda Steps */
+.agenda-steps-header {
+    margin-top: 20px;
+}
+
+.agenda-steps-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.agenda-step {
+    padding: 10px 15px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    font-size: 1.1rem;
+}
+
+.agenda-step.current-step {
+    background-color: rgba(255, 255, 255, 0.2);
+    font-weight: bold;
+}
+
+.next-btn {
+    display: block;
+    margin: 2.5rem auto 0 auto;
+    /* Use .btn styles for consistency */
+    padding: 0.8rem 2.3rem;
+    border-radius: 8px;
+    border: none;
+    font-size: 1.15rem;
+    font-family: var(--header-font);
+    text-transform: uppercase;
+    font-weight: 600;
+    background: linear-gradient(135deg, var(--accent-color) 0%, #ff8f8f 100%);
+    color: #fff;
+    box-shadow: 0 5px 20px rgba(255, 107, 107, 0.18);
+    cursor: pointer;
+    transition: all 0.18s;
+}
+.next-btn:hover {
+    transform: translateY(-2px) scale(1.04);
+    box-shadow: 0 8px 26px 0 rgba(255, 107, 107, 0.32);
+    background: linear-gradient(120deg, #ff8f8f 0%, var(--accent-color) 100%);
+}
+.next-btn:active {
+    transform: scale(0.98);
+    box-shadow: 0 2px 8px rgba(255, 107, 107, 0.20);
+}
+/* --- ORPHANED CSS - TO BE REVIEWED --- 
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto;
+    padding: 10px;
+    font-size: 1.2rem;
+    background-color: #f0ad4e;
+    border: none;
+    color: black;
+    border-radius: 5px;
+    cursor: pointer;
+*/
+
+/* --- DUPLICATE/ORPHANED .next-btn:hover - TO BE REVIEWED ---
+.next-btn:hover {
+background-color: #ec971f;
+}
+*/
+
+
+/* Custodian Token Prompt Styles */
+.custodian-prompt-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 1rem;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 0 20px rgba(0, 100, 255, 0.2);
+    text-align: center;
+}
+
+.custodian-description {
+    font-size: 1.5rem;
+    margin: 2rem 0;
+    color: var(--highlight-color);
+}
+
+.custodian-info {
+    font-size: 1rem;
+    margin-bottom: 2rem;
+    color: var(--text-color);
+    opacity: 0.8;
+}
+
+.custodian-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.custodian-btn {
+    padding: 1rem 2rem;
+    font-size: 1.2rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.custodian-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Objective Scoring UI */
+.objective-scoring-container {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.scoring-description {
+    text-align: center;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+.scoring-sections {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    justify-content: center;
+}
+
+.scoring-section {
+    flex: 1;
+    min-width: 300px;
+    max-width: 600px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.scoring-section h3 {
+    font-family: var(--header-font);
+    text-align: center;
+    margin-bottom: 0.5rem;
+    font-size: 1.3rem;
+    color: var(--accent-secondary);
+}
+
+.objectives-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.objective-card {
+    background-color: rgba(26, 35, 50, 0.7);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.objective-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(78, 124, 255, 0.2);
+}
+
+.objective-card.already-scored {
+    opacity: 0.6;
+}
+
+.objective-title {
+    font-family: var(--header-font);
+    font-size: 1.1rem;
+    margin: 0;
+    color: var(--accent-secondary);
+}
+
+.objective-description {
+    font-size: 0.9rem;
+    color: var(--text-color);
+    margin: 0;
+}
+
+.objective-points {
+    font-family: var(--header-font);
+    font-size: 1rem;
+    color: var(--accent-color);
+    font-weight: bold;
+    margin-top: 0.5rem;
+}
+
+.scored-by {
+    font-style: italic;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+}
+
+.score-btn {
+    align-self: flex-end;
+    margin-top: 0.5rem;
+    padding: 0.5rem 1rem;
+    background-color: var(--accent-secondary);
+    color: white;
+    border: none;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.score-btn:hover {
+    background-color: var(--accent-color);
+    transform: translateY(-2px);
+}
+
+.secret-objective-btn {
+    padding: 1rem;
+    background-color: rgba(255, 107, 107, 0.2);
+    color: var(--text-color);
+    border: 1px solid var(--accent-color);
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-family: var(--header-font);
+    font-size: 1.1rem;
+    transition: all 0.2s ease;
+}
+
+.secret-objective-btn:hover {
+    background-color: rgba(255, 107, 107, 0.4);
+    transform: translateY(-2px);
+}
+
+.secret-count {
+    text-align: center;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+    color: var(--accent-color);
+}
+
+.max-secrets {
+    text-align: center;
+    font-style: italic;
+    color: var(--accent-color);
+}
+
+.no-objectives {
+    text-align: center;
+    font-style: italic;
+    color: var(--text-color);
+    opacity: 0.7;
+}
+
+/* Support for the Throne Styles */
+.support-throne-container {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background-color: rgba(255, 215, 0, 0.1);
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    border-radius: 0.5rem;
+}
+
+.support-throne-title {
+    font-family: var(--header-font);
+    font-size: 1rem;
+    color: rgba(255, 215, 0, 0.8);
+    margin-bottom: 0.5rem;
+    text-align: center;
+}
+
+.support-throne-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.support-throne-item {
+    background-color: rgba(255, 215, 0, 0.2);
+    border: 1px solid rgba(255, 215, 0, 0.4);
+    border-radius: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.support-throne-add {
+    background-color: rgba(0, 200, 0, 0.2);
+    border: 1px solid rgba(0, 200, 0, 0.4);
+    color: var(--text-color);
+    border-radius: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.support-throne-add:hover {
+    background-color: rgba(0, 200, 0, 0.4);
+}
+
+.support-throne-remove {
+    background: none;
+    border: none;
+    color: rgba(255, 107, 107, 0.8);
+    cursor: pointer;
+    font-size: 0.9rem;
+    padding: 0 0.25rem;
+    transition: all 0.2s ease;
+}
+
+.support-throne-remove:hover {
+    color: var(--accent-color);
+}
+
+.strategy-cards {
+display: flex;
+flex-wrap: wrap;
+gap: 0.8rem;
+margin-top: 1.5rem;
+padding: 1rem;
+background: rgba(10, 15, 28, 0.5);
+border-radius: 8px;
+border: 1px solid rgba(78, 124, 255, 0.1);
+}
+
+/* Remove swap mode styles */
+
+.strategy-card {
+position: relative;
+padding: 0.5rem 1rem;
+padding-left: 1.5rem;
+background: var(--primary-color);
+border: 1px solid var(--border-color);
+border-radius: 6px;
+cursor: pointer;
+transition: all 0.3s ease;
+overflow: visible;
+font-size: 0.9rem;
+display: flex;
+align-items: center;
+gap: 0.5rem;
+    position: relative;
+    padding: 0.5rem 1rem;
+    padding-left: 1.5rem;
+    background: var(--primary-color);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    overflow: visible;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.strategy-card .initiative-number {
+    position: absolute;
+    top: 5px; /* Positioned within card bounds */
+    right: 5px; /* Positioned within card bounds */
+    width: 34px; /* Increased size */
+    height: 34px; /* Increased size */
+    background: var(--accent-secondary);
+    color: white; /* Added text color for contrast */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--header-font);
+    font-size: 0.8rem; /* Increased font size */
+    font-weight: bold;
+    border: 2px solid var(--primary-color);
+    z-index: 1;
+}
+
+.strategy-card.unavailable {
+    opacity: 0.5;
+    cursor: not-allowed;
+    filter: grayscale(1);
+}
+
+.strategy-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(78, 124, 255, 0.2);
+}
+
+.strategy-card.selected {
+    background: linear-gradient(135deg, rgba(78, 124, 255, 0.2) 0%, rgba(255, 107, 107, 0.2) 100%);
+    border-color: var(--accent-secondary);
+    color: white;
+    font-weight: 500;
+    box-shadow: 0 0 15px rgba(78, 124, 255, 0.3);
+    animation: selectedPulse 2s infinite;
+}
+
+@keyframes selectedPulse {
+    0%, 100% { box-shadow: 0 0 15px rgba(78, 124, 255, 0.3); }
+    50% { box-shadow: 0 0 25px rgba(78, 124, 255, 0.5); }
+}
+
+/* Strategy Selection Screen - Enhanced View */
+.active-player-banner {
+    background: rgba(10, 15, 28, 0.7);
+    border: 1px solid var(--accent-secondary);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.active-player-banner h2 {
+    margin: 0;
+    font-family: var(--header-font);
+    color: #fff;
+    text-shadow: 0 0 10px rgba(78, 124, 255, 0.7);
+}
+
+/* This is the main container for the strategy selection content,
+   referenced by const grid = document.getElementById('strategy-selection-grid'); in ui.js */
+#strategy-selection-grid {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center its children: banner, cards-container, turn-order */
+    width: 100%; /* Take full width of its parent stage */
+    gap: 1.5rem; /* Add some gap between its direct children */
+    flex-grow: 1; /* Allow this grid to grow and take available space */
+}
+
+/* Styles for the main content wrapper in strategy selection */
+.strategy-selection-main-content {
+    display: flex;
+    gap: 1.5rem; /* Space between turn order and card grid */
+    align-items: flex-start; /* Align items to the top */
+    width: 100%; /* Ensure it uses full available width */
+}
+
+/* Styles for the turn order display within the strategy selection main content */
+.turn-order-display.vertical-turn-order { /* Be specific if there are other .turn-order-display instances */
+    flex: 0 0 280px; /* Do not grow, do not shrink, base width of 280px */
+    /* Existing styles for .turn-order-display will apply for background, padding etc. */
+    /* Add any additional global styles or utility classes here */
+}
+
+/* Objective Context Menu */
+.objective-context-menu {
+    position: absolute;
+    background-color: #2c2c2c; /* Darker background for better contrast with cards */
+    border: 1px solid #4f4f4f; /* Slightly lighter border */
+    border-radius: 5px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+    padding: 6px 0;
+    z-index: 1050; /* Ensure it's above other elements like modals (often 1040-1050) */
+    min-width: 200px;
+    color: #e0e0e0; /* Light grey text */
+    font-size: 0.9rem;
+}
+
+.objective-context-menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.objective-context-menu li {
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.objective-context-menu ul li.menu-item-disabled {
+    color: #888; /* Greyed out text */
+    cursor: not-allowed; /* Show a 'not allowed' cursor */
+    pointer-events: none; /* Disable mouse events, making it unclickable */
+}
+
+.objective-context-menu ul li.menu-item-disabled:hover {
+    background-color: transparent; /* Ensure no hover effect */
+}
+
+.objective-context-menu ul li:hover {
+    background-color: #3a3a3a;
+    color: #ffffff;
+}
+
+.objective-context-menu hr {
+    border: none;
+    border-top: 1px solid #4f4f4f;
+    margin: 5px 0;
+}
+
+.strategy-cards-container {
+    margin-bottom: 2rem; /* Or adjust gap on parent #strategy-selection-grid */
+    display: flex; /* Use flexbox for the container of rows */
+    flex-direction: column; /* Stack the rows vertically */
+    gap: 1.5rem; /* Gap between rows */
+    align-items: center; /* Center the rows within this container */
+    width: 100%; /* Ensure this container can be centered if its parent is wider */
+}
+
+/* This class was previously unused - commenting out to fix lint errors */
+/* .strategy-cards-grid {
+    margin-bottom: 0;
+} */
+
+.strategy-cards-row {
+    display: flex; /* Use flexbox for the rows */
+    justify-content: center; /* Center cards in the row */
+    gap: 1.5rem; /* Gap between cards */
+    flex-wrap: wrap; /* Allow cards to wrap if necessary */
+    width: 100%; /* Ensure rows take full width to center content */
+}
+
+/* Enhanced Strategy Card Design */
+.strategy-card-large {
+    position: relative;
+    background: var(--secondary-color);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    transition: transform 0.3s ease, border-color 0.3s ease; /* Removed box-shadow from transition */
+    /* box-shadow is now handled by animations for unselected cards */
+    display: flex;
+    flex-direction: column;
+    flex: 0 1 300px; /* flex-grow, flex-shrink, flex-basis - Further adjusted for 5 cards */
+    max-width: 300px; /* Further adjusted for 5 cards */
+    height: 460px; /* Fixed height for all cards */
+    animation-name: waverInSpace, subtleGlow;
+    animation-duration: 8s, 3s; /* duration for waver, duration for subtleGlow */
+    animation-timing-function: ease-in-out, ease-in-out;
+    animation-iteration-count: infinite, infinite;
+}
+
+/* Add individual delays for independent wavering and glowing */
+/* Format: animation-delay: <waverInSpace-delay>, <subtleGlow-delay>; */
+.strategy-card-large:nth-child(1) { animation-delay: 0s, -0.2s; }
+.strategy-card-large:nth-child(2) { animation-delay: -1s, -0.8s; }
+.strategy-card-large:nth-child(3) { animation-delay: -2.5s, -1.5s; }
+.strategy-card-large:nth-child(4) { animation-delay: -0.5s, 0s; }
+.strategy-card-large:nth-child(5) { animation-delay: -1.8s, -1.2s; }
+.strategy-card-large:nth-child(6) { animation-delay: -3s, -0.5s; }
+.strategy-card-large:nth-child(7) { animation-delay: -1.2s, -2s; }
+.strategy-card-large:nth-child(8) { animation-delay: -2.2s, -1s; }
+
+.strategy-card-large.selected {
+    background: var(--secondary-color); /* Muted background */
+    animation: none; /* Stop floating and glow animations */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Subtle non-glowing shadow, remove glow */
+    transform: none; /* Ensure no transform/float */
+    /* Text content is already dimmed by other .selected rules (lines 676-696) */
+    /* The background is already var(--secondary-color), which is dark. */
+    /* This should achieve the "dimming" effect by removing glow and float. */
+}
+
+/* Speaker Selection Stage Specific Styles */
+.speaker-selection-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Responsive grid */
+    gap: 1.5rem;
+    margin-bottom: 2rem; /* Space before control buttons */
+    perspective: 1000px;
+}
+
+.speaker-candidate {
+    background: linear-gradient(135deg, var(--secondary-color) 0%, rgba(26, 35, 50, 0.9) 100%);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease-out;
+    transform-style: preserve-3d;
+    /* animation: cardFloat 7s ease-in-out infinite alternate; */ /* Removed cardFloat animation */
+    transition: all 0.3s ease-out, filter 0.5s ease, opacity 0.5s ease; /* Added filter and opacity transitions */
+}
+
+/* Styles when a speaker IS chosen */
+.speaker-selection-grid.speaker-is-chosen .speaker-candidate {
+    filter: grayscale(90%);
+    opacity: 0.65;
+}
+
+.speaker-selection-grid.speaker-is-chosen .speaker-candidate:hover {
+    transform: translateY(-8px) scale(1.03);
+    border-color: var(--accent-secondary); /* Keep hover border color */
+    box-shadow: 0 10px 25px rgba(78, 124, 255, 0.25); /* Keep hover shadow */
+    filter: grayscale(50%); /* Less grayscale on hover */
+    opacity: 0.85;
+}
+
+.speaker-selection-grid.speaker-is-chosen .speaker-candidate.selected-speaker {
+    filter: none; /* Full color for selected */
+    opacity: 1;
+    border-color: var(--accent-secondary); /* Blue accent for selected */
+    box-shadow: 0 0 25px rgba(78, 124, 255, 0.5), 0 0 10px rgba(78, 124, 255, 0.3) inset; /* Blue shadow */
+    transform: translateY(-5px) scale(1.05);
+    animation: activeCardPulse 2s infinite; /* Removed cardFloat animation */
+}
+
+/* Default hover for when no speaker is chosen yet */
+.speaker-candidate:hover {
+    transform: translateY(-8px) scale(1.03);
+    border-color: var(--accent-secondary);
+    box-shadow: 0 10px 25px rgba(78, 124, 255, 0.25);
+}
+
+/* Specific style for selected speaker (applies whether grid has speaker-is-chosen or not) */
+.speaker-candidate.selected-speaker {
+    border-color: var(--accent-secondary); /* Blue accent for selected */
+    box-shadow: 0 0 25px rgba(78, 124, 255, 0.5), 0 0 10px rgba(78, 124, 255, 0.3) inset; /* Blue shadow */
+    transform: translateY(-5px) scale(1.05);
+    animation: activeCardPulse 2s infinite; /* Removed cardFloat animation */
+}
+
+
+.speaker-candidate .speaker-token {
+    font-size: 2rem;
+    color: var(--accent-secondary);
+    margin-bottom: 1rem;
+    transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.speaker-candidate:hover .speaker-token {
+    transform: scale(1.1) rotate(-10deg);
+    /* color: var(--accent-color); No, keep it blue or related to card state */
+}
+.speaker-candidate.selected-speaker .speaker-token {
+    transform: scale(1.1) rotate(-10deg);
+    color: var(--accent-secondary); /* Or a brighter version if needed */
+}
+
+
+.speaker-candidate .player-name {
+    font-family: var(--header-font);
+    font-size: 1.4rem;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 0 8px rgba(209, 226, 255, 0.7);
+}
+
+.speaker-candidate .faction-name {
+    font-size: 0.95rem;
+    opacity: 0.8;
+    margin-bottom: 1.2rem; /* Increased margin to make space for indicator */
+    font-style: italic;
+}
+
+.speaker-candidate .select-speaker-indicator {
+    font-size: 1rem; /* Slightly larger */
+    color: var(--text-color); /* Default, will be styled for selected */
+    transition: opacity 0.3s ease;
+    height: 1.5em; /* Reserve space for the indicator text */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3em;
+}
+
+/* No hover style for indicator as it's empty for non-selected */
+
+.speaker-candidate.selected-speaker .select-speaker-indicator {
+    opacity: 1;
+    color: var(--accent-secondary); /* Blue accent for indicator text */
+    font-weight: bold;
+}
+.speaker-candidate.selected-speaker .select-speaker-indicator .fa-gavel { /* Changed from fa-check-circle */
+    margin-right: 5px; /* Or use gap on parent */
+    animation: pulseGavel 1.5s infinite ease-in-out; /* Renamed animation */
+}
+
+/* Speaker Icon Styles */
+.speaker-icon {
+    width: 16px;
+    height: 16px;
+    margin-left: 5px;
+    vertical-align: middle;
+    filter: brightness(1.2);
+}
+
+/* Speaker Badge (positioned on player indicator) */
+.speaker-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    width: 18px;
+    height: 18px;
+    background-color: var(--primary-color);
+    border-radius: 50%;
+    border: 2px solid var(--accent-color);
+    padding: 2px;
+    z-index: 10;
+    animation: pulse-badge 2s infinite ease-in-out;
+}
+
+@keyframes pulse-badge {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+@keyframes pulseGavel { /* Renamed from pulseCheck */
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+}
+
+
+/* Removed .select-speaker-btn as the card is now clickable */
+/* .select-speaker-btn { ... } */
+
+.speaker-selection-controls {
+    display: flex;
+    justify-content: center;
+    gap: 1rem; /* Space between Random and Confirm buttons */
+    margin-top: 1.5rem; /* Space above the buttons */
+    padding: 1rem;
+    background-color: rgba(var(--secondary-color-rgb), 0.5); /* Use RGB for opacity */
+    border-radius: 8px;
+    border-top: 1px solid var(--border-color);
+}
+
+.speaker-selection-controls .btn {
+    min-width: 200px; /* Give buttons a decent minimum width */
+}
+
+.speaker-selection-controls .btn#random-speaker-btn {
+    background: linear-gradient(135deg, var(--accent-secondary) 0%, #6b8fff 100%);
+}
+.speaker-selection-controls .btn#random-speaker-btn:hover {
+    box-shadow: 0 5px 15px rgba(78, 124, 255, 0.4);
+}
+
+.speaker-selection-controls .btn#confirm-speaker-btn {
+    background: linear-gradient(135deg, var(--accent-color) 0%, #ff8f8f 100%);
+}
+.speaker-selection-controls .btn#confirm-speaker-btn:hover {
+    box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+}
+
+.speaker-selection-controls .btn:disabled {
+    background: var(--border-color);
+    color: #777;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+.speaker-selection-controls .btn:disabled:hover {
+    background: var(--border-color); /* Keep disabled style on hover */
+    box-shadow: none;
+    transform: none;
+}
+/* The following lines were erroneously added and are being removed.
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    transform: none !important;
+    border-color: #2d3846;
+    animation: none !important;
+*/
+
+/* Dull the text content of selected cards, except for the 'selected-by' part */
+.strategy-card-large.selected .card-title {
+    color: #B0B0B0; /* Darker grey for selected card titles */
+    text-shadow: 0px 0px 2px rgba(0, 0, 0, 0.6), 0px 0px 4px rgba(0, 0, 0, 0.4); /* Text shadow for selected card titles */
+}
+
+.strategy-card-large.selected .ability h4,
+.strategy-card-large.selected .ability p {
+    color: rgba(209, 226, 255, 0.55); /* Light grey/desaturated --text-color */
+}
+
+
+.strategy-card-large.selected .ability h4 {
+    color: rgba(126, 156, 255, 0.6); /* Muted version of accent-secondary for ability headers */
+}
+
+.strategy-card-large.selected .initiative-number {
+    background: #4a5568; /* Muted background for initiative */
+    color: #a0aec0;    /* Muted text for initiative */
+    border-color: #2d3748; /* Muted border for initiative */
+}
+
+.strategy-card-large:not(.selected):hover {
+    transform: translateY(-5px); /* Keep the lift effect */
+    /* waverInSpace continues with its inherited delay, pulseHighlight replaces subtleGlow */
+    animation-name: waverInSpace, pulseHighlight;
+    animation-duration: 8s, 1.5s; /* waverInSpace duration, pulseHighlight duration */
+    animation-timing-function: ease-in-out, ease-in-out; /* Timing for waver, timing for pulse */
+    animation-iteration-count: infinite, infinite; /* Iteration for waver, iteration for pulse */
+    /* animation-delay for waverInSpace is inherited from :nth-child, pulseHighlight starts immediately (0s default) */
+}
+
+.strategy-card-large .card-header {
+    position: relative;
+    padding: 1rem;
+    color: white;
+    text-align: left; /* Changed to left align */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.strategy-card-large .card-title {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start; /* Changed to flex-start */
+    font-family: var(--header-font);
+    margin: 0;
+    font-size: 1.4rem; /* Slightly reduced font size for better fit */
+    gap: 0.5rem;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    text-align: left; /* Changed to left align */
+    text-shadow: 0px 0px 3px rgba(0, 0, 0, 0.7), 0px 0px 5px rgba(0, 0, 0, 0.5);
+}
+
+.strategy-card-large .initiative-number {
+    position: absolute;
+    top: 8px; /* Positioned within card bounds */
+    right: 5px; /* Moved slightly to the right */
+    width: 40px; /* Further increased size */
+    height: 40px; /* Further increased size */
+    background: var(--accent-secondary); /* Changed background color */
+    color: white; /* Changed text color for contrast */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--header-font);
+    font-size: 1.1rem; /* Slightly smaller font for .5 values */
+    font-weight: bold;
+    border: 2px solid var(--primary-color);
+}
+
+.strategy-card-large .card-content {
+    padding: 1rem;
+    flex-grow: 1; /* Renamed from flex: 1 for clarity */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Distribute space between children */
+}
+
+/* New wrapper for special and primary abilities to control spacing */
+.ability-group-top {
+    display: flex;
+    flex-direction: column;
+    /* flex-grow: 1; Removed - let content dictate height, space-between on parent will handle distribution */
+}
+
+.strategy-card-large .ability {
+    margin-bottom: 0.6rem; /* Adjusted margin */
+}
+
+.strategy-card-large .ability ul {
+    list-style-type: disc;
+    list-style-position: outside;
+    padding-left: 1.2em;
+    margin: 0;
+}
+
+/* Default ability text size (medium) */
+.strategy-card-large .ability ul li {
+    font-size: 0.8rem; /* Default/Medium font size */
+    line-height: 1.4;  /* Default/Medium line height */
+    margin-bottom: 0.4em;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    white-space: normal;
+}
+
+/* Dynamic font size classes */
+.strategy-card-large .ability ul.ability-text-sm li {
+    font-size: 0.75rem;
+    line-height: 1.3;
+}
+.strategy-card-large .ability ul.ability-text-md li { /* Explicit medium as well */
+    font-size: 0.8rem;
+    line-height: 1.4;
+}
+.strategy-card-large .ability ul.ability-text-lg li {
+    font-size: 0.88rem; /* Slightly larger for less text */
+    line-height: 1.5;
+}
+
+
+/* Styles for p tags if used for non-list abilities (e.g. some special abilities) */
+.strategy-card-large .ability p {
+    margin: 0;
+    font-size: 0.8rem; /* Default/Medium font size, can be adjusted with classes on parent if needed */
+    line-height: 1.4;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    white-space: normal;
+}
+.strategy-card-large .ability.ability-text-sm p { font-size: 0.75rem; line-height: 1.3; }
+.strategy-card-large .ability.ability-text-md p { font-size: 0.8rem; line-height: 1.4; }
+.strategy-card-large .ability.ability-text-lg p { font-size: 0.88rem; line-height: 1.5; }
+
+
+.strategy-card-large .ability h4 {
+    font-family: var(--header-font);
+    color: var(--accent-secondary);
+    margin-bottom: 0.3rem;
+    font-size: 0.8rem;
+}
+
+.selected-by-placeholder,
+.strategy-card-large .selected-by {
+    padding: 0.6rem 0.5rem;
+    border-radius: 4px;
+    text-align: center;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    height: 38px; /* Fixed height for this area */
+    box-sizing: border-box;
+    margin-top: 0.5rem; /* Space above the selected-by area */
+    flex-shrink: 0; /* Prevent shrinking */
+}
+.selected-by-placeholder {
+    visibility: hidden; /* Keeps space but content is not visible */
+}
+
+.turn-order-display {
+    background: rgba(10, 15, 28, 0.7);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.turn-order-display h3 {
+    margin-top: 0;
+    font-family: var(--header-font);
+    color: var(--accent-secondary);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.5rem;
+}
+
+.turn-order-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.turn-order-item {
+    padding: 0.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.strategy-selection-main-content {
+    display: flex;
+    gap: 1.5rem; /* Match gap used elsewhere */
+    align-items: flex-start; /* Align items to the top */
+}
+
+.turn-order-display.vertical-turn-order {
+    flex: 0 0 280px; /* Give it a fixed width, don't grow or shrink excessively */
+    /* max-height: fit-content; /* This might be too aggressive, let's rely on parent alignment */
+    align-self: flex-start; /* Ensure it doesn't stretch to the height of the taller card grid */
+}
+
+/* Star field animation */
+.star-field {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    perspective: 600px;
+    z-index: 1;
+}
+
+.stars-1, .stars-2, .stars-3 {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    animation: starfield linear infinite;
+    background-image: radial-gradient(
+        2px 2px at var(--star-pos, 50% 50%),
+        var(--star-color, white),
+        rgba(0, 0, 0, 0)
+    );
+    background-size: var(--star-size, 200px 200px);
+}
+
+.stars-1 {
+    --star-color: rgba(255, 255, 255, 0.8);
+    --star-size: 250px 250px;
+    animation-duration: 60s;
+}
+
+.stars-2 {
+    --star-color: rgba(255, 255, 255, 0.6);
+    --star-size: 300px 300px;
+    animation-duration: 90s;
+}
+
+.stars-3 {
+    --star-color: rgba(255, 255, 255, 0.4);
+    --star-size: 400px 400px;
+    animation-duration: 120s;
+}
+
+@keyframes starfield {
+    from { transform: translateZ(0px); }
+    to { transform: translateZ(400px); }
+}
+
+/* Setup Stage Styles */
+.stage {
+    display: none;
+}
+
+.stage.active {
+    display: block;
+}
+
+.setup-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.setup-header h3 {
+    font-family: var(--header-font);
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+    color: var(--accent-secondary);
+}
+
+.setup-instructions {
+    color: var(--text-color);
+    opacity: 0.8;
+}
+
+/* Setup Stage Controls */
+.setup-controls-top {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2rem;
+}
+
+.btn-small {
+    padding: 0.5rem;
+    min-width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.setup-controls-top {
+    display: flex;
+    gap: 1rem;
+    margin: 0 auto 2.5rem auto; /* Center container and set bottom margin */
+    justify-content: center;
+    background: var(--secondary-color);
+    width: 100%; /* Ensure it takes available width up to max-width */
+    max-width: 900px; /* Apply max-width */
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid rgba(78, 124, 255, 0.3);
+    box-shadow: 0 0 20px rgba(78, 124, 255, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+.player-count-selector {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-family: var(--header-font);
+}
+
+.player-count-selector label {
+    color: var(--text-color);
+    font-size: 1.1rem;
+}
+
+.player-count-selector select {
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    background: rgba(10, 15, 28, 0.8);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    font-family: var(--header-font);
+    cursor: pointer;
+    min-width: 120px;
+}
+
+/* Score Track Styling */
+/* --- Potentially conflicting #score-track-container rule. Review if score track disappears. ---
+#score-track-container {
+    width: 100%;
+    padding: 10px 0;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+}
+*/
+
+.score-track {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch; /* Make cells same height */
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    padding: 5px 5px 2px 5px; /* Reduced bottom padding */
+    box-shadow: 0 0 15px rgba(0, 120, 255, 0.5);
+    overflow-x: auto; /* Allows horizontal scrolling on smaller screens */
+    width: 100%; /* Ensure it takes full width of its container */
+    max-width: 100%;
+}
+
+.score-cell {
+    min-width: 120px; /* Further increased to fit 3 tokens + padding */
+    flex-grow: 1; /* Allow cells to grow */
+    flex-basis: 0; /* Distribute space evenly */
+    padding: 10px 5px 5px 5px; /* Reduced bottom padding from 10px to 5px */
+    text-align: center;
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+    position: relative; /* For positioning player tokens */
+    display: flex;
+    flex-direction: column; /* Stack label and tokens vertically */
+    align-items: center;
+    justify-content: space-between; /* Pushes label to top, tokens container to bottom */
+}
+
+/* Narrower cells for 14-point games */
+.score-track-long .score-cell {
+    min-width: 90px;
+}
+
+.score-cell:last-child {
+    border-right: none;
+}
+
+.score-label {
+    font-size: 1.2em;
+    color: #e0e0e0;
+    margin-bottom: 8px; /* Space between score number and tokens */
+}
+
+.player-tokens-container {
+    display: flex;
+    flex-wrap: wrap; /* Allow tokens to wrap if many in one cell */
+    justify-content: center;
+    align-items: center;
+    gap: 4px; /* Spacing between tokens */
+    width: 100%;
+    min-height: 30px; /* Ensure space for tokens */
+}
+
+.player-token {
+    width: 34px; /* Increased size */
+    height: 34px; /* Increased size */
+    border-radius: 50%;
+    color: white; /* Fallback for initials if icon fails */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9em; /* Fallback for initials */
+    font-weight: bold; /* Fallback for initials */
+    text-shadow: 1px 1px 2px black; /* Fallback for initials */
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 5px rgba(0,0,0,0.5);
+    cursor: default; /* Indicate it's not interactive, but title will show */
+    overflow: hidden; /* Crucial to ensure image is clipped to circle */
+    background-clip: padding-box; /* Ensures background (player color) doesn't go under border */
+    padding: 0; /* Remove padding if any was inherited that might shrink image */
+}
+
+.player-token-faction-icon {
+    width: 26px;  /* Fixed size, smaller than token */
+    height: 26px; /* Fixed size, smaller than token */
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+/* Responsive adjustments for score track if needed */
+@media (max-width: 768px) {
+    .score-cell {
+        min-width: 90px; /* Adjusted for ~2 icons (30px each + gap + padding) */
+        padding: 8px 3px;
+    }
+    .player-token {
+        width: 30px; /* Slightly smaller tokens on small screens */
+        height: 30px;
+        font-size: 0.8em;
+    }
+    .player-token-faction-icon {
+        width: 22px; /* Adjust icon size for smaller tokens */
+        height: 22px;
+    }
+    .score-label {
+        font-size: 1em;
+    }
+}
+
+/* Toggle Switch for Setup Page */
+.setup-options-row {
+    display: flex;
+    justify-content: space-around; /* Distribute space more evenly, might bring them closer */
+    gap: 15px; /* Reduced gap */
+    margin-bottom: 15px; /* Reduced margin */
+    width: 100%;
+    max-width: 1000px; /* Add a max-width to the row itself to control overall spread */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.setup-option-box {
+    flex: 1 1 300px; /* Allow shrinking, basis of 300px, can grow */
+    max-width: 320px; /* Max width for each box */
+    padding: 15px; /* Reduced padding */
+    background-color: var(--secondary-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: 0 0 10px var(--glow-color); /* Slightly reduced shadow */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    min-height: 150px; /* Reduced min-height */
+    justify-content: space-between;
+}
+
+.option-box-title {
+    font-family: var(--header-font);
+    font-size: 1.0em; /* Slightly smaller title */
+    color: var(--text-color);
+    margin-bottom: 6px; /* Reduced margin */
+    font-weight: 500;
+}
+
+.option-box-description {
+    font-size: 0.8em; /* Slightly smaller description */
+    color: rgba(209, 226, 255, 0.75); /* Slightly more muted */
+    line-height: 1.3;
+    margin-bottom: 8px; /* Reduced margin */
+    min-height: 30px; /* Reduced min-height for description */
+    flex-grow: 0; /* Don't let description take too much space */
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 44px; /* Slightly smaller switch */
+    height: 24px; /* Slightly smaller switch */
+    margin-bottom: 8px; /* Reduced margin */
+}
+
+.option-box-status {
+    font-size: 0.85em; /* Slightly smaller status */
+    color: var(--text-color);
+    font-style: italic;
+    min-height: 16px; /* Reduced min-height */
+}
+
+/* Styles for .slider and .switch input are assumed to be correct from line 1188 onwards */
+/* Ensure old, now unused selectors related to the previous layout are effectively overridden or removed */
+/* .setup-option-box .toggle-label, .setup-option-box .toggle-description, .toggle-switch-header, .toggle-switch-control, .toggle-switch-value */
+/* are no longer used in the JS for this structure. */
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #4a4a4a; /* Darker background for off state */
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 20px; /* Adjusted size */
+    width: 20px;  /* Adjusted size */
+    left: 4px;    /* Adjusted position */
+    bottom: 4px;  /* Adjusted position */
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+/* Adjust slider and :before pseudo-element for new .switch size */
+.slider:before {
+    height: 18px; /* Smaller handle */
+    width: 18px;  /* Smaller handle */
+    left: 3px;    /* Adjusted position */
+    bottom: 3px;  /* Adjusted position */
+}
+
+input:checked + .slider {
+    background-color: var(--accent-secondary);
+}
+
+input:focus + .slider {
+    box-shadow: 0 0 2px var(--accent-secondary); /* Glow effect on focus */
+}
+
+input:checked + .slider:before {
+    -webkit-transform: translateX(20px); /* Adjusted for smaller switch/handle */
+    -ms-transform: translateX(20px);
+    transform: translateX(20px);
+}
+
+/* Rounded sliders */
+.slider.round {
+    border-radius: 24px; /* Adjusted for new switch height */
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
+/* Responsive adjustments for the setup options row */
+@media (max-width: 900px) {
+    .setup-options-row {
+        flex-direction: column; /* Stack boxes vertically */
+        gap: 15px; /* Adjust gap for stacked layout */
+    }
+    .setup-option-box {
+        min-height: auto; /* Allow height to adjust when stacked */
+        /* width: 100%; Ensure boxes take full width when stacked if desired, or keep flex:1 */
+    }
+}
+
+.player-count-selector select:focus {
+    outline: none;
+    border-color: var(--accent-secondary);
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, var(--accent-secondary) 0%, #6b8fff 100%);
+}
+
+.setup-initial {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2.5rem;
+}
+
+.player-count-controls {
+    background: var(--secondary-color);
+    padding: 2rem;
+    border-radius: 12px;
+    border: 1px solid rgba(78, 124, 255, 0.3);
+    box-shadow: 0 0 20px rgba(78, 124, 255, 0.1);
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.player-count-controls label {
+    font-family: var(--header-font);
+    font-size: 1.2rem;
+    color: var(--text-color);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.counter-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: rgba(10, 15, 28, 0.5);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+}
+
+.counter-value {
+    font-family: var(--header-font);
+    font-size: 2rem;
+    min-width: 3ch;
+    text-align: center;
+    color: var(--accent-secondary);
+    text-shadow: 0 0 10px var(--glow-color);
+}
+
+#create-game {
+    margin-top: 1rem;
+    min-width: 200px;
+}
+
+#create-game i {
+    margin-right: 0.5rem;
+}
+
+/* Player Setup Cards */
+.setup-players {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center player cards */
+    gap: 1rem;
+    margin: 2rem 0;
+    width: 100%;
+    padding: 0;
+}
+
+.setup-player-card {
+    background: linear-gradient(135deg, var(--secondary-color) 0%, rgba(26, 35, 50, 0.9) 100%);
+    border-radius: 12px;
+    padding: 1rem; /* Reduced padding */
+    display: flex;
+    align-items: center;
+    gap: 1rem; /* Reduced gap */
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+    width: 100%; /* Ensure it takes available width up to max-width */
+    max-width: 900px; /* Reduce maximum width of player cards */
+}
+
+.setup-player-card:hover {
+    border-color: var(--accent-secondary);
+    transform: translateX(5px);
+}
+
+.player-name-section {
+    flex: 1;
+    font-family: var(--header-font);
+    font-size: 1.1rem; /* Reduced font size */
+    display: flex;
+    align-items: center;
+    gap: 0.3rem; /* Reduced gap */
+}
+
+.player-name-section span {
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+}
+
+.player-name-section span:hover {
+    background: rgba(78, 124, 255, 0.1);
+}
+
+.edit-name-input {
+    font-family: var(--header-font);
+    font-size: 1.1rem; /* Reduced font size */
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid var(--accent-secondary);
+    color: var(--text-color);
+    padding: 0.2rem 0.4rem;
+    width: auto;
+    min-width: 100px;
+}
+
+.edit-name-input:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.edit-name-btn {
+    padding: 0.3rem;
+    min-width: unset;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    opacity: 0.5;
+    transition: all 0.3s ease;
+}
+
+.edit-name-btn:hover {
+    opacity: 1;
+    background: rgba(78, 124, 255, 0.1);
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+.faction-select {
+    flex: 2;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.color-select {
+    display: flex;
+    gap: 0.3rem; /* Reduced gap */
+    flex-wrap: wrap;
+    max-width: 180px; /* Adjusted max-width for smaller color options */
+}
+
+.color-option {
+    width: 24px; /* Reduced size */
+    height: 24px; /* Reduced size */
+    border-radius: 50%;
+    border: 2px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.color-option:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 10px currentColor;
+}
+
+.color-option.selected {
+    border-color: white;
+    box-shadow: 0 0 15px currentColor;
+}
+
+.color-row {
+    display: flex;
+    gap: 0.5rem; /* Match the gap in .color-select */
+}
+
+.color-option.taken {
+    background-color: #666; /* Consistent grey color */
+    opacity: 0.2; /* Dimmed further as requested */
+    cursor: not-allowed;
+    /* Removed filter: grayscale(1); as background-color handles grey */
+}
+
+.clear-color {
+    background: var(--secondary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-color);
+}
+
+.btn-small {
+    padding: 0.4rem;
+    font-size: 0.9rem;
+    min-width: 34px;
+    background: var(--secondary-color);
+}
+
+.faction-select select {
+    width: 100%;
+    padding: 0.8rem;
+    background: rgba(10, 15, 28, 0.8);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-color);
+    font-family: var(--body-font);
+    cursor: pointer;
+}
+
+.faction-select select:focus {
+    outline: none;
+    border-color: var(--accent-secondary);
+}
+
+.setup-controls {
+    display: flex;
+    justify-content: center;
+    margin-top: 3rem;
+}
+
+.btn-large {
+    padding: 1rem 2rem;
+    font-size: 1.2rem;
+}
+
+.btn-large i {
+    margin-right: 1rem;
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Speaker Selection Stage */
+.speaker-selection-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.speaker-candidate {
+    background: linear-gradient(135deg, var(--secondary-color) 0%, rgba(26, 35, 50, 0.9) 100%);
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid var(--border-color);
+    position: relative;
+    overflow: hidden;
+}
+
+.speaker-candidate:hover {
+    transform: translateY(-5px);
+    border-color: var(--accent-secondary);
+    box-shadow: 0 0 20px rgba(78, 124, 255, 0.2);
+}
+
+.speaker-candidate .player-name {
+    font-family: var(--header-font);
+    font-size: 1.4rem;
+    margin-bottom: 0.5rem;
+}
+
+.speaker-candidate .faction-name {
+    font-size: 1rem;
+    opacity: 0.8;
+    margin-bottom: 1rem;
+}
+
+.speaker-candidate .select-speaker-btn {
+    background: linear-gradient(135deg, var(--accent-color) 0%, #ff8f8f 100%);
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 6px;
+    color: white;
+    font-family: var(--header-font);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.speaker-candidate .select-speaker-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+}
+
+.speaker-token {
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    width: 60px;
+    height: 60px;
+    background: var(--accent-secondary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: rotate(45deg);
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.speaker-candidate.selected .speaker-token {
+    opacity: 1;
+    top: -10px;
+    right: -10px;
+}
+
+/* Add Player Form */
+.add-player-form {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+    justify-content: center;
+    background: var(--secondary-color);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid rgba(78, 124, 255, 0.3);
+    box-shadow: 0 0 20px rgba(78, 124, 255, 0.1);
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+}
+
+.add-player-form::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at center, rgba(78, 124, 255, 0.1) 0%, transparent 70%);
+    animation: formGlow 10s infinite linear;
+    pointer-events: none;
+}
+
+@keyframes formGlow {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+input {
+    padding: 0.8rem 1.2rem;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background-color: rgba(10, 15, 28, 0.8);
+    color: var(--text-color);
+    font-family: var(--body-font);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    width: 300px;
+    backdrop-filter: blur(5px);
+}
+
+input:focus {
+    outline: none;
+    border-color: var(--accent-secondary);
+    box-shadow: 0 0 15px rgba(78, 124, 255, 0.2);
+}
+
+input::placeholder {
+    color: rgba(209, 226, 255, 0.5);
+}
+
+/* Game Info Section */
+.game-info > div {
+    display: flex;
+    align-items: center;
+    font-family: var(--header-font);
+    font-size: 1.2rem;
+}
+
+.game-info > div::before {
+    margin-right: 8px;
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+}
+
+.game-info > div:first-child::before {
+    content: '\f017';
+    color: var(--accent-secondary);
+}
+
+.game-info > div:nth-child(2)::before {
+    content: '\f0eb';
+    color: var(--accent-color);
+}
+
+.round-info, .phase-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.label {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.8;
+}
+
+.value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--accent-secondary);
+}
+
+/* Reset Button Styles */
+.reset-button {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent-color) 0%, #ff8f8f 100%);
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.reset-button:hover {
+    transform: translateY(-2px) rotate(180deg);
+    box-shadow: 0 6px 12px rgba(255, 107, 107, 0.4);
+}
+
+.reset-button:active {
+    transform: translateY(0) rotate(180deg);
+}
+
+.reset-button i {
+    font-size: 1.2rem;
+}
+
+/* Game Mode Toggle */
+.game-mode-toggle {
+    margin: 1rem auto; /* For centering and vertical spacing */
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    text-align: center;
+    width: 100%;       /* Ensure it tries to fill container before max-width */
+    max-width: 900px;  /* Apply max-width */
+}
+
+.toggle-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-family: var(--header-font);
+    cursor: pointer;
+}
+
+.toggle-label input[type="checkbox"] {
+    width: 1.2rem;
+    height: 1.2rem;
+    cursor: pointer;
+}
+
+.toggle-description {
+    font-size: 0.9rem;
+    color: #888;
+    margin-top: 0.5rem;
+}
+
+@keyframes waverInSpace {
+    0%, 100% {
+        transform: translateY(0px) translateX(0px) rotateZ(0deg);
+    }
+    25% {
+        transform: translateY(-3px) translateX(2px) rotateZ(0.5deg); /* Increased movement */
+    }
+    50% {
+        transform: translateY(1px) translateX(-2px) rotateZ(0deg);    /* Increased movement */
+    }
+    75% {
+        transform: translateY(3px) translateX(1px) rotateZ(-0.5deg); /* Increased movement */
+    }
+}
+
+@keyframes pulseHighlight {
+    0%, 100% {
+        box-shadow: 0 0 12px rgba(78, 124, 255, 0.3), 0 0 20px rgba(78, 124, 255, 0.2), 0 5px 15px rgba(0, 0, 0, 0.2);
+        border-color: rgba(78, 124, 255, 0.7);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(78, 124, 255, 0.6), 0 0 30px rgba(78, 124, 255, 0.4), 0 5px 15px rgba(0, 0, 0, 0.2);
+        border-color: var(--accent-secondary); /* Full accent color */
+    }
+}
+
+@keyframes subtleGlow {
+    0%, 100% {
+        box-shadow: 0 0 8px rgba(255, 255, 0, 0.2), 0 0 12px rgba(255, 255, 0, 0.15);
+    }
+    50% {
+        box-shadow: 0 0 12px rgba(255, 255, 0, 0.3), 0 0 18px rgba(255, 255, 0, 0.25);
+    }
+}
+
+/* Strategy Selection Page Layout */
+.strategy-selection-main-content {
+    display: flex;
+    flex-direction: row;
+    gap: 20px; /* Adjust gap as needed */
+    align-items: flex-start; /* Align items to the top */
+}
+
+.turn-order-display.vertical-turn-order {
+    flex: 0 0 220px; /* Adjusted width */
+    margin-bottom: 0;
+    padding: 10px; /* Reduced padding */
+    background-color: var(--secondary-color); /* Use theme color */
+    border-radius: 8px;
+    border: 1px solid var(--accent-secondary); /* Theme accent border */
+    box-shadow: 0 0 8px var(--glow-color); /* Thematic glow using variable */
+    align-self: stretch; /* Make it stretch to the height of the cards container if cards are taller */
+}
+
+.turn-order-display.vertical-turn-order h3 {
+    margin-top: 0;
+    color: var(--text-color); /* Theme text color */
+    font-family: var(--header-font);
+    font-size: 1.1em;
+    text-align: center;
+    border-bottom: 1px solid var(--accent-secondary); /* Theme accent border */
+    padding-bottom: 8px; /* Adjusted padding */
+    margin-bottom: 8px; /* Adjusted margin */
+}
+
+.turn-order-display.vertical-turn-order .turn-order-list {
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    gap: 6px; /* Adjusted space */
+}
+
+.turn-order-display.vertical-turn-order .turn-order-item {
+    font-size: 0.9em; /* Slightly smaller font */
+    padding: 6px 8px; /* Adjusted padding */
+    border-radius: 4px;
+    background-color: var(--primary-color); /* Theme primary color for items */
+    border: 1px solid var(--border-color);
+    color: var(--text-color); /* Ensure text color is consistent, player color will override */
+    line-height: 1.4;
+}
+
+/* Ensure player-specific colors (applied inline) are still prominent */
+.turn-order-display.vertical-turn-order .turn-order-item[style*="color"] {
+    font-weight: 500; /* Make colored names slightly bolder */
+}
+
+/* Improve readability for very dark colors like black */
+.turn-order-display.vertical-turn-order .turn-order-item[style*="color: #000"],
+.turn-order-display.vertical-turn-order .turn-order-item[style*="color: #000000"],
+.turn-order-display.vertical-turn-order .turn-order-item[style*="color: rgb(0, 0, 0)"] {
+    text-shadow: 0 0 2px rgba(255, 255, 255, 0.7), 0 0 4px rgba(255, 255, 255, 0.5);
+}
+
+.strategy-selection-grid {
+    flex-grow: 1; /* Allow strategy cards grid to take remaining space */
+    /* The grid itself might not need many changes if cardsContainer handles layout */
+}
+
+/* Removed empty ruleset to fix lint error */
+/* .strategy-cards-container {
+    Styles for this container are defined elsewhere
+} */
+
+.strategy-selection-controls {
+    display: flex;
+    justify-content: center; /* Center the proceed button */
+    padding-top: 20px; /* Add some space above the button */
+    width: 100%;
+}
+
+/* Active Game Stage - Player Grid Padding */
+.active-game-players-grid {
+    padding-left: 60px; /* Add padding to the left */
+    padding-right: 60px; /* Add padding to the right */
+    margin-top: 1rem; /* Add some margin from the game info above */
+}
+
+.faction-select {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Adjust as needed */
+}
+
+.faction-selected-icon {
+  height: 32px; /* Adjust as needed */
+  width: 32px;  /* Adjust as needed, or use auto for one dimension */
+  object-fit: contain; /* Ensures the image scales nicely within the bounds */
+  vertical-align: middle; /* Aligns image with the dropdown/button */
+}
+
+.faction-select select {
+  font-size: 1.1em; /* Adjust as needed, e.g., 16px, 1.1em, etc. */
+  padding: 6px 8px; /* Adjust padding to ensure text isn't cramped */
+}
+
+/* Action Phase - Objective Cards */
+/* Shared container styles for content sections */
+.objective-cards-container,
+.action-phase-players-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    width: 100%;
+    max-width: 1920px;
+    margin: 1.5rem auto;
+    padding: 1rem;
+    background-color: rgba(var(--secondary-color-rgb, 26, 35, 50), 0.5);
+    border-radius: 8px;
+    border: 1px solid rgba(var(--border-color-rgb, 45, 56, 70), 0.5);
+    box-sizing: border-box;
+}
+
+/* Specific overrides for action-phase-players-container */
+.action-phase-players-container {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding: 1rem 0; /* Remove horizontal padding, keep vertical padding */
+    width: 100%; /* Ensure full width */
+    max-width: 100%; /* Prevent any max-width constraints */
+}
+
+/* Action Phase - Players in Turn Order */
+.action-phase-players-container {
+    display: flex;
+    flex-wrap: nowrap; /* Players should stay in a single row, allow horizontal scroll if needed */
+    justify-content: flex-start; /* Align players to the start */
+    gap: 1.5rem; /* Space between player elements */
+    padding: 1.5rem 0; /* Keep vertical padding, remove horizontal */
+    margin: 0 0 1.5rem 0; /* Remove horizontal margins, keep bottom margin */
+    overflow-x: auto; /* Allow horizontal scrolling if players overflow */
+    min-height: 180px; /* Increased height to accommodate glow */
+    width: 100%; /* Ensure full width */
+    /* Removed visible box styles */
+}
+
+/* Individual Objective Card (placeholder style) */
+.objective-card {
+    background-color: var(--secondary-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    min-width: 200px; /* Example width */
+    min-height: 120px; /* Example height */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
+/* Individual Player Element in Action Phase (placeholder style) */
+.action-phase-player {
+    background-color: var(--secondary-color);
+    border: 2px solid var(--border-color);
+    border-radius: 10px;
+    padding: 1rem;
+    min-width: 180px; /* Example width */
+    height: 120px; /* Fixed height for alignment */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around; /* Distribute content within the card */
+    text-align: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    position: relative; /* Added for absolute positioning of the badge */
+    margin: 10px; /* Add margin to prevent glow from being cut off */
+}
+
+.action-phase-player.active-player {
+    border-color: var(--player-color);
+    transform: scale(1.05);
+    position: relative;
+    z-index: 2;
+}
+
+.action-phase-player.on-deck-player {
+    border-color: var(--accent-secondary);
+    box-shadow: 0 0 10px rgba(var(--accent-secondary-rgb), 0.2);
+}
+
+/* Add RGB versions of colors to :root if not already present for rgba() usage */
+/* This is a common pattern, checking if they exist or need to be added.
+   For now, I'll assume they might be missing and add a comment to check.
+   If :root already has --secondary-color-rgb, etc., these can be skipped.
+:root {
+    --primary-color-rgb: 10, 15, 28;
+    --secondary-color-rgb: 26, 35, 50;
+    --border-color-rgb: 45, 56, 70;
+    --accent-secondary-rgb: 78, 124, 255;
+}
+*/
+
+/* Action Phase Info Text Styling */
+.ap-info-text {
+    color: var(--text-color);
+    font-style: italic;
+    opacity: 0.8;
+    width: 100%;
+    text-align: center;
+    padding: 1rem;
+}
+
+/* Objective Card Slots Styling */
+/* .objectives-title is no longer used */
+
+.objective-stage-container.all-objectives-row { /* Class used in JS for the single row */
+    display: flex;
+    flex-wrap: nowrap; /* Ensures all cards stay in one line */
+    justify-content: center; /* Center cards if they don't fill the width, or center the scrollable area if possible */
+    gap: 0.5rem;
+    width: 100%; /* Takes full width, scrolling handles overflow */
+    margin-bottom: 1rem;
+    padding: 0.5rem; /* Padding around the scrollable content */
+    overflow-x: auto; /* Enables horizontal scrolling if cards overflow */
+    box-sizing: border-box; /* Ensure padding is included in width calculation */
+}
+
+/* .objective-stage-header is no longer used and can be removed if desired */
+.objective-stage-header {
+    display: none;
+}
+
+
+.objective-card-slot {
+    background-color: rgba(var(--secondary-color-rgb), 0.7);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.75rem;
+    min-width: 130px; /* Narrower to fit more cards, adjust as needed */
+    width: calc(9% - 0.5rem); /* Approx 10 across with gap, might need further tweaking */
+    max-width: 160px; /* Max width for a single card */
+    min-height: 110px; /* Adjusted min-height */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between; /* Distributes content vertically */
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+    flex-shrink: 0; /* Prevents cards from shrinking when container is flex */
+}
+
+.objective-card-slot.empty-slot {
+    background-color: rgba(var(--primary-color-rgb), 0.5);
+    border-style: dashed;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem; /* Smaller for placeholder text */
+    opacity: 0.6;
+    color: var(--text-color);
+}
+
+.objective-card-slot.revealed h4 {
+    font-size: 0.85rem; /* Adjusted for smaller cards */
+    margin-bottom: 0.2rem; /* Adjusted */
+    color: var(--accent-secondary);
+}
+
+.objective-card-slot .objective-text {
+    font-size: 0.7rem; /* Adjusted for smaller cards */
+    line-height: 1.3;  /* Improve readability in smaller space */
+    margin-bottom: 0.2rem; /* Adjusted */
+    opacity: 0.9;
+    flex-grow: 1;
+}
+
+.objective-card-slot .objective-points {
+    font-size: 0.8rem; /* Adjusted */
+    font-weight: bold;
+}
+
+/* Differentiate Stage I and Stage II revealed cards slightly if needed */
+.objective-card-slot.revealed.stage-i {
+    border-left: 3px solid var(--accent-color);
+}
+.objective-card-slot.revealed.stage-ii {
+    border-left: 3px solid var(--accent-secondary);
+}
+.objective-card-slot.empty-slot.stage-i-empty,
+.objective-card-slot.empty-slot.stage-ii-empty {
+    font-size: 0.7rem; /* Smaller placeholder text */
+}
+
+/* Custom Modal Styling */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); /* Dark semi-transparent backdrop */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050; /* Ensure it's above other content */
+}
+
+.modal-content {
+    background-color: var(--secondary-color);
+    padding: 2rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.5);
+    width: 90%;
+    max-width: 600px; /* Max width for the modal */
+    max-height: 80vh; /* Max height, allows scrolling for content */
+    display: flex;
+    flex-direction: column;
+    font-family: var(--body-font);
+}
+
+.modal-content h3 {
+    font-family: var(--header-font);
+    color: var(--accent-secondary);
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+}
+
+.modal-objective-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.5rem 0;
+    overflow-y: auto; /* Scroll if list is too long */
+    max-height: calc(80vh - 150px); /* Adjust based on title and actions height */
+}
+
+.modal-objective-item {
+    background-color: rgba(var(--primary-color-rgb), 0.5);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.modal-objective-item:hover {
+    background-color: var(--accent-secondary);
+    border-color: var(--accent-secondary);
+    color: white;
+}
+
+.modal-objective-item h4 {
+    margin: 0 0 0.3rem 0;
+    font-size: 1rem;
+    color: var(--text-color); /* Will be overridden by hover */
+}
+.modal-objective-item:hover h4 {
+    color: white;
+}
+
+.modal-objective-item p {
+    font-size: 0.85rem;
+    opacity: 0.8;
+    margin: 0;
+}
+.modal-objective-item:hover p {
+    opacity: 1;
+}
+
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end; /* Align buttons to the right */
+    gap: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+/* Objective Selection Modal Styles */
+.modal {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); /* Darker overlay for better contrast */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000; /* Ensure it's above other content */
+    backdrop-filter: blur(5px);
+}
+
+.objective-modal-theme .modal-content {
+    background-color: var(--secondary-color);
+    padding: 2rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.5);
+    width: 90%;
+    max-width: 500px;
+    text-align: left;
+    color: var(--text-color);
+}
+
+.objective-modal-theme h3 {
+    font-family: var(--header-font);
+    color: var(--accent-secondary);
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    font-size: 1.5rem;
+    text-shadow: 0 0 8px rgba(78, 124, 255, 0.5);
+}
+
+.objective-modal-theme .objective-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.5rem 0;
+    max-height: 300px; /* Or adjust as needed */
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+}
+
+.objective-modal-theme .objective-list li {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.objective-modal-theme .objective-list li:last-child {
+    border-bottom: none;
+}
+
+.objective-modal-theme .objective-list li:hover {
+    background-color: rgba(var(--accent-secondary-rgb), 0.2);
+    color: var(--accent-secondary);
+}
+
+.objective-modal-theme .objective-list li.selected {
+    background-color: var(--accent-secondary);
+    color: white;
+    font-weight: 500;
+}
+
+.objective-modal-theme .modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+/* Ensure existing button styles apply well, or add specific overrides if needed */
+.objective-modal-theme .btn {
+    /* Minor adjustments if needed, e.g., padding or font size for modal context */
+    padding: 0.7rem 1.4rem;
+}
+
+.objective-modal-theme .btn-secondary {
+    background: var(--primary-color); /* Darker background for secondary */
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+}
+
+.objective-modal-theme .btn-secondary:hover {
+    background: var(--accent-secondary);
+    color: white;
+}
+
+/* Speaker Icon Styles */
+.speaker-icon {
+    width: 16px;
+    height: 16px;
+    margin-left: 8px;
+    vertical-align: middle;
+    filter: invert(1); /* Make the SVG white */
+    animation: speakerGlow 1.5s infinite alternate;
+}
+
+@keyframes speakerGlow {
+    from { opacity: 0.8; filter: invert(1) brightness(1); }
+    to { opacity: 1; filter: invert(1) brightness(1.5); }
+}
+
+.speaker-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: rgba(78, 124, 255, 0.8); /* Blue color instead of gold */
+    border-radius: 50%;
+    padding: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 5px rgba(78, 124, 255, 0.5); /* Blue glow instead of gold */
+}
+
+/* Speaker Selection Modal Styles */
+.speaker-selection-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.speaker-option {
+    padding: 15px;
+    border: 2px solid;
+    border-radius: 5px;
+    background-color: rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.speaker-option:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Action Phase Player Display */
+#action-phase-players-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+    flex-wrap: nowrap;
+    gap: 0.75rem;
+    overflow-x: visible; /* Changed from auto to visible */
+    overflow-y: visible;
+    padding: 1rem 0; /* Add some vertical padding */
+    margin: 0;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    background: none;
+    border: none;
+    border-radius: 0;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Show scrollbar when needed */
+#action-phase-players-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+#action-phase-players-container::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+#action-phase-players-container::-webkit-scrollbar-track {
+    background: rgba(var(--border-color-rgb), 0.1);
+    border-radius: 4px;
+}
+
+.action-phase-player {
+    background: linear-gradient(145deg, rgba(var(--secondary-color-rgb), 0.95), rgba(var(--primary-color-rgb), 0.85));
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 1rem; /* Further reduced padding */
+    /* width: 220px; Removed fixed width */
+    flex-basis: 0; /* Allow shrinking below initial content size */
+    flex-grow: 1; /* Allow growing to fill space */
+    flex-shrink: 1; /* Allow shrinking */
+    min-width: 160px; /* Minimum width to prevent too much squishing */
+    max-width: 220px; /* Max width to prevent them getting too large */
+    min-height: 125px; /* Increased min-height */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Pushes content like name/faction up and SC/status down */
+    text-align: center;
+}
+
+.action-phase-player:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 15px rgba(var(--accent-secondary-rgb), 0.2);
+    border-color: var(--accent-secondary);
+}
+
+:root {
+    /* Existing variables... */
+    --player-color: #ffffff; /* Default player color */
+}
+
+@keyframes pulse-glow {
+    0% {
+        transform: scale(1.05);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1.05);
+    }
+}
+
+@keyframes glow-pulse {
+    0% {
+        box-shadow: 0 0 15px 3px var(--player-color), 0 0 25px 3px var(--player-color);
+    }
+    100% {
+        box-shadow: 0 0 25px 10px var(--player-color), 0 0 45px 7px var(--player-color);
+    }
+}
+
+.action-phase-player.active-player {
+    border-color: var(--player-color);
+    transform: scale(1.05);
+    position: relative;
+    z-index: 2;
+    /* Enhanced spacing for glow effect visibility */
+    margin: 0.25rem; /* Add margin to provide buffer space for glow */
+}
+
+.action-phase-player.on-deck-player {
+    border-color: var(--accent-secondary);
+    box-shadow: 0 0 10px rgba(var(--accent-secondary-rgb), 0.2);
+}
+
+/* Current player badge styling */
+.current-player-badge {
+    color: white;
+    font-size: 0.7rem;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 10px;
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+    white-space: nowrap;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    animation: badge-pulse 1.5s infinite alternate;
+}
+
+@keyframes badge-pulse {
+    0% {
+        opacity: 0.85;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+.ap-player-name {
+    font-family: var(--header-font);
+    font-size: 1rem; /* Further reduced */
+    margin-bottom: 0.3rem; /* Further reduced */
+    font-weight: 500;
+}
+
+.ap-player-faction {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem; /* Reduced */
+    font-size: 0.75rem; /* Further reduced */
+    opacity: 0.9;
+    margin-bottom: 0.4rem; /* Further reduced space before SC info */
+}
+
+.ap-player-faction-icon {
+    width: 28px; /* Slightly reduced */
+    height: 28px; /* Slightly reduced */
+    border-radius: 50%;
+    border: 1px solid rgba(var(--text-color-rgb, 209, 226, 255), 0.3);
+}
+
+.ap-player-sc {
+    font-size: 0.85rem; /* Increased font size */
+    background-color: rgba(var(--primary-color-rgb), 0.8);
+    padding: 0.4rem 0.7rem; /* Increased padding */
+    border-radius: 6px;
+    border: 1px solid rgba(var(--border-color-rgb), 0.6);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    position: absolute; /* Position below the player card */
+    bottom: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Style for used strategy cards with strikethrough */
+.ap-player-sc.used .ap-sc-name {
+    text-decoration: line-through;
+    opacity: 0.7;
+}
+
+.ap-active-indicator {
+    font-size: 0.7rem; /* Reduced */
+    font-weight: bold;
+    color: var(--accent-color);
+    margin-top: 0.4rem; /* Reduced */
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.ap-info-text {
+    width: 100%;
+    text-align: center;
+    font-size: 1.1rem;
+    padding: 2rem;
+    color: var(--text-color);
+    opacity: 0.8;
+    font-style: italic;
+}
+
+/* Make sure --text-color-rgb is defined if not already.
+   It's used by .ap-player-faction-icon if --text-color-rgb is not defined elsewhere.
+   If you have :root { --text-color: #d1e2ff; }
+   You can add :root { --text-color-rgb: 209, 226, 255; }
+*/
+
+/* Action Phase Player - Strategy Card Display Enhancements */
+.ap-player-sc {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Center content if it's short */
+    gap: 0.4rem;
+    font-size: 0.75rem;
+    background-color: rgba(var(--primary-color-rgb), 0.7);
+    padding: 0.4rem 0.6rem; /* Increased padding slightly */
+    border-radius: 4px;
+    border: 1px solid rgba(var(--border-color-rgb), 0.5);
+    margin-top: auto;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    text-align: left; /* Align text to left for longer names */
+}
+
+.ap-sc-icon {
+    font-size: 0.9em; /* Relative to parent's font size */
+    margin-right: 0.2rem;
+    color: var(--accent-secondary); /* Example color, can be dynamic if needed */
+}
+
+.ap-sc-initiative {
+    font-weight: bold;
+    min-width: 1.5ch; /* Ensure space for up to 2 digits + dot */
+    text-align: right;
+    margin-right: 0.3rem;
+}
+
+.ap-sc-name {
+    flex-grow: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ap-player-sc-none { /* Style for when there's no strategy card */
+    font-size: 0.75rem;
+    color: rgba(var(--text-color-rgb), 0.6);
+    padding: 0.4rem 0.6rem;
+    margin-top: auto;
+    text-align: center;
+}
+
+/* Action Phase Player - Score Controls */
+.ap-score-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem; /* Space above score controls */
+    margin-bottom: 0.3rem; /* Space below score controls, before SC info */
+}
+
+.ap-score-btn {
+    background-color: rgba(var(--accent-secondary-rgb), 0.2);
+    border: 1px solid rgba(var(--accent-secondary-rgb), 0.5);
+    color: var(--text-color);
+    width: 28px; /* Fixed size */
+    height: 28px; /* Fixed size */
+    border-radius: 50%; /* Circular buttons */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    font-size: 0.8rem; /* Icon size */
+}
+
+.ap-score-btn:hover {
+    background-color: rgba(var(--accent-secondary-rgb), 0.4);
+    transform: scale(1.1);
+}
+
+.ap-score-btn:active {
+    transform: scale(0.95);
+}
+
+.ap-score-btn.minus:hover {
+    background-color: rgba(var(--accent-color-rgb), 0.4); /* Use main accent for minus hover */
+    border-color: rgba(var(--accent-color-rgb), 0.7);
+}
+
+.ap-player-score {
+    font-family: var(--header-font);
+    font-size: 1.2rem;
+    min-width: 2ch; /* Ensure space for 2 digits */
+    text-align: center;
+    color: var(--text-color);
+    padding: 0 0.25rem;
+}
+
+/* Action Phase Controls - Current Player */
+.ap-current-player-actions {
+    background: linear-gradient(145deg, rgba(var(--secondary-color-rgb), 0.95), rgba(var(--primary-color-rgb), 0.85));
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin: 1rem;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+/* Color tinting pseudo-element */
+.ap-current-player-actions::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 10px;
+    background-color: currentColor;
+    opacity: 0.1;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.ap-current-player-actions h4 {
+    font-family: var(--header-font);
+    font-size: 1.4rem;
+    margin-bottom: 1.5rem;
+    text-shadow: 0 0 10px rgba(78, 124, 255, 0.3);
+    position: relative; /* Ensure it's above the tint */
+}
+
+.action-select-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    position: relative; /* Ensure it's above the tint */
+    flex-wrap: wrap;
+}
+
+.btn-action {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    min-width: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    transition: all 0.3s ease;
+    background: rgba(var(--secondary-color-rgb), 0.7);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    cursor: pointer;
+    border-radius: 6px;
+    font-family: var(--header-font);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-action i {
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+}
+
+.btn-action:hover:not(:disabled) {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(78, 124, 255, 0.2);
+    background: rgba(var(--accent-secondary-rgb), 0.2);
+    border-color: var(--accent-secondary);
+}
+
+.btn-action:hover:not(:disabled) i {
+    transform: scale(1.1);
+}
+
+.btn-action.selected-action {
+    background: var(--accent-secondary);
+    color: white;
+    border-color: var(--accent-secondary);
+    box-shadow: 0 0 15px rgba(78, 124, 255, 0.3);
+    animation: selectedPulse 2s infinite;
+}
+
+.btn-action:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: rgba(var(--secondary-color-rgb), 0.3);
+    border-color: var(--border-color);
+}
+
+.btn-pass {
+    background: rgba(var(--accent-color-rgb), 0.1);
+    border-color: rgba(var(--accent-color-rgb), 0.3);
+}
+
+.btn-pass:hover:not(:disabled) {
+    background: var(--accent-color);
+    color: white;
+    border-color: var(--accent-color);
+    box-shadow: 0 5px 15px rgba(255, 107, 107, 0.2);
+}
+
+.btn-pass:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: rgba(var(--accent-color-rgb), 0.05);
+    border-color: rgba(var(--accent-color-rgb), 0.1);
+}
+
+.action-confirm-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    position: relative; /* Ensure it's above the tint */
+}
+
+.btn-confirm {
+    padding: 1rem 3rem;
+    font-size: 1.2rem;
+    background: linear-gradient(135deg, #32CD32 0%, #008000 100%); /* Green gradient */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-family: var(--header-font);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.btn-confirm:hover:not(:disabled) {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(50, 205, 50, 0.3); /* Green shadow */
+}
+
+.btn-confirm:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+}
+
+/* Styles for Hidden and Red-Taped Objectives */
+.objective-card-slot.hidden-objective {
+    background-color: var(--secondary-color-darker, #131a26);
+    border: 2px dashed var(--accent-color-muted, #ff9a9a);
+    color: var(--text-color-muted, #a0b0c0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-style: italic;
+    min-height: 120px; /* Ensure consistent height with revealed cards */
+    padding: 10px;
+    text-align: center;
+}
+
+.objective-card-slot.hidden-objective .objective-text,
+.objective-card-slot.hidden-objective .objective-points,
+.objective-card-slot.hidden-objective h4 {
+    display: none; /* Hide actual objective details if populated but hidden */
+}
+
+.objective-card-slot.red-taped {
+    position: relative; /* For positioning the marker */
+    border-left: 5px solid var(--danger-color, #dc3545); /* Red bar on the left */
+}
+
+.objective-card-slot.red-taped::before {
+    content: "TAPE";
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: var(--danger-color, #dc3545);
+    color: white;
+    padding: 2px 5px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    border-radius: 3px;
+    line-height: 1;
+    opacity: 0.85;
+    z-index: 1; /* Ensure it's above other card content if any overlap */
+}
+
+/* Adjust empty slot styling when hidden */
+.objective-card-slot.empty-slot.hidden-objective {
+    color: var(--text-color-muted, #a0b0c0);
+}
+
+/* Ensure clickable empty slots in hidden area still look distinct */
+
+/* Player Selection Modal for Scoring Objectives */
+#playerSelectionModal.themed-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: var(--secondary-color);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    z-index: 1005; /* Higher than context menu */
+    color: var(--text-color);
+    min-width: 300px;
+    max-width: 90vw;
+}
+
+.themed-modal-content h3 {
+    font-family: var(--header-font);
+    color: var(--accent-secondary);
+    margin-top: 0;
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 1.4rem;
+}
+
+.player-selection-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 20px 0;
+    max-height: 300px; /* Scroll if many players */
+    overflow-y: auto;
+}
+
+.player-selection-list li {
+    margin-bottom: 10px;
+}
+
+.player-select-button {
+    display: block;
+    width: 100%;
+    padding: 12px 15px;
+    background-color: rgba(var(--accent-secondary-rgb), 0.15);
+    border: 1px solid var(--accent-secondary);
+    color: var(--text-color);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    text-align: left;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.player-select-button:hover {
+    background-color: rgba(var(--accent-secondary-rgb), 0.3);
+    transform: translateY(-1px);
+}
+
+.player-select-button:active {
+
+/* Style for buttons indicating a player has already scored this objective */
+.player-select-button.scored-this-objective-button {
+    background-color: rgba(var(--accent-color-rgb), 0.2); /* Use accent-color (reddish) for unscore */
+    border-color: var(--accent-color);
+}
+
+.player-select-button.scored-this-objective-button:hover {
+    background-color: rgba(var(--accent-color-rgb), 0.4);
+}
+    transform: translateY(0);
+}
+
+.themed-modal-content hr {
+    border: none;
+    border-top: 1px solid var(--border-color);
+    margin: 20px 0;
+}
+
+.themed-modal-close-button {
+    display: block;
+    width: 100%;
+    padding: 12px 15px;
+    background-color: rgba(var(--accent-color-rgb), 0.2);
+    border: 1px solid var(--accent-color);
+    color: var(--text-color);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.themed-modal-close-button:hover {
+    background-color: rgba(var(--accent-color-rgb), 0.4);
+    transform: translateY(-1px);
+}
+
+.themed-modal-close-button:active {
+    transform: translateY(0);
+}
+/* Styles for Player Tokens on Objective Cards */
+.objective-card-scorers {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px; /* Space between tokens */
+    padding-top: 8px; /* Space above the tokens, below objective text */
+    justify-content: flex-start; /* Align tokens to the start */
+    align-items: center;
+    min-height: 28px; /* Ensure container has some height even if empty for a moment */
+}
+
+/* Re-use .player-token but allow for specific adjustments if needed via .objective-scorer-token */
+.objective-scorer-token {
+    /* Make tokens on objectives slightly smaller than score track tokens */
+    width: 28px;
+    height: 28px;
+    font-size: 0.7em; /* For initials if icon fails */
+    /* border-width: 1px; */ /* Keep border consistent or make it thinner if desired */
+}
+
+.objective-scorer-token .player-token-faction-icon {
+    /* Adjust faction icon size within the smaller token */
+    width: 20px;
+    height: 20px;
+}
+
+.objective-card-slot.empty-slot.hidden-objective.clickable:hover {
+    background-color: var(--accent-color-darker, #1c2738);
+    border-color: var(--accent-color, #ff6b6b);
+    color: var(--text-color, #d1e2ff);
+}
+
+/* Status cards container override */
+body .cards-wrapper {
+    display: flex !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+body .status-step-card {
+    min-width: 120px !important;
+    max-width: none !important;
+    width: auto !important;
+    flex: 1 1 0 !important; /* Equal width distribution */
+    min-height: 150px !important;
+    height: auto !important;
+    font-size: 1.08rem !important;
+    margin: 0 0.4rem !important;
+}
+body .status-step-card .step-number {
+    font-size: 2rem !important;
+}
+body .status-step-card .step-text {
+    font-size: 1.08rem !important;
+}

@@ -1,0 +1,66 @@
+/* Status Step Cards */
+
+.cards-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.2rem;
+    justify-content: center; /* Changed from stretch to center alignment */
+    margin: 2rem 0 2.5rem;
+    width: 100%;
+}
+
+.status-step-card {
+    background: var(--secondary-color);
+    color: #fff;
+    border-radius: 12px;
+    border: 1.5px solid var(--border-color);
+    box-shadow: none;
+    padding: 2rem; /* Increased padding */
+    min-width: 260px;
+    min-height: 100px; /* Increased min-height */
+    height: auto !important; /* Override inline JS height */
+    width: auto; /* Allow flex to control width */
+    flex: 1 1 150px; /* Adjusted flex-basis for potentially wider cards */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.22rem;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+    transition: background 0.15s, border 0.15s;
+    max-width: 100%;
+}
+
+.status-step-card.current-step {
+    border: 2px solid var(--accent-secondary);
+    background: var(--secondary-color);
+    box-shadow: none;
+    transform: none;
+    z-index: 2;
+}
+
+.status-step-card .step-number {
+    font-size: 2.2rem; /* Increased font size */
+    font-weight: bold;
+    margin-bottom: 0.4rem;
+}
+
+.status-step-card .step-text {
+    font-size: 1.15rem; /* Increased font size */
+    text-align: center;
+    font-weight: 400;
+}
+
+@media (max-width: 900px) {
+    .cards-wrapper {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .status-step-card {
+        min-width: 90vw;
+        padding: 1.1rem 0.5rem;
+    }
+}

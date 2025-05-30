@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TI4 Scoreboard - 9 Player Edition</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/current-player.css">
+    <link rel="stylesheet" href="css/player-score-bar.css">
+</head>
+<body>
+    <div class="star-field">
+        <div class="stars-1"></div>
+        <div class="stars-2"></div>
+        <div class="stars-3"></div>
+    </div>
+
+    <div class="content-wrapper">
+        <div class="top-menu-container">
+            <button class="menu-toggle-button" id="menu-toggle-button" title="Open Menu">
+                <i class="fas fa-bars"></i> <!-- Hamburger icon -->
+            </button>
+            <div class="menu-dropdown" id="menu-dropdown">
+                <button class="menu-item" id="menu-reset-button" title="New Game">
+                    <i class="fas fa-file-alt"></i> New Game
+                </button>
+                <button class="menu-item" id="menu-undo-button" title="Undo Last Action" disabled>
+                    <i class="fas fa-undo"></i> Undo Last Action
+                </button>
+                <button class="menu-item" id="menu-randomize-objectives-button" title="Randomly Assign Objectives">
+                    <i class="fas fa-dice"></i> Randomize Objectives
+                </button>
+            </div>
+        </div>
+        <div class="header">
+            <i class="fas fa-space-shuttle fa-2x"></i>
+            <h1>Twilight Imperium IV</h1>
+            <h2>Scoreboard</h2>
+            <div class="header-line"></div>
+        </div>
+
+        <!-- Setup Stage -->
+        <div id="setup-stage" class="stage">
+            <div class="setup-header">
+                <h3>Game Setup</h3>
+                <p class="setup-instructions">Add players and select their factions and colors</p>
+            </div>
+
+            <div class="setup-initial" id="setup-initial">
+                <div class="player-count-controls">
+                    <label>Number of Players</label>
+                    <div class="counter-controls">
+                        <button class="btn btn-small" id="decrease-players">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <span id="player-count" class="counter-value">6</span>
+                        <button class="btn btn-small" id="increase-players">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    <button class="btn btn-large" id="create-game">
+                        <i class="fas fa-gamepad"></i>
+                        Create Game
+                    </button>
+                </div>
+            </div>
+
+            <div class="game-mode-toggle">
+                <label class="toggle-label">
+                    <input type="checkbox" id="red-tape-variant-toggle">
+                    Enable Red Tape Variant
+                </label>
+                <div class="toggle-description">
+                    Objectives are revealed, but some are initially restricted by 'red tape'.
+                </div>
+                <label class="toggle-label">
+                    <input type="checkbox" id="extended-mode-toggle">
+                    Enable Additional Strategy Cards
+                </label>
+                <div class="toggle-description">
+                    Adds Industry (4.5) and Logistics (6.5) strategy cards
+                </div>
+            </div>
+
+            <div class="game-length-toggle">
+                <label class="toggle-label">
+                    <input type="checkbox" id="long-game-toggle">
+                    Long Game (14 Points)
+                </label>
+                <div class="toggle-description">
+                    Default is a Normal Game (10 Points)
+                </div>
+            </div>
+
+            <div class="setup-controls-top" id="setup-controls" style="display: none;">
+                <button class="btn btn-secondary" id="randomize-all">
+                    <i class="fas fa-random"></i>
+                    Randomize All
+                </button>
+            </div>
+
+            <div class="setup-players" id="setup-players">
+                <!-- Setup players will be added here -->
+            </div>
+
+            <div class="setup-controls">
+                <button class="btn btn-large" id="start-game" disabled>
+                    <i class="fas fa-users"></i>
+                    Continue to Speaker Selection
+                </button>
+            </div>
+        </div>
+
+        <!-- Speaker Selection Stage -->
+        <div id="speaker-selection-stage" class="stage">
+            <div class="setup-header">
+                <h3>Select Speaker</h3>
+                <p class="setup-instructions">Choose the player who will be the Speaker</p>
+            </div>
+
+            <div class="speaker-selection-grid" id="speaker-selection-grid">
+                <!-- Speaker candidates will be added here -->
+            </div>
+        </div>
+
+        <!-- Strategy Selection Stage -->
+        <div id="strategy-selection-stage" class="stage">            <div class="setup-header">
+                <h3>Strategy Card Selection Phase</h3>
+                <p class="setup-instructions">Players will select strategy cards in turn order, starting with the Speaker. Each card provides unique abilities.</p>
+            </div>
+
+            <div class="strategy-selection-grid" id="strategy-selection-grid">
+                <!-- Strategy selection cards will be added here -->
+            </div>
+        </div>
+
+        <!-- Active Game Stage -->
+        <div id="active-stage" class="stage">
+<!-- NEW: Objective Cards -->
+            <div id="objective-cards-container" class="objective-cards-container">
+                <!-- Objective cards will be displayed here -->
+            </div>
+
+            <!-- NEW: Action Phase Players -->
+            <div id="action-phase-players-container" class="action-phase-players-container">
+                <!-- Players in turn order for action phase will be displayed here -->
+            </div>
+
+            <!-- NEW: Action Phase Controls -->
+            <div id="action-phase-controls-container" class="action-phase-controls-container">
+                <!-- Controls for current player in action phase will be displayed here -->
+            </div>
+
+            <!-- Status Phase Container -->
+            <div id="status-phase-container" class="phase-container">
+                <!-- Status phase UI will be displayed here -->
+            </div>
+            
+            <!-- Agenda Phase Container -->
+            <div id="agenda-phase-container" class="phase-container">
+                <!-- Agenda phase UI will be displayed here -->
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <script src="js/ti4-namespace.js"></script>
+    <script src="data/factions.js"></script>
+    <script src="data/strategyCards.js"></script>
+    <script src="data/objectives.js"></script>
+    <script src="data/defaultGameState.js"></script>
+    <script src="js/core/state-core.js"></script>
+    <script src="js/phases/new-game-phase.js"></script>
+    <script src="js/phases/faction-selection-phase.js"></script>
+    <script src="js/phases/speaker-phase.js"></script>
+    <script src="js/phases/strategy-phase.js"></script>
+    <script src="js/phases/action-phase.js"></script>
+    <script src="js/phases/status-phase.js"></script>
+    <script src="js/phases/agenda-phase.js"></script>
+    <script src="js/ui/player-score-bar.js"></script>
+    <script src="js/ui/strategy-phase-ui.js"></script>
+    <script src="js/ui/action-phase-ui.js"></script>
+    <script src="js/ui/status-phase-ui.js"></script>
+    <script src="js/ui/agenda-phase-ui.js"></script>
+    <script src="js/core/state.js"></script>
+    <script src="js/ui/ui.js"></script>
+    <script src="js/utils/debug.js"></script>
+</body>
+</html>
+
+<!-- Custom Modal for Objective Selection -->
+    <div id="objective-selection-modal" class="modal-backdrop" style="display: none;">
+        <div class="modal-content">
+            <h3 id="modal-title">Select Objective</h3>
+            <div id="modal-objective-list" class="modal-objective-list">
+                <!-- Objective items will be populated here -->
+            </div>
+            <div class="modal-actions">
+                <button id="modal-cancel-button" class="btn btn-secondary">Cancel</button>
+                <!-- A confirm button might not be needed if selection is immediate -->
+            </div>
+        </div>
+    </div>

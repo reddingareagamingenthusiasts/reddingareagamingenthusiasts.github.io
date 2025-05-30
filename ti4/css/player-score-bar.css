@@ -1,0 +1,585 @@
+/* Player Score Bar Component Styles */
+
+/* Status Phase UI Styles */
+.status-steps-container {
+    width: 100%;
+    padding: 20px 0;
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.status-steps-container h3 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-family: var(--header-font);
+    color: var(--accent-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.status-steps-container .cards-wrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: nowrap;
+    gap: 8px;
+    width: 100%;
+    max-width: 1200px;
+    padding: 0 20px;
+    margin: 0 auto;
+    box-sizing: border-box;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+
+.status-steps-container .cards-wrapper::-webkit-scrollbar {
+    display: none;
+}
+
+/* Hide scrollbar for Chrome/Safari/Edge */
+.status-phase-steps::-webkit-scrollbar {
+    display: none;
+}
+
+.status-step-card {
+    background-color: rgba(13, 19, 33, 0.9);
+    border: 1px solid rgba(78, 124, 255, 0.3);
+    border-radius: 4px;
+    padding: 12px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-width: 100px;
+    max-width: 120px;
+    height: 90px;
+    flex: 1 1 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease;
+    text-align: center;
+    position: relative;
+    box-sizing: border-box;
+}
+
+.status-step-card.current-step {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 10px rgba(78, 124, 255, 0.5);
+    transform: translateY(-2px);
+}
+
+.status-step-card .step-number {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: var(--accent-secondary);
+    opacity: 0.9;
+}
+
+.status-step-card .step-text {
+    font-size: 0.75rem;
+    line-height: 1.2;
+    margin-top: 8px;
+    color: var(--text-color);
+    opacity: 0.9;
+    word-wrap: break-word;
+    width: 100%;
+    padding: 0 4px;
+    box-sizing: border-box;
+}
+
+.status-step-card:hover {
+    border-color: rgba(78, 124, 255, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.status-step-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.status-step-card h3 {
+    font-size: 1rem;
+    margin: 0 0 8px 0;
+    color: var(--accent-secondary);
+    font-family: var(--header-font);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.step-number {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    font-family: var(--header-font);
+    color: var(--accent-secondary);
+    opacity: 0.9;
+}
+
+.step-text {
+    font-size: 0.85rem;
+    text-align: center;
+    color: var(--text-color);
+    line-height: 1.2;
+    margin-top: 8px;
+    opacity: 0.9;
+}
+
+/* Responsive adjustments for status step cards */
+@media (max-width: 1200px) {
+    .status-step-card {
+        min-width: 90px;
+        padding: 10px 5px;
+    }
+    
+    .status-step-card .step-text {
+        font-size: 0.7rem;
+    }
+}
+
+@media (max-width: 992px) {
+    .status-step-card {
+        min-width: 85px;
+        height: 85px;
+    }
+    
+    .status-step-card .step-number {
+        font-size: 0.9rem;
+    }
+    
+    .status-step-card .step-text {
+        font-size: 0.65rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .status-steps-container .cards-wrapper {
+        padding: 0 10px;
+        gap: 6px;
+    }
+    
+    .status-step-card {
+        min-width: 75px;
+        height: 80px;
+        padding: 8px 4px;
+    }
+    
+    .status-step-card .step-number {
+        font-size: 0.85rem;
+        top: 4px;
+        left: 4px;
+    }
+    
+    .status-step-card .step-text {
+        font-size: 0.6rem;
+        margin-top: 6px;
+    }
+}
+
+@media (max-width: 576px) {
+    .status-step-card {
+        min-width: 60px;
+        height: 70px;
+    }
+    
+    .status-step-card .step-number {
+        font-size: 0.8rem;
+    }
+    
+    .status-step-card .step-text {
+        font-size: 0.55rem;
+        margin-top: 4px;
+    }
+    
+    .status-steps-container h3 {
+        font-size: 1rem;
+        margin-bottom: 15px;
+    }
+}
+
+/* Hide status player boxes */
+.status-player-box {
+    display: none !important;
+}
+
+/* Common container styles for all phases */
+.agenda-player-bar-container,
+.strategy-player-bar-container {
+    width: 100%;
+    max-width: 1920px;
+    margin: 0 auto 15px;
+    display: flex;
+    justify-content: center;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+/* Special styling for action phase players container */
+.action-phase-players-container {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    justify-content: flex-start;
+    background: none;
+    border: none;
+    overflow: visible;
+}
+
+.player-score-bar {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 2px;
+    width: 100%;
+    max-width: 100%;
+    padding: 0;
+    margin: 0;
+    justify-content: space-between;
+    box-sizing: border-box;
+}
+
+/* Ensure player cards have no animations whatsoever - with extremely high specificity */
+html body .player-score-bar .player-card,
+.player-score-bar .player-card:nth-child(1),
+.player-score-bar .player-card:nth-child(2),
+.player-score-bar .player-card:nth-child(3),
+.player-score-bar .player-card:nth-child(4),
+.player-score-bar .player-card:nth-child(5),
+.player-score-bar .player-card:nth-child(6),
+.player-score-bar .player-card:nth-child(7),
+.player-score-bar .player-card:nth-child(8) {
+    flex: 1 1 0;
+    min-width: 80px;
+    max-width: none;
+    background-color: var(--primary-color);
+    border: 2px solid;
+    border-radius: 8px;
+    padding: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    margin: 0;
+    /* Explicitly disable all animations with highest possible specificity */
+    animation: none !important;
+    -webkit-animation: none !important;
+    -moz-animation: none !important;
+    transition: none !important;
+    -webkit-transition: none !important;
+    -moz-transition: none !important;
+    transform: none !important;
+    -webkit-transform: none !important;
+    -moz-transform: none !important;
+}
+
+/* Completely remove hover effects */
+.player-card:hover {
+    transform: none;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Ensure active player cards have no animations whatsoever - with extremely high specificity */
+html body .player-score-bar .player-card.active-player,
+.player-score-bar .player-card.active-player:nth-child(1),
+.player-score-bar .player-card.active-player:nth-child(2),
+.player-score-bar .player-card.active-player:nth-child(3),
+.player-score-bar .player-card.active-player:nth-child(4),
+.player-score-bar .player-card.active-player:nth-child(5),
+.player-score-bar .player-card.active-player:nth-child(6),
+.player-score-bar .player-card.active-player:nth-child(7),
+.player-score-bar .player-card.active-player:nth-child(8) {
+    border-width: 3px;
+    transform: none !important;
+    -webkit-transform: none !important;
+    -moz-transform: none !important;
+    animation: none !important;
+    -webkit-animation: none !important;
+    -moz-animation: none !important;
+    transition: none !important;
+    -webkit-transition: none !important;
+    -moz-transition: none !important;
+}
+
+.player-card.passed-player {
+    opacity: 0.7;
+}
+
+.player-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+}
+
+.player-name {
+    font-weight: bold;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    position: relative;
+    margin-bottom: 0.25rem;
+}
+
+.current-player-badge {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    margin-top: 3px;
+}
+
+.player-faction {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    font-size: 0.9rem;
+    opacity: 0.8;
+    margin-bottom: 0.25rem;
+}
+
+.player-faction-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    object-fit: contain;
+}
+
+.player-details {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.25rem;
+    flex: 1;
+}
+
+.player-details-content {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Score components styling */
+.score-components {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 0;
+}
+
+.player-score-display {
+    font-size: 1.5rem;
+    font-weight: bold;
+    min-width: 30px;
+    text-align: center;
+}
+
+/* Custodians styles */
+.custodians-row {
+    min-height: 32px; /* Ensure consistent height */
+}
+
+.custodians-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 215, 0, 0.2);
+    border-radius: 4px;
+    padding: 4px 8px;
+    gap: 6px;
+    height: 100%;
+}
+
+.custodians-icon {
+    color: gold;
+    font-size: 1rem;
+}
+
+.custodians-placeholder {
+    /* Invisible placeholder with same height as the custodians button/indicator */
+    height: 32px;
+    visibility: hidden;
+}
+
+.score-component-row {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin: 2px 0;
+}
+
+.score-component {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    padding: 2px 5px;
+    width: 100%;
+}
+
+.component-label {
+    font-size: 0.7rem;
+    opacity: 0.8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.component-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    margin-top: 2px;
+}
+
+.component-value {
+    font-size: 0.9rem;
+    font-weight: bold;
+    min-width: 15px;
+    text-align: center;
+}
+
+/* Dot indicators for score components */
+.component-dots {
+    display: flex;
+    margin-top: 4px;
+    justify-content: center;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.2);
+    margin: 0 3px;
+    transition: background-color 0.2s ease;
+}
+
+.dot.active {
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
+/* Specific colors for different component types */
+.secrets .dot.active {
+    background-color: rgba(255, 165, 0, 0.8); /* Orange for secrets */
+}
+
+.support .dot.active {
+    background-color: rgba(0, 255, 255, 0.8); /* Cyan for support */
+}
+
+.score-btn {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: none;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    padding: 0;
+    font-size: 0.7rem;
+}
+
+.score-btn:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+.custodians-btn {
+    background-color: rgba(255, 140, 0, 0.2);
+    color: #FFA500;
+    border: 1px solid rgba(255, 140, 0, 0.4);
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    height: 32px; /* Match the placeholder height */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.custodians-btn:hover {
+    background-color: rgba(255, 140, 0, 0.4);
+}
+
+.custodians-btn.active {
+    background-color: rgba(255, 140, 0, 0.6);
+    color: #fff;
+}
+
+.player-sc {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    padding: 2px 4px;
+    margin-top: 3px;
+    font-size: 0.8rem;
+}
+
+.player-sc.used {
+    opacity: 0.6;
+    text-decoration: line-through;
+}
+
+.sc-icon {
+    font-size: 0.9rem;
+}
+
+.sc-initiative {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: bold;
+}
+
+.sc-name {
+    flex-grow: 1;
+    text-align: center;
+    max-width: 80px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.player-sc-none {
+    font-size: 0.7rem;
+    opacity: 0.7;
+    text-align: center;
+    margin-top: 3px;
+}
+
+.player-bar-message {
+    width: 100%;
+    text-align: center;
+    padding: 15px;
+    color: rgba(255, 255, 255, 0.7);
+    font-style: italic;
+}
+
+/* No animations for the active player card */
