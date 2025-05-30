@@ -1,4 +1,4 @@
-const defaultGameState = {Add commentMore actions
+const defaultGameState = {
     stage: 'setup', // setup, speaker-selection, strategy-selection, active
     round: 1,
     prospectivePlayerCount: 6, // Default for the initial setup screen
@@ -62,5 +62,5 @@ const defaultGameState = {Add commentMore actions
         '#008000', // Dark Green
         '#ACACAC', // Pewter
         '#B8860B'  // Gold
-    ]Add commentMore actions
+    ]
 };
