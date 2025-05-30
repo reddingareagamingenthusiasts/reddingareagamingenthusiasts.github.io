@@ -45,22 +45,17 @@ const defaultGameState = {
         { name: 'The Empyrean', id: 'EmpyreanFactionSymbol', color: '#87CEEB' },
         { name: 'The Mahact Gene-Sorcerers', id: 'MahactFactionSymbol', color: '#9932CC' },
         { name: 'The Naaz-Rokha Alliance', id: 'NaazRokhaFactionSymbol', color: '#20B2AA' },
-        { name: 'The Argent Flight', id: 'ArgentFactionSymbol', color: '#F5F5F5' }
-    ],
-    availableFactions: [], // Will be populated with unused factions
-    availableColors: [
+        { name: 'The Argent Flight', id: 'ArgentFactionSymbol', color: '#F5F5F5' }    ],
+    availableFactions: [], // Will be populated with unused factions    availableColors: [
+        '#FF1493', // Pink
+        '#00FF00', // Green
+        '#FFD700', // Yellow (brighter, more distinct)
+        '#800080', // Purple
+        '#FF4500', // Orange (more red-orange, distinct from gold)
         '#FF0000', // Red
         '#0000FF', // Blue
-        '#00FF00', // Green
-        '#FFFF00', // Yellow
-        '#800080', // Purple
-        '#FFA500', // Orange
-        '#FFC0CB', // Pink
-        '#A0522D', // Brown
-        '#808080', // Gray
-        '#4B0082', // Indigo
-        '#008000', // Dark Green
-        '#ACACAC', // Pewter
-        '#B8860B'  // Gold
+        '#000000', // Black
+        '#DAA520', // Gold (more metallic gold)
+        '#ACACAC'  // Pewter
     ]
 };
