@@ -11,12 +11,6 @@ function renderStatusPhaseUI(container) {
         return;
     }
     
-    // Check if we need to show the Custodian Token prompt
-    if (state.showingCustodianPrompt) {
-        renderCustodianTokenPrompt(container);
-        return;
-    }
-    
     // Create main wrapper
     const statusPhaseWrapper = document.createElement('div');
     statusPhaseWrapper.className = 'status-phase-wrapper';
@@ -100,55 +94,6 @@ function renderStatusPhaseUI(container) {
     }
     
     container.appendChild(statusPhaseWrapper);
-}
-
-// Function to render the Custodian Token prompt
-function renderCustodianTokenPrompt(container) {
-    if (!container) return;
-    container.innerHTML = ''; // Clear previous content
-    
-    // Create prompt container
-    const promptContainer = document.createElement('div');
-    promptContainer.className = 'custodian-prompt-container';
-    
-    // Add header
-    const header = document.createElement('h2');
-    header.className = 'phase-header';
-    header.textContent = 'Custodians Token Check';
-    promptContainer.appendChild(header);
-    
-    // Add description
-    const description = document.createElement('p');
-    description.className = 'custodian-description';
-    description.textContent = 'Has the Custodians Token been taken from Mecatol Rex?';
-    promptContainer.appendChild(description);
-    
-    // Add info text
-    const infoText = document.createElement('p');
-    infoText.className = 'custodian-info';
-    infoText.textContent = 'If the Custodians Token has been taken, the game will proceed to the Agenda Phase. Otherwise, it will proceed to the Strategy Phase for the next round.';
-    promptContainer.appendChild(infoText);
-    
-    // Add buttons container
-    const buttonsContainer = document.createElement('div');
-    buttonsContainer.className = 'custodian-buttons';
-    
-    // Yes button (token has been taken)
-    const yesButton = document.createElement('button');
-    yesButton.className = 'btn btn-primary custodian-btn';
-    yesButton.textContent = 'Yes, token has been taken';
-    yesButton.onclick = () => window.statusPhase.setCustodianTokenStatus(true);
-    buttonsContainer.appendChild(yesButton);
-    
-    // No button (token has not been taken)
-    const noButton = document.createElement('button');
-    noButton.className = 'btn btn-secondary custodian-btn';
-    noButton.textContent = 'No, token has not been taken';
-    noButton.onclick = () => window.statusPhase.setCustodianTokenStatus(false);
-    buttonsContainer.appendChild(noButton);
-    
-    promptContainer.appendChild(buttonsContainer);
-    container.appendChild(promptContainer);
 }
 
 // Helper function to get contrast text color based on background color
@@ -452,7 +397,6 @@ function findObjectiveById(objectiveId, state) {
 // Export all UI functions
 window.statusPhaseUI = {
     renderStatusPhaseUI,
-    renderCustodianTokenPrompt,
     renderObjectiveScoringUI,
     createObjectiveCard,
     countScoredSecretObjectives,

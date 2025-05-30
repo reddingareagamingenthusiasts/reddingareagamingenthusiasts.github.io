@@ -145,6 +145,13 @@ function proceedToActivePhase() {
                 player.strategyCardUsed = false;
             });
 
+            // Ensure the speaker is properly marked with isCurrentSpeaker
+            if (state.speaker) {
+                state.players.forEach(player => {
+                    player.isCurrentSpeaker = (player.id === state.speaker);
+                });
+            }
+
             state.stage = 'active';
             state.phase = 'Action';
             window.stateCore.saveGameState();

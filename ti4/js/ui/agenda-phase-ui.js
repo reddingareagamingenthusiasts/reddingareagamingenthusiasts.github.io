@@ -20,26 +20,23 @@ function renderAgendaPhaseUI(container) {
         window.stateCore.saveGameState();
     }
     
-    // Create main wrapper
-    const agendaPhaseWrapper = document.createElement('div');
-    agendaPhaseWrapper.className = 'agenda-phase-wrapper';
-    
-    // Add player score bar at the top
-    const playerBarContainer = document.createElement('div');
-    playerBarContainer.className = 'agenda-player-bar-container';
-    window.playerScoreBar.renderPlayerScoreBar(playerBarContainer, {
+    // Render player score bar directly in the main container
+    window.playerScoreBar.renderPlayerScoreBar(container, {
         currentPlayerId: null, // No current player in agenda phase
         showStrategyCards: true,
         showScoreControls: true,
         showPassedState: false
     });
-    agendaPhaseWrapper.appendChild(playerBarContainer);
     
-    // Add header
+    // Create content wrapper for the rest of the agenda phase UI
+    const agendaContentWrapper = document.createElement('div');
+    agendaContentWrapper.className = 'agenda-content-wrapper';
+    
+    // Add header for influence counters with proper spacing
     const header = document.createElement('h2');
-    header.className = 'phase-header';
+    header.className = 'phase-header influence-counters-header';
     header.textContent = 'Influence counters';
-    agendaPhaseWrapper.appendChild(header);
+    agendaContentWrapper.appendChild(header);
     
     // Create influence counters container
     const influenceContainer = document.createElement('div');
@@ -62,174 +59,182 @@ function renderAgendaPhaseUI(container) {
         }
     }
     
-    // Create player boxes with influence counters in speaker order
+    // Create compact pill-shaped influence counters in speaker order
     orderedPlayers.forEach(player => {
-        const playerBox = document.createElement('div');
-        playerBox.className = 'agenda-player-box';
-        playerBox.style.borderColor = player.color;
+        // Create pill-shaped container
+        const pillCounter = document.createElement('div');
+        pillCounter.className = 'influence-pill-counter';
+        pillCounter.style.borderColor = player.color;
+        pillCounter.style.backgroundColor = `${player.color}22`; // Add transparency to player color
         
-        // Player info section (left side)
-        const playerInfo = document.createElement('div');
-        playerInfo.className = 'agenda-player-info';
-        
-        // Player name with speaker icon if applicable
+        // Player name at the top
         const playerName = document.createElement('div');
-        playerName.className = 'agenda-player-name';
+        playerName.className = 'influence-pill-name';
         playerName.style.color = player.color;
         playerName.textContent = player.name;
         
+        // Add speaker icon if applicable
         if (player.isCurrentSpeaker) {
-            const speakerIcon = document.createElement('img');
-            speakerIcon.src = 'images/icons/gavel.svg';
-            speakerIcon.className = 'speaker-icon';
+            const speakerIcon = document.createElement('i');
+            speakerIcon.className = 'fas fa-gavel speaker-icon';
             speakerIcon.title = 'Current Speaker';
-            speakerIcon.alt = 'Speaker';
             playerName.appendChild(speakerIcon);
         }
         
-        playerInfo.appendChild(playerName);
+        pillCounter.appendChild(playerName);
         
-        // Player faction
-        const playerFaction = document.createElement('div');
-        playerFaction.className = 'agenda-player-faction';
+        // Create content wrapper for icon and counter
+        const pillContent = document.createElement('div');
+        pillContent.className = 'influence-pill-content';
         
-        // Add faction icon if available
+        // Add faction icon on the left if available
         if (player.faction) {
             const factionDetails = state.factions.find(f => f.name.replace(/^The /, '') === player.faction);
             if (factionDetails && factionDetails.id) {
                 const factionIcon = document.createElement('img');
                 factionIcon.src = `images/factions/${factionDetails.id}.webp`;
                 factionIcon.alt = player.faction;
-                factionIcon.className = 'agenda-faction-icon';
-                playerFaction.appendChild(factionIcon);
+                factionIcon.className = 'influence-pill-faction-icon';
+                pillContent.appendChild(factionIcon);
             }
-            
-            const factionName = document.createElement('span');
-            factionName.textContent = player.faction;
-            playerFaction.appendChild(factionName);
-        } else {
-            playerFaction.textContent = 'No Faction';
         }
         
-        // Add speaker icon if this player is the current speaker
-        if (player.isCurrentSpeaker) {
-            const speakerIcon = document.createElement('img');
-            speakerIcon.src = 'images/icons/gavel.svg';
-            speakerIcon.className = 'speaker-icon speaker-badge';
-            speakerIcon.title = 'Current Speaker';
-            speakerIcon.alt = 'Speaker';
-            playerName.appendChild(speakerIcon);
-        }
-
-        // Declare and initialize playerIndicator and counterBox before use
-        const playerIndicator = document.createElement('div');
-        playerIndicator.className = 'agenda-player-indicator';
-        playerIndicator.appendChild(playerName);
-        playerIndicator.appendChild(playerFaction);
-
-        const counterBox = document.createElement('div');
-        counterBox.className = 'agenda-counter-box';
-        counterBox.appendChild(playerIndicator);
-        
-        // Influence counter section (right side)
-        const influenceSection = document.createElement('div');
-        influenceSection.className = 'agenda-influence-section';
-        
-        // Influence label
-        const influenceLabel = document.createElement('div');
-        influenceLabel.className = 'agenda-influence-label';
-        influenceLabel.textContent = 'Influence:';
-        influenceSection.appendChild(influenceLabel);
-        
-        // Influence counter with controls
-        const influenceCounter = document.createElement('div');
-        influenceCounter.className = 'agenda-influence-counter';
+        // Influence counter with +/- buttons
+        const counterControls = document.createElement('div');
+        counterControls.className = 'influence-pill-controls';
         
         // Decrease button
         const decreaseBtn = document.createElement('button');
         decreaseBtn.className = 'influence-btn decrease';
         decreaseBtn.innerHTML = '<i class="fas fa-minus"></i>';
         decreaseBtn.onclick = () => updateInfluence(player.id, -1);
-        influenceCounter.appendChild(decreaseBtn);
+        counterControls.appendChild(decreaseBtn);
         
         // Influence value
         const influenceValue = document.createElement('div');
-        influenceValue.className = 'influence-value';
+        influenceValue.className = 'influence-pill-value';
         influenceValue.textContent = state.influenceCounters[player.id] || 0;
-        influenceCounter.appendChild(influenceValue);
+        counterControls.appendChild(influenceValue);
         
         // Increase button
         const increaseBtn = document.createElement('button');
         increaseBtn.className = 'influence-btn increase';
         increaseBtn.innerHTML = '<i class="fas fa-plus"></i>';
         increaseBtn.onclick = () => updateInfluence(player.id, 1);
-        influenceCounter.appendChild(increaseBtn);
+        counterControls.appendChild(increaseBtn);
         
-        influenceSection.appendChild(influenceCounter);
-        playerBox.appendChild(influenceSection);
+        pillContent.appendChild(counterControls);
+        pillCounter.appendChild(pillContent);
         
-        influenceContainer.appendChild(playerBox);
+        influenceContainer.appendChild(pillCounter);
     });
     
-    agendaPhaseWrapper.appendChild(influenceContainer);
+    agendaContentWrapper.appendChild(influenceContainer);
     
-    // Add agenda steps section
-    const stepsHeader = document.createElement('h2');
-    stepsHeader.className = 'phase-header agenda-steps-header';
-    stepsHeader.textContent = `Resolve Agenda ${state.currentAgendaNumber || 1} of 2`;
-    agendaPhaseWrapper.appendChild(stepsHeader);
+    // Add agenda phase title
+    const agendaTitle = document.createElement('h2');
+    agendaTitle.className = 'phase-header agenda-phase-title';
+    agendaTitle.textContent = `Resolve Agenda ${state.currentAgendaNumber || 1} of 2`;
+    agendaContentWrapper.appendChild(agendaTitle);
     
-    // Create steps container
+    // Add agenda steps
     const stepsContainer = document.createElement('div');
     stepsContainer.className = 'agenda-steps-container';
     
-    // Define the agenda steps
     const agendaSteps = [
-        '1. Reveal and read the Agenda',
-        '2. Apply "When an agenda is revealed"',
-        '3. Apply "After an agenda is revealed"',
-        '4. Open discussion',
-        '5. Voting',
-        '6. Result & resolve'
+        'Reveal and read the Agenda',
+        'Apply "When an agenda is revealed"',
+        'Apply "After an agenda is revealed"',
+        'Open discussion',
+        'Voting',
+        'Result & resolve'
     ];
     
-    // Add each step
+    // We don't need a separate header here as we already have one at the top of the page
+    
+    // Create cards wrapper similar to status phase
+    const cardsWrapper = document.createElement('div');
+    cardsWrapper.className = 'cards-wrapper';
+    
+    // Create steps as cards
     agendaSteps.forEach((step, index) => {
-        const stepEl = document.createElement('div');
-        stepEl.className = 'agenda-step';
-        stepEl.textContent = step;
+        const stepCard = document.createElement('div');
+        stepCard.className = 'status-step-card agenda-step-card';
+        stepCard.dataset.stepIndex = index;
         
-        // Highlight current step if it exists in state
-        // Default to step 0 (first step) if not set
-        if ((state.currentAgendaStep === undefined && index === 0) || state.currentAgendaStep === index) {
-            stepEl.classList.add('current-step');
+        const stepNumber = document.createElement('div');
+        stepNumber.className = 'step-number';
+        stepNumber.textContent = index + 1;
+        
+        const stepText = document.createElement('div');
+        stepText.className = 'step-text';
+        stepText.textContent = step;
+        
+        stepCard.appendChild(stepNumber);
+        stepCard.appendChild(stepText);
+        
+        // Highlight current step if it's set in state
+        if (state.currentAgendaStep === index) {
+            stepCard.classList.add('current-step');
         }
         
-        stepsContainer.appendChild(stepEl);
+        // Add click handler to toggle highlighting
+        stepCard.addEventListener('click', (e) => {
+            // Toggle current step in UI
+            const wasActive = stepCard.classList.contains('current-step');
+            
+            // Remove current-step class from all cards
+            document.querySelectorAll('.agenda-step-card').forEach(card => {
+                card.classList.remove('current-step');
+            });
+            
+            // If this card wasn't active, make it active and update state
+            if (!wasActive) {
+                stepCard.classList.add('current-step');
+                
+                // Update state with current step
+                const state = window.stateCore.getGameState();
+                window.stateCore.recordHistory();
+                state.currentAgendaStep = index;
+                window.stateCore.saveGameState();
+            } else {
+                // If it was active and we clicked it again, clear the current step
+                const state = window.stateCore.getGameState();
+                window.stateCore.recordHistory();
+                state.currentAgendaStep = undefined;
+                window.stateCore.saveGameState();
+            }
+        });
+        
+        cardsWrapper.appendChild(stepCard);
     });
     
-    agendaPhaseWrapper.appendChild(stepsContainer);
+    stepsContainer.appendChild(cardsWrapper);
+    
+    agendaContentWrapper.appendChild(stepsContainer);
     
     // Add Next button
     const nextButton = document.createElement('button');
     nextButton.className = 'btn btn-primary next-btn';
-    nextButton.textContent = 'Next';
     
-    // If we're on the last step of the second agenda, show Complete button
-    if (state.currentAgendaStep === agendaSteps.length - 1 && state.currentAgendaNumber === 2) {
+    // Change button text based on current agenda
+    if (state.currentAgendaNumber === 1) {
+        nextButton.textContent = 'Next Agenda';
+        nextButton.onclick = () => advanceAgendaStep();
+    } else {
         nextButton.textContent = 'Complete Agenda Phase';
         nextButton.onclick = () => window.agendaPhase.completeAgendaPhase();
-    } else {
-        // Otherwise, advance to next step or next agenda
-        nextButton.onclick = () => advanceAgendaStep();
     }
     
     const btnContainer = document.createElement('div');
     btnContainer.className = 'btn-container';
     btnContainer.appendChild(nextButton);
-    agendaPhaseWrapper.appendChild(btnContainer);
+    agendaContentWrapper.appendChild(btnContainer);
     
-    container.appendChild(agendaPhaseWrapper);
+    // Add the content wrapper to the main container
+    container.appendChild(agendaContentWrapper);
+    
+    // Container is already populated
 }
 
 // Function to update a player's influence count
@@ -257,27 +262,25 @@ function updateInfluence(playerId, amount) {
     if (container) renderAgendaPhaseUI(container);
 }
 
-// Function to advance to the next agenda step or next agenda
+// Function to advance to the next agenda or complete the phase
 function advanceAgendaStep() {
     const state = window.stateCore.getGameState();
     window.stateCore.recordHistory();
     
     // Initialize if needed
-    if (state.currentAgendaStep === undefined) {
-        state.currentAgendaStep = 0;
-    }
-    
     if (state.currentAgendaNumber === undefined) {
         state.currentAgendaNumber = 1;
     }
     
-    // Advance to next step
-    state.currentAgendaStep++;
-    
-    // If we've completed all steps for this agenda, move to the next agenda
-    if (state.currentAgendaStep >= 6) { // 6 steps per agenda
-        state.currentAgendaStep = 0;
-        state.currentAgendaNumber++;
+    // Instead of advancing steps individually, just move to the next agenda
+    if (state.currentAgendaNumber === 1) {
+        // Move from Agenda 1 to Agenda 2
+        state.currentAgendaNumber = 2;
+        state.currentAgendaStep = 0; // Reset step for new agenda
+    } else {
+        // We've completed both agendas, complete the phase
+        window.agendaPhase.completeAgendaPhase();
+        return;
     }
     
     window.stateCore.saveGameState();

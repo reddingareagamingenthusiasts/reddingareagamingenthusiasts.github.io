@@ -127,18 +127,17 @@ function proceedToNextRound() {
     // Reset the status phase step counter
     state.statusPhaseStep = 0;
     
-    // Show the Custodians Token prompt every round until it is taken
-    if (!state.custodianTokenTaken) {
-        showCustodianTokenPrompt();
-        return false; // Don't proceed yet, wait for user input
-    }
+    // Automatically determine if Custodians Token has been taken by checking if any player has it
+    const custodianTokenTaken = state.players.some(player => player.custodians);
     
     // Determine the next phase based on the Custodians Token status
-    if (state.custodianTokenTaken) {
+    if (custodianTokenTaken) {
         // If Custodians Token is taken, proceed to Agenda Phase
+        console.log("Custodians Token has been taken. Proceeding to Agenda Phase.");
         proceedToAgendaPhase();
     } else {
         // If Custodians Token is not taken, proceed to Strategy Phase for the next round
+        console.log("Custodians Token has not been taken. Proceeding to next round.");
         state.round++;
         state.phase = 'Strategy'; // Start the new round in the Strategy phase
         state.stage = 'strategy-selection'; // Ensure UI shows the strategy selection phase
@@ -155,9 +154,15 @@ function proceedToNextRound() {
             state.turnOrder = [];
             console.log('No pre-determined turn order, will initialize based on current speaker');
         }
-        
-        state.actionPhasePlayerIndex = 0; // Reset for the new action phase
+          state.actionPhasePlayerIndex = 0; // Reset for the new action phase
         state.passedPlayerCount = 0; // Reset passed player count
+
+        // Ensure the speaker is properly marked with isCurrentSpeaker
+        if (state.speaker) {
+            state.players.forEach(player => {
+                player.isCurrentSpeaker = (player.id === state.speaker);
+            });
+        }
 
         state.players.forEach(player => {
             player.strategyCard = null; // Strategy card is returned
@@ -189,37 +194,6 @@ function findObjectiveById(objectiveId, state) {
     return null;
 }
 
-// Function to show the Custodian Token prompt
-function showCustodianTokenPrompt() {
-    const state = window.stateCore.getGameState();
-    
-    // Set a flag to indicate we're in the custodian token prompt
-    state.showingCustodianPrompt = true;
-    window.stateCore.saveGameState();
-    
-    // The UI will detect this flag and show the prompt
-    // The actual UI rendering is handled in status-phase-ui.js
-    console.log("Showing Custodian Token prompt");
-}
-
-// Function to set the Custodian Token status and continue
-function setCustodianTokenStatus(taken) {
-    const state = window.stateCore.getGameState();
-    window.stateCore.recordHistory();
-    
-    // Set the custodian token status
-    state.custodianTokenTaken = taken;
-    
-    // Clear the prompt flag
-    state.showingCustodianPrompt = false;
-    
-    // Now continue with the next phase
-    proceedToNextRound();
-    
-    window.stateCore.saveGameState();
-    window.updateUI(); // Refresh the UI to reflect phase change
-}
-
 // Function to proceed to the Agenda Phase
 function proceedToAgendaPhase() {
     const state = window.stateCore.getGameState();
@@ -239,7 +213,5 @@ window.statusPhase = {
     revealObjective,
     proceedToNextRound,
     findObjectiveById,
-    showCustodianTokenPrompt,
-    setCustodianTokenStatus,
     proceedToAgendaPhase
 };

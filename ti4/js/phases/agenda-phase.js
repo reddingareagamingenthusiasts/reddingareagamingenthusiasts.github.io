@@ -21,8 +21,7 @@ function proceedToAgendaPhase() {
     // Initialize agenda tracking
     state.currentAgendaStep = 0; // First step
     state.currentAgendaNumber = 1; // First agenda
-    
-    // Initialize influence counters if they don't exist
+      // Initialize influence counters if they don't exist
     if (!state.influenceCounters) {
         state.influenceCounters = {};
         state.players.forEach(player => {
@@ -30,7 +29,14 @@ function proceedToAgendaPhase() {
             state.influenceCounters[player.id] = 0;
         });
     }
-    
+
+    // Ensure the speaker is properly marked with isCurrentSpeaker
+    if (state.speaker) {
+        state.players.forEach(player => {
+            player.isCurrentSpeaker = (player.id === state.speaker);
+        });
+    }
+
     // Set up turn order for Agenda Phase based on speaker position
     initializeAgendaPhaseTurnOrder(state);
     
@@ -58,14 +64,20 @@ function completeAgendaPhase() {
     state.turnOrder = [];
     state.actionPhasePlayerIndex = 0;
     state.passedPlayerCount = 0;
-    
-    // Reset player states for new round
+      // Reset player states for new round
     state.players.forEach(player => {
         player.strategyCard = null;
         player.strategyCardUsed = false;
         player.passed = false;
     });
-    
+
+    // Ensure the speaker is properly marked with isCurrentSpeaker
+    if (state.speaker) {
+        state.players.forEach(player => {
+            player.isCurrentSpeaker = (player.id === state.speaker);
+        });
+    }
+
     console.log(`Agenda Phase complete. Starting Round ${state.round} in Strategy Phase.`);
     window.stateCore.saveGameState();
     window.ui.updateUI();

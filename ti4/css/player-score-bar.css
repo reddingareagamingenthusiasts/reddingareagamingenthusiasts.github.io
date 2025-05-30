@@ -238,7 +238,7 @@
     gap: 2px;
     width: 100%;
     max-width: 100%;
-    padding: 0;
+    padding: 0 0 20px 0; /* Reduced bottom padding for speaker icon */
     margin: 0;
     justify-content: space-between;
     box-sizing: border-box;
@@ -267,6 +267,7 @@ html body .player-score-bar .player-card,
     text-align: center;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     margin: 0;
+    position: relative; /* Added for speaker icon positioning */
     /* Explicitly disable all animations with highest possible specificity */
     animation: none !important;
     -webkit-animation: none !important;
@@ -391,27 +392,32 @@ html body .player-score-bar .player-card.active-player,
     min-height: 32px; /* Ensure consistent height */
 }
 
+.custodians-placeholder {
+    height: 32px; /* Match the height of the custodians button */
+    visibility: hidden;
+}
+
 .custodians-indicator {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: rgba(255, 215, 0, 0.2);
+    gap: 5px;
+    background-color: rgba(255, 140, 0, 0.2);
+    color: #FFA500;
+    border: 1px solid rgba(255, 140, 0, 0.4);
     border-radius: 4px;
     padding: 4px 8px;
-    gap: 6px;
-    height: 100%;
+    font-size: 0.8rem;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .custodians-icon {
-    color: gold;
-    font-size: 1rem;
+    color: #FFA500;
+    font-size: 0.9rem;
 }
 
-.custodians-placeholder {
-    /* Invisible placeholder with same height as the custodians button/indicator */
-    height: 32px;
-    visibility: hidden;
-}
+/* This style is defined more completely below */
 
 .score-component-row {
     display: flex;
@@ -529,12 +535,12 @@ html body .player-score-bar .player-card.active-player,
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 3px;
+    gap: 2px;
     background-color: rgba(0, 0, 0, 0.3);
     border-radius: 4px;
-    padding: 2px 4px;
+    padding: 5px 8px;
     margin-top: 3px;
-    font-size: 0.8rem;
+    font-size: 0.9rem;
 }
 
 .player-sc.used {
@@ -542,29 +548,81 @@ html body .player-score-bar .player-card.active-player,
     text-decoration: line-through;
 }
 
+/* Strategy Card Color Coding */
+.player-sc[data-card="Leadership"] {
+    background-color: rgba(139, 0, 0, 0.4); /* Dark red */
+    border: 1px solid rgba(139, 0, 0, 0.6);
+}
+
+.player-sc[data-card="Diplomacy"] {
+    background-color: rgba(255, 165, 0, 0.4); /* Orange */
+    border: 1px solid rgba(255, 165, 0, 0.6);
+}
+
+.player-sc[data-card="Politics"] {
+    background-color: rgba(255, 215, 0, 0.4); /* Gold */
+    border: 1px solid rgba(255, 215, 0, 0.6);
+}
+
+.player-sc[data-card="Construction"] {
+    background-color: rgba(0, 100, 0, 0.4); /* Dark green */
+    border: 1px solid rgba(0, 100, 0, 0.6);
+}
+
+.player-sc[data-card="Trade"] {
+    background-color: rgba(32, 178, 170, 0.4); /* Light sea green */
+    border: 1px solid rgba(32, 178, 170, 0.6);
+}
+
+.player-sc[data-card="Warfare"] {
+    background-color: rgba(0, 0, 139, 0.4); /* Dark blue */
+    border: 1px solid rgba(0, 0, 139, 0.6);
+}
+
+.player-sc[data-card="Technology"] {
+    background-color: rgba(75, 0, 130, 0.4); /* Indigo */
+    border: 1px solid rgba(75, 0, 130, 0.6);
+}
+
+.player-sc[data-card="Imperial"] {
+    background-color: rgba(147, 112, 219, 0.4); /* Medium purple */
+    border: 1px solid rgba(147, 112, 219, 0.6);
+}
+
+.player-sc[data-card="Industry"] {
+    background-color: rgba(50, 205, 50, 0.4); /* Lime green */
+    border: 1px solid rgba(50, 205, 50, 0.6);
+}
+
+.player-sc[data-card="Logistics"] {
+    background-color: rgba(135, 206, 235, 0.4); /* Sky blue */
+    border: 1px solid rgba(135, 206, 235, 0.6);
+}
+
 .sc-icon {
-    font-size: 0.9rem;
+    font-size: 1.1rem;
 }
 
 .sc-initiative {
     background-color: rgba(255, 255, 255, 0.2);
     border-radius: 50%;
-    width: 16px;
-    height: 16px;
+    width: 20px;
+    height: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.7rem;
+    font-size: 0.8rem;
     font-weight: bold;
 }
 
 .sc-name {
-    flex-grow: 1;
+    flex-grow: 0;
     text-align: center;
-    max-width: 80px;
+    max-width: 110px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    margin-left: 4px;
 }
 
 .player-sc-none {
@@ -583,3 +641,120 @@ html body .player-score-bar .player-card.active-player,
 }
 
 /* No animations for the active player card */
+
+/* Speaker Icon Below Player Card */
+.speaker-icon-below {
+    position: absolute;
+    bottom: -38px; /* Moved down another 8px for better visual separation */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    background-color: var(--accent-secondary);
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    /* Removed animation */
+}
+
+.speaker-icon-below i {
+    font-size: 14px;
+}
+
+/* Custodians Icon Below Player Card */
+.custodians-icon-below {
+    position: absolute;
+    bottom: -38px; /* Same position as speaker icon */
+    left: calc(50% + 40px); /* Offset to the right of the speaker icon */
+    transform: translateX(-50%);
+    z-index: 10;
+    background-color: #FFA500; /* Orange/gold color for custodians */
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    /* Removed animation */
+}
+
+.custodians-icon-below i {
+    font-size: 14px;
+}
+
+/* Removed animation keyframes as they're no longer needed */
+
+/* Responsive Strategy Card Adjustments for 8+ Player Games */
+
+/* For screens that might need to accommodate 8+ players */
+@media (max-width: 1600px) {
+    /* When player cards are smaller, reduce strategy card size slightly */
+    .player-score-bar .player-card:nth-child(n+8) .player-sc {
+        padding: 3px 5px;
+        font-size: 0.8rem;
+        gap: 1px;
+    }
+    
+    .player-score-bar .player-card:nth-child(n+8) .sc-name {
+        max-width: 85px;
+        margin-left: 3px;
+    }
+    
+    .player-score-bar .player-card:nth-child(n+8) .sc-initiative {
+        width: 16px;
+        height: 16px;
+        font-size: 0.7rem;
+    }
+    
+    .player-score-bar .player-card:nth-child(n+8) .sc-icon {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 1200px) {
+    /* For smaller screens with 8+ players, make further adjustments */
+    .player-score-bar .player-card:nth-child(n+8) .player-sc {
+        padding: 2px 4px;
+        font-size: 0.75rem;
+    }
+    
+    .player-score-bar .player-card:nth-child(n+8) .sc-name {
+        max-width: 70px;
+    }
+    
+    .player-score-bar .player-card:nth-child(n+8) .sc-initiative {
+        width: 14px;
+        height: 14px;
+        font-size: 0.65rem;
+    }
+}
+
+/* For 9-10 player games specifically */
+@media (max-width: 1400px) {
+    .player-score-bar .player-card:nth-child(n+9) .player-sc {
+        padding: 4px 6px;
+        font-size: 0.8rem;
+        gap: 1px;
+    }
+    
+    .player-score-bar .player-card:nth-child(n+9) .sc-name {
+        max-width: 85px;
+        margin-left: 3px;
+    }
+    
+    .player-score-bar .player-card:nth-child(n+9) .sc-initiative {
+        width: 18px;
+        height: 18px;
+        font-size: 0.75rem;
+    }
+    
+    .player-score-bar .player-card:nth-child(n+9) .sc-icon {
+        font-size: 1rem;
+    }
+}

@@ -20,11 +20,10 @@ function renderSelectedCard(player, cardName) {
     const state = window.stateCore.getGameState();
     const card = state.strategyCards.find(c => c.name === cardName);
     return `
-        <div class="player-header">
-            <div class="player-name" style="color: ${player.color}">
+        <div class="player-header">            <div class="player-name" style="color: ${player.color}">
                 <i class="fas fa-user-astronaut"></i>
                 ${player.name}
-                ${player.isCurrentSpeaker ? `<img src="images/icons/gavel.svg" class="speaker-icon" title="Current Speaker" alt="Speaker">` : ''}
+                ${player.isCurrentSpeaker ? `<i class="fas fa-gavel speaker-icon" title="Current Speaker"></i>` : ''}
             </div>
         </div>
         <div class="strategy-card selected" onclick="handleStrategyCardClick('${player.id}', '${cardName}')" data-card="${cardName}">
@@ -38,11 +37,10 @@ function renderSelectedCard(player, cardName) {
 function renderAvailableCards(player, isActive) {
     const state = window.stateCore.getGameState();
     return `
-        <div class="player-header">
-            <div class="player-name" style="color: ${player.color}">
+        <div class="player-header">            <div class="player-name" style="color: ${player.color}">
                 <i class="fas fa-user-astronaut"></i>
                 ${player.name} (${isActive ? 'Picking...' : 'Waiting...'})
-                ${player.isCurrentSpeaker ? `<img src="images/icons/gavel.svg" class="speaker-icon" title="Current Speaker" alt="Speaker">` : ''}
+                ${player.isCurrentSpeaker ? `<i class="fas fa-gavel speaker-icon" title="Current Speaker"></i>` : ''}
             </div>
         </div>
         <div class="cards-grid">

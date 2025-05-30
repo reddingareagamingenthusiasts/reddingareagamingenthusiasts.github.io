@@ -81,9 +81,8 @@ function renderPlayerScoreBar(container, options = {}) {
         if (mergedOptions.showStrategyCards && player.strategyCard) {
             const scData = state.strategyCards.find(sc => sc.name === player.strategyCard);
             if (scData) {
-                const cardIconClass = getStrategyCardIcon(scData.name);
-                scDisplayHTML = `
-                    <div class="player-sc ${player.strategyCardUsed ? 'used' : ''}" title="${scData.name} (Initiative: ${scData.initiative})">
+                const cardIconClass = getStrategyCardIcon(scData.name);                scDisplayHTML = `
+                    <div class="player-sc ${player.strategyCardUsed ? 'used' : ''}" data-card="${scData.name}" title="${scData.name} (Initiative: ${scData.initiative})">
                         <i class="fas ${cardIconClass} sc-icon"></i>
                         <span class="sc-initiative">${scData.initiative}</span>
                         <span class="sc-name">${scData.name}</span>
@@ -93,13 +92,11 @@ function renderPlayerScoreBar(container, options = {}) {
                 scDisplayHTML = `<div class="player-sc-none">Unknown SC: ${player.strategyCard}</div>`;
             }
         }
-        
-        // Build the player card HTML
+          // Build the player card HTML
         let playerHTML = `
             <div class="player-info">
                 <div class="player-name" style="color: ${player.color || 'var(--text-color)'}">
                     ${player.name} ${mergedOptions.showPassedState && player.passed ? '(Passed)' : ''}
-                    ${player.isCurrentSpeaker ? `<img src="images/icons/gavel.svg" class="speaker-icon" title="Current Speaker" alt="Speaker">` : ''}
                 </div>
                 ${isCurrentPlayer ? `<div class="current-player-badge" style="background-color: ${player.color}">
                     <span style="color: ${getContrastTextColor(player.color)}">Current Player</span>
@@ -152,17 +149,11 @@ function renderPlayerScoreBar(container, options = {}) {
                     </div>
                     
                     <div class="score-component-row custodians-row">
-                        ${player.custodians ? 
-                            `<div class="custodians-indicator">
-                                <i class="fas fa-medal custodians-icon" title="Custodians Token"></i>
-                                <span>Custodians</span>
-                            </div>` : 
-                            // Only show the button if no player has claimed custodians yet
-                            !gameState.players.some(p => p.custodians) ? 
-                                `<button class="custodians-btn" onclick="event.stopPropagation(); toggleCustodians('${player.id}')">
-                                    Claim Custodians
-                                </button>` : 
-                                `<div class="custodians-placeholder"></div>`
+                        ${!player.custodians && !gameState.players.some(p => p.custodians) ? 
+                            `<button class="custodians-btn" onclick="event.stopPropagation(); toggleCustodians('${player.id}')">
+                                Claim Custodians
+                            </button>` : 
+                            `<div class="custodians-placeholder"></div>`
                         }
                     </div>
                 </div>
@@ -178,8 +169,24 @@ function renderPlayerScoreBar(container, options = {}) {
         if (scDisplayHTML) {
             playerHTML += scDisplayHTML;
         }
+          playerEl.innerHTML = playerHTML;
         
-        playerEl.innerHTML = playerHTML;
+        // Add speaker icon below the player card if this player is the current speaker
+        if (player.isCurrentSpeaker) {
+            const speakerIcon = document.createElement('div');
+            speakerIcon.className = 'speaker-icon-below';
+            speakerIcon.innerHTML = '<i class="fas fa-gavel" title="Current Speaker"></i>';
+            playerEl.appendChild(speakerIcon);
+        }
+        
+        // Add custodians icon below the player card if this player has the custodians token
+        if (player.custodians) {
+            const custodiansIcon = document.createElement('div');
+            custodiansIcon.className = 'custodians-icon-below';
+            custodiansIcon.innerHTML = '<i class="fas fa-medal" title="Custodians Token"></i>';
+            playerEl.appendChild(custodiansIcon);
+        }
+        
         scoreBarContainer.appendChild(playerEl);
     });
     

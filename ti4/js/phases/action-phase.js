@@ -259,11 +259,11 @@ function selectNewSpeaker(newSpeakerId) {
     state.players.forEach(player => {
         player.isCurrentSpeaker = false;
     });
-    
-    // Set new speaker
+      // Set new speaker
     const newSpeaker = state.players.find(player => player.id === newSpeakerId);
     if (newSpeaker) {
         newSpeaker.isCurrentSpeaker = true;
+        state.speaker = newSpeakerId; // Update the main speaker state property
         console.log(`New speaker selected: ${newSpeaker.name}`);
         
         // Reorder the turn order based on the new speaker for the next round

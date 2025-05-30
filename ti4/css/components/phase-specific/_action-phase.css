@@ -18,7 +18,7 @@
     justify-content: flex-start;
     gap: 1.5rem;
     overflow-x: auto;
-    padding-bottom: 1rem;
+    padding-bottom: 0.5rem; /* Reduced from 1rem */
     scrollbar-width: thin;
     scrollbar-color: var(--accent-secondary) var(--secondary-color);
 }

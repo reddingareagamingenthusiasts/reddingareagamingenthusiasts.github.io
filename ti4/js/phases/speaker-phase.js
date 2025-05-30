@@ -12,7 +12,15 @@ function selectSpeaker(playerId) {
     const player = state.players.find(p => p.id === playerId);
     if (!player) return false;
     
+    // Clear any previous speaker
+    state.players.forEach(p => {
+        p.isCurrentSpeaker = false;
+    });
+    
     state.speaker = playerId;
+    
+    // Set the new speaker
+    player.isCurrentSpeaker = true;
     
     // Update turn order to start with the speaker
     reorderTurnOrderFromSpeaker();

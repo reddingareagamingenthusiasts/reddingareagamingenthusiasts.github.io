@@ -53,11 +53,11 @@ const defaultGameState = {
         '#00FF00', // Green
         '#FFD700', // Yellow (brighter, more distinct)
         '#800080', // Purple
-        '#FF4500', // Orange (more red-orange, distinct from gold)
+        '#FFA500', // Orange (pure orange, more distinct from red)
         '#FF0000', // Red
         '#0000FF', // Blue
         '#000000', // Black
-        '#DAA520', // Gold (more metallic gold)
+        '#CD853F', // Gold (more brownish gold)
         '#ACACAC'  // Pewter
     ]
 };
