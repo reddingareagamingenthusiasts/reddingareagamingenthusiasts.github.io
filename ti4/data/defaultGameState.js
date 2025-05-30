@@ -1,4 +1,4 @@
-const defaultGameState = {
+const defaultGameState = {Add commentMore actions
     stage: 'setup', // setup, speaker-selection, strategy-selection, active
     round: 1,
     prospectivePlayerCount: 6, // Default for the initial setup screen
@@ -49,16 +49,18 @@ const defaultGameState = {
     ],
     availableFactions: [], // Will be populated with unused factions
     availableColors: [
-        '#FF1493', // Pink
-        '#00FF00', // Green
-        '#FFD700', // Yellow (brighter, more distinct)
-        '#800080', // Purple
-        '#FF4500', // Orange (more red-orange, distinct from gold)
         '#FF0000', // Red
         '#0000FF', // Blue
-        '#000000', // Black        '#DAA520', // Gold (more metallic gold)
-        '#ACACAC'  // Pewter
-    ]
+        '#00FF00', // Green
+        '#FFFF00', // Yellow
+        '#800080', // Purple
+        '#FFA500', // Orange
+        '#FFC0CB', // Pink
+        '#A0522D', // Brown
+        '#808080', // Gray
+        '#4B0082', // Indigo
+        '#008000', // Dark Green
+        '#ACACAC', // Pewter
+        '#B8860B'  // Gold
+    ]Add commentMore actions
 };
-
-export default defaultGameState;
