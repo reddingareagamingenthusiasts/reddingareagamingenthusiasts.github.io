@@ -284,6 +284,9 @@ function nextRound() {
         player.strategyCard = null; // Strategy card is returned
         player.strategyCardUsed = false;
         player.passed = false;
+        
+        // Note: We don't reset otherVPs here since they represent permanent VPs
+        // from various sources like Relics, Agendas, etc.
     });
 
     // Speaker selection might happen here or as part of Strategy phase UI
@@ -351,6 +354,29 @@ function updateSupportForThrone(playerId, change) {
             // Update total score with actual change
             updateScore(playerId, actualChange);
             console.log(`${player.name} ${actualChange > 0 ? 'received' : 'lost'} support for the throne. (${player.supportForThrone}/${MAX_SUPPORT})`);
+        }
+    }
+}
+
+// Update other victory points for a player (Relics, Agendas, Action Cards, Hero Abilities, Imperial Strategy Card)
+function updateOtherVPs(playerId, change) {
+    recordHistory();
+    const player = gameState.players.find(p => p.id === playerId);
+    if (player) {
+        if (player.otherVPs === undefined || player.otherVPs === null) {
+            player.otherVPs = 0;
+        }
+        
+        // Calculate new value with a reasonable max limit
+        const MAX_OTHER_VPS = 5; // Adjust as needed based on game rules
+        const newValue = Math.max(0, Math.min(MAX_OTHER_VPS, player.otherVPs + change));
+        
+        // Only update if there's an actual change
+        if (newValue !== player.otherVPs) {
+            const actualChange = newValue - player.otherVPs;
+            player.otherVPs = newValue;
+            updateScore(playerId, actualChange);
+            console.log(`${player.name} ${actualChange > 0 ? 'gained' : 'lost'} an "Other VP". (${player.otherVPs}/${MAX_OTHER_VPS})`);
         }
     }
 }
@@ -774,6 +800,7 @@ function showThemedAlert(message) {
 window.updateSecretObjectives = updateSecretObjectives;
 window.updateSupportForThrone = updateSupportForThrone;
 window.toggleCustodians = toggleCustodians;
+window.updateOtherVPs = updateOtherVPs;
 
 // Helper to check if a player can perform an action
 function canPlayerPerformAction(playerId) {
@@ -908,6 +935,7 @@ function createGame(playerCount) {
             secretObjectives: 0,
             supportForThrone: 0,
             custodians: false,
+            otherVPs: 0,
             strategyCard: null,
             isActive: false,
             isEditing: false

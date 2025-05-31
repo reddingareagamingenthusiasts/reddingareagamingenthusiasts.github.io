@@ -148,6 +148,24 @@ function renderPlayerScoreBar(container, options = {}) {
                         </div>
                     </div>
                     
+                    <div class="score-component-row">
+                        <div class="score-component other-vps">
+                            <span class="component-label">Other VPs</span>
+                            <div class="component-controls">
+                                <button class="score-btn minus" onclick="event.stopPropagation(); updateOtherVPs('${player.id}', -1)">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <span class="component-value">${player.otherVPs || 0}</span>
+                                <button class="score-btn plus" onclick="event.stopPropagation(); updateOtherVPs('${player.id}', 1)">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                            <div class="component-dots">
+                                ${generateDotIndicators(player.otherVPs || 0, 5)}
+                            </div>
+                        </div>
+                    </div>
+                    
                     <div class="score-component-row custodians-row">
                         ${!player.custodians && !gameState.players.some(p => p.custodians) ? 
                             `<button class="custodians-btn" onclick="event.stopPropagation(); toggleCustodians('${player.id}')">
