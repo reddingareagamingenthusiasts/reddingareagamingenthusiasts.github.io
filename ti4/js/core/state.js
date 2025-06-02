@@ -328,6 +328,11 @@ function updateSecretObjectives(playerId, change) {
             // Update total score with actual change
             updateScore(playerId, actualChange);
             console.log(`${player.name} ${actualChange > 0 ? 'scored' : 'unscored'} a secret objective. (${player.secretObjectives}/${MAX_SECRETS})`);
+            
+            // Update score menu display if it's open
+            if (window.playerScoreBar && typeof window.playerScoreBar.updateScoreMenuDisplay === 'function') {
+                window.playerScoreBar.updateScoreMenuDisplay(playerId);
+            }
         }
     }
 }
@@ -354,6 +359,11 @@ function updateSupportForThrone(playerId, change) {
             // Update total score with actual change
             updateScore(playerId, actualChange);
             console.log(`${player.name} ${actualChange > 0 ? 'received' : 'lost'} support for the throne. (${player.supportForThrone}/${MAX_SUPPORT})`);
+            
+            // Update score menu display if it's open
+            if (window.playerScoreBar && typeof window.playerScoreBar.updateScoreMenuDisplay === 'function') {
+                window.playerScoreBar.updateScoreMenuDisplay(playerId);
+            }
         }
     }
 }
@@ -377,6 +387,11 @@ function updateOtherVPs(playerId, change) {
             player.otherVPs = newValue;
             updateScore(playerId, actualChange);
             console.log(`${player.name} ${actualChange > 0 ? 'gained' : 'lost'} an "Other VP". (${player.otherVPs}/${MAX_OTHER_VPS})`);
+            
+            // Update score menu display if it's open
+            if (window.playerScoreBar && typeof window.playerScoreBar.updateScoreMenuDisplay === 'function') {
+                window.playerScoreBar.updateScoreMenuDisplay(playerId);
+            }
         }
     }
 }

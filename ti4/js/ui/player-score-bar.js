@@ -106,8 +106,7 @@ function renderPlayerScoreBar(container, options = {}) {
             <div class="player-details">
                 <div class="player-details-content">
         `;
-        
-        // Add score controls if enabled
+          // Add simplified score display with menu if enabled
         if (mergedOptions.showScoreControls) {
             playerHTML += `
                 <div class="score-components">
@@ -115,15 +114,6 @@ function renderPlayerScoreBar(container, options = {}) {
                     <div class="score-component-row">
                         <div class="score-component secrets">
                             <span class="component-label">Secrets</span>
-                            <div class="component-controls">
-                                <button class="score-btn minus" onclick="event.stopPropagation(); updateSecretObjectives('${player.id}', -1)">
-                                    <i class="fas fa-minus"></i>
-                                </button>
-                                <span class="component-value">${player.secretObjectives || 0}</span>
-                                <button class="score-btn plus" onclick="event.stopPropagation(); updateSecretObjectives('${player.id}', 1)">
-                                    <i class="fas fa-plus"></i>
-                                </button>
-                            </div>
                             <div class="component-dots">
                                 ${generateDotIndicators(player.secretObjectives || 0, 3)}
                             </div>
@@ -133,17 +123,8 @@ function renderPlayerScoreBar(container, options = {}) {
                     <div class="score-component-row">
                         <div class="score-component support">
                             <span class="component-label">Support</span>
-                            <div class="component-controls">
-                                <button class="score-btn minus" onclick="event.stopPropagation(); updateSupportForThrone('${player.id}', -1)">
-                                    <i class="fas fa-minus"></i>
-                                </button>
-                                <span class="component-value">${player.supportForThrone || 0}</span>
-                                <button class="score-btn plus" onclick="event.stopPropagation(); updateSupportForThrone('${player.id}', 1)">
-                                    <i class="fas fa-plus"></i>
-                                </button>
-                            </div>
                             <div class="component-dots">
-                                ${generateDotIndicators(player.supportForThrone || 0, Math.max(0, gameState.players.length - 1))}
+                                ${generateDotIndicators(player.supportForThrone || 0, Math.max(0, state.players.length - 1))}
                             </div>
                         </div>
                     </div>
@@ -151,28 +132,16 @@ function renderPlayerScoreBar(container, options = {}) {
                     <div class="score-component-row">
                         <div class="score-component other-vps">
                             <span class="component-label">Other VPs</span>
-                            <div class="component-controls">
-                                <button class="score-btn minus" onclick="event.stopPropagation(); updateOtherVPs('${player.id}', -1)">
-                                    <i class="fas fa-minus"></i>
-                                </button>
-                                <span class="component-value">${player.otherVPs || 0}</span>
-                                <button class="score-btn plus" onclick="event.stopPropagation(); updateOtherVPs('${player.id}', 1)">
-                                    <i class="fas fa-plus"></i>
-                                </button>
-                            </div>
                             <div class="component-dots">
                                 ${generateDotIndicators(player.otherVPs || 0, 5)}
                             </div>
                         </div>
                     </div>
                     
-                    <div class="score-component-row custodians-row">
-                        ${!player.custodians && !gameState.players.some(p => p.custodians) ? 
-                            `<button class="custodians-btn" onclick="event.stopPropagation(); toggleCustodians('${player.id}')">
-                                Claim Custodians
-                            </button>` : 
-                            `<div class="custodians-placeholder"></div>`
-                        }
+                    <div class="score-component-row menu-row">
+                        <button class="score-menu-btn" onclick="event.stopPropagation(); toggleScoreMenu('${player.id}')">
+                            <i class="fas fa-cog"></i> Adjust Score
+                        </button>
                     </div>
                 </div>
                 </div>
@@ -271,11 +240,151 @@ function generateDotIndicators(currentValue, maxValue) {
     return dotsHtml;
 }
 
+// Score menu functionality
+function toggleScoreMenu(playerId) {
+    const existingMenu = document.getElementById('score-menu');
+    if (existingMenu) {
+        existingMenu.remove();
+        return;
+    }
+    
+    const state = window.stateCore.getGameState();
+    const player = state.players.find(p => p.id === playerId);
+    if (!player) return;
+    
+    createScoreMenu(player);
+}
+
+function createScoreMenu(player) {
+    const overlay = document.createElement('div');
+    overlay.className = 'score-menu-overlay';
+    overlay.id = 'score-menu';
+    
+    const state = window.stateCore.getGameState();
+    const canClaimCustodians = !player.custodians && !state.players.some(p => p.custodians);
+    
+    overlay.innerHTML = `
+        <div class="score-menu-content">
+            <div class="score-menu-header">
+                <h3>Adjust Score - ${player.name}</h3>
+                <button class="score-menu-close" onclick="closeScoreMenu()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="score-menu-body">
+                <div class="score-menu-item">
+                    <label>Secret Objectives</label>
+                    <div class="score-menu-controls">
+                        <button class="score-btn minus" onclick="updateSecretObjectives('${player.id}', -1)">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <span class="score-value">${player.secretObjectives || 0}</span>
+                        <button class="score-btn plus" onclick="updateSecretObjectives('${player.id}', 1)">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    <div class="score-menu-dots">
+                        ${generateDotIndicators(player.secretObjectives || 0, 3)}
+                    </div>
+                </div>
+                
+                <div class="score-menu-item">
+                    <label>Support for the Throne</label>
+                    <div class="score-menu-controls">
+                        <button class="score-btn minus" onclick="updateSupportForThrone('${player.id}', -1)">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <span class="score-value">${player.supportForThrone || 0}</span>
+                        <button class="score-btn plus" onclick="updateSupportForThrone('${player.id}', 1)">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    <div class="score-menu-dots">
+                        ${generateDotIndicators(player.supportForThrone || 0, Math.max(0, state.players.length - 1))}
+                    </div>
+                </div>
+                
+                <div class="score-menu-item">
+                    <label>Other Victory Points</label>
+                    <div class="score-menu-controls">
+                        <button class="score-btn minus" onclick="updateOtherVPs('${player.id}', -1)">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <span class="score-value">${player.otherVPs || 0}</span>
+                        <button class="score-btn plus" onclick="updateOtherVPs('${player.id}', 1)">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    <div class="score-menu-dots">
+                        ${generateDotIndicators(player.otherVPs || 0, 5)}
+                    </div>
+                </div>
+                
+                ${canClaimCustodians ? `
+                <div class="score-menu-item custodians-item">
+                    <button class="custodians-claim-btn" onclick="toggleCustodians('${player.id}'); closeScoreMenu();">
+                        <i class="fas fa-medal"></i> Claim Custodians Token
+                    </button>
+                </div>
+                ` : ''}
+            </div>
+        </div>
+    `;
+    
+    // Add click outside to close
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+            closeScoreMenu();
+        }
+    });
+    
+    document.body.appendChild(overlay);
+}
+
+function closeScoreMenu() {
+    const menu = document.getElementById('score-menu');
+    if (menu) {
+        menu.remove();
+    }
+}
+
+// Update score functions that will refresh the menu content
+function updateScoreMenuDisplay(playerId) {
+    const menu = document.getElementById('score-menu');
+    if (menu) {
+        const state = window.stateCore.getGameState();
+        const player = state.players.find(p => p.id === playerId);
+        if (player) {
+            // Update the displayed values in the menu
+            const secretsValue = menu.querySelector('.score-menu-item:nth-child(1) .score-value');
+            const supportValue = menu.querySelector('.score-menu-item:nth-child(2) .score-value');
+            const otherVPsValue = menu.querySelector('.score-menu-item:nth-child(3) .score-value');
+            
+            if (secretsValue) secretsValue.textContent = player.secretObjectives || 0;
+            if (supportValue) supportValue.textContent = player.supportForThrone || 0;
+            if (otherVPsValue) otherVPsValue.textContent = player.otherVPs || 0;
+            
+            // Update dot indicators
+            const secretsDots = menu.querySelector('.score-menu-item:nth-child(1) .score-menu-dots');
+            const supportDots = menu.querySelector('.score-menu-item:nth-child(2) .score-menu-dots');
+            const otherVPsDots = menu.querySelector('.score-menu-item:nth-child(3) .score-menu-dots');
+            
+            if (secretsDots) secretsDots.innerHTML = generateDotIndicators(player.secretObjectives || 0, 3);
+            if (supportDots) supportDots.innerHTML = generateDotIndicators(player.supportForThrone || 0, Math.max(0, state.players.length - 1));
+            if (otherVPsDots) otherVPsDots.innerHTML = generateDotIndicators(player.otherVPs || 0, 5);
+        }
+    }
+}
+
 // Export all UI functions - Hybrid approach for ES Modules migration
 // 1. Export to window for backward compatibility
 window.playerScoreBar = {
     renderPlayerScoreBar,
     getContrastTextColor,
     getStrategyCardIcon,
-    generateDotIndicators
+    generateDotIndicators,
+    toggleScoreMenu,
+    createScoreMenu,
+    closeScoreMenu,
+    updateScoreMenuDisplay
 };
