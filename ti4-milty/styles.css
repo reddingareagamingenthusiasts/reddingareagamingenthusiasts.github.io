@@ -1,0 +1,415 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #121212;
+    color: #e0e0e0;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    background-color: #1e1e1e;
+    border-radius: 8px;
+    border-bottom: 3px solid #ff9800;
+}
+
+h1 {
+    color: #ff9800;
+    margin-bottom: 10px;
+}
+
+.slice-container {
+    margin-bottom: 30px;
+    background-color: #1e1e1e;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border-left: 4px solid #ff9800;
+    overflow: visible; /* Allow children like zoomed tiles to overflow */
+}
+
+.slice-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #444;
+    flex-wrap: wrap;
+}
+
+.slice-title {
+    font-size: 1.5rem;
+    color: #ff9800;
+    margin-right: 20px;
+}
+
+/* Slice statistics styles */
+.slice-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-left: auto;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 1rem;
+    gap: 5px;
+    font-weight: bold;
+    min-width: 50px;
+    justify-content: center;
+}
+
+.resources {
+    background-color: #ffcc00;
+    color: #000;
+    border-radius: 20px;
+    padding: 3px 10px;
+}
+
+.influence {
+    background-color: #4682b4;
+    color: #fff;
+    border-radius: 20px;
+    padding: 3px 10px;
+}
+
+.stats-summary-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.stats-label {
+    font-weight: bold;
+    min-width: 70px;
+    text-align: right;
+}
+
+.tech-specialties {
+    display: flex;
+    gap: 5px;
+    margin-top: 10px;
+}
+
+.wormholes {
+    display: flex;
+    gap: 5px;
+    margin-top: 10px;
+}
+
+.resource-icon {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background-color: #a52a2a;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+.influence-icon {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background-color: #fff;
+    border: 2px solid #4682b4;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+.tech-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    margin: 0 2px;
+}
+
+.tech-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.wormhole-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    background-color: #333;
+    color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.tiles-row {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: center; /* Center tiles horizontally */
+    gap: 10px;
+    overflow-x: auto;
+    overflow-y: visible; /* Allow stats to be visible above */
+    padding: 60px 0 60px; /* Further increased top/bottom padding */
+    margin: 0 -10px;
+    scrollbar-width: thin;
+    scrollbar-color: #ff9800 #2a2a2a;
+}
+
+/* Custom scrollbar for WebKit browsers */
+.tiles-row::-webkit-scrollbar {
+    height: 8px;
+}
+
+.tiles-row::-webkit-scrollbar-track {
+    background: #2a2a2a;
+    border-radius: 4px;
+}
+
+.tiles-row::-webkit-scrollbar-thumb {
+    background-color: #ff9800;
+    border-radius: 4px;
+}
+
+.tile {
+    position: relative;
+    width: 150px;
+    min-height: 150px;
+    background-color: #2a2a2a;
+    border-radius: 8px;
+    overflow: visible; /* Changed from hidden to visible to show position labels */
+    transition: transform 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 10px 40px; /* Add space around tiles and extra space below for labels */
+    padding-bottom: 20px; /* Add padding at the bottom for the position label */
+}
+
+.tile:hover {
+    z-index: 10; /* Bring hovered tile above siblings */
+}
+
+.tile img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    transition: transform 0.3s ease-in-out; /* For smooth zoom */
+}
+
+.tile img:hover {
+    transform: scale(2.2) translateY(5%); /* Reduced zoom factor & nudged down */
+    z-index: 200; /* Bring to front */
+}
+
+.tile-id {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+}
+
+.position-label {
+    position: absolute;
+    bottom: -35px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    background-color: #ff9800;
+    color: #121212;
+    border-radius: 50%;
+    font-size: 1.1rem;
+    font-weight: bold;
+    z-index: 10;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    border: 2px solid #fff;
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+footer {
+    text-align: center;
+    margin-top: 40px;
+    padding: 20px;
+    background-color: #1e1e1e;
+    border-radius: 8px;
+    border-top: 3px solid #ff9800;
+}
+
+footer a {
+    color: #ff9800;
+    text-decoration: none;
+}
+
+footer a:hover {
+    text-decoration: underline;
+}
+
+/* Tile stats styles */
+.tile-stats {
+    position: absolute;
+    top: -35px; /* Moved further up */
+    left: 50%; /* Center horizontally */
+    transform: translateX(-50%); /* Center horizontally */
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.tile-stats-text {
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 3px 6px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-weight: bold;
+}
+
+.tile-resource {
+    color: #ffcc00;
+    font-weight: bold;
+}
+
+.tile-influence {
+    color: #4682b4;
+    font-weight: bold;
+}
+
+.tile-resource-icon {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #ffcc00;
+    margin-right: 2px;
+}
+
+.tile-influence-icon {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #4682b4;
+    margin-right: 2px;
+}
+
+.tile-stat-separator {
+    margin: 0 2px;
+    color: #999;
+}
+
+/* Special tile indicators */
+.anomaly-text {
+    color: #ff5555;
+    font-style: italic;
+    font-size: 0.8rem;
+}
+
+.wormhole-text {
+    color: #aa55ff;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.empty-text {
+    color: #999999;
+    font-style: italic;
+    font-size: 0.8rem;
+}
+
+.tile-tech-icon {
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 2px;
+}
+
+.tile-tech-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
+}
+
+/* Wormhole icon styles for tiles */
+.wormhole-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: #aa55ff;
+    font-weight: bold;
+    font-size: 1rem;
+    margin: 0 2px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.tile-wormhole-icon {
+    background-color: #333;
+    color: white;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 0.8rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+@media (max-width: 768px) {
+    .tiles-row {
+        justify-content: center;
+    }
+    
+    .tile {
+        width: 120px;
+        height: 120px;
+    }
+    
+    .slice-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .slice-stats {
+        width: 100%;
+        justify-content: flex-start;
+    }
+}

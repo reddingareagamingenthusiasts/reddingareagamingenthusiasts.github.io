@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TI4 9-Player Map</title>
+    <link rel="stylesheet" href="map.css">
+</head>
+<body>
+    <header>
+        <h1>Twilight Imperium 4 - 9 Player Map</h1>
+        <p>Hexagonal galaxy map ready for tile placement</p>
+    </header>
+
+    <div class="map-container">
+        <div class="hex-map" id="hexMap">
+            <!-- Center: Mecatol Rex -->
+            <div class="hex hex-center" data-position="0,0" data-tile-id="18" style="left: 660px; top: 660px;">
+                <div class="tile-slot">MR</div>
+            </div>
+            <!-- Ring 1: Around center - Hyperlanes -->
+            <div class="hex hex-hyperlane rotate-60" data-position="0,1" style="left: 660px; top: 580px;">
+                <div class="tile-slot"></div>
+            </div>
+            <div class="hex hex-hyperlane rotate-120" data-position="1,0" style="left: 729px; top: 620px;">
+                <div class="tile-slot"></div>
+            </div>
+            <div class="hex hex-hyperlane rotate-180" data-position="1,-1" style="left: 729px; top: 700px;">
+                <div class="tile-slot"></div>
+            </div>
+            <div class="hex hex-hyperlane rotate-240" data-position="0,-1" style="left: 660px; top: 740px;">
+                <div class="tile-slot"></div>
+            </div>
+            <div class="hex hex-hyperlane rotate-300" data-position="-1,0" style="left: 591px; top: 700px;">
+                <div class="tile-slot"></div>
+            </div>
+            <div class="hex hex-hyperlane rotate-0" data-position="-1,1" style="left: 591px; top: 620px;">
+                <div class="tile-slot"></div>
+            </div>
+            <!-- Ring 2: Inner -->
+            <div class="hex hex-inner" data-position="0,2" style="left: 660px; top: 500px;">
+                <div class="tile-slot"></div>
+            </div>
+            <div class="hex hex-inner" data-position="1,1" style="left: 729px; top: 540px;">
+                <div class="tile-slot"></div>
+            </div>
+            <div class="hex hex-inner" data-position="2,0" style="left: 798px; top: 580px;">
+                <div class="tile-slot"></div>
+            </div>
+            <div class="hex hex-inner" data-position="2,-1" style="left: 798px; top: 660px;">
+                <div class="tile-slot"></div>
+            </div>
+            <div class="hex hex-inner" data-position="2,-2" style="left: 798px; top: 740px;">
+                <div class="tile-slot"></div>
+            </div>
+            <div class="hex hex-inner" data-position="1,-2" style="left: 729px; top: 780px;">
+                <div class="tile-slot"></div>
+            </div>
+            <div class="hex hex-inner" data-position="0,-2" style="left: 660px; top: 820px;">
+                <div class="tile-slot"></div>
+            </div><div class="hex hex-inner" data-position="-1,-1" style="left: 591px; top: 780px;">
+                <div class="tile-slot"></div>
+            </div>
+            <div class="hex hex-inner" data-position="-2,0" style="left: 522px; top: 740px;">
+                <div class="tile-slot"></div>
+            </div>
+            <div class="hex hex-inner" data-position="-2,1" style="left: 522px; top: 660px;">
+                <div class="tile-slot"></div>
+            </div>
+            <div class="hex hex-inner" data-position="-2,2" style="left: 522px; top: 580px;">
+                <div class="tile-slot"></div>
+            </div>
+            <div class="hex hex-inner" data-position="-1,2" style="left: 591px; top: 540px;">
+                <div class="tile-slot"></div>
+            </div>
+            <!-- Ring 3: Middle -->
+            <div class="hex hex-middle" data-position="0,3" style="left: 660px; top: 420px;">
+                <div class="tile-slot"><span class="player1-number">5</span></div>
+            </div>
+            <div class="hex hex-middle" data-position="1,2" style="left: 729px; top: 460px;">
+                <div class="tile-slot"></div>
+            </div>
+            <div class="hex hex-middle" data-position="2,1" style="left: 798px; top: 500px;">
+                <div class="tile-slot"><span class="player2-number">5</span></div>
+            </div>
+            <div class="hex hex-middle" data-position="3,0" style="left: 867px; top: 540px;">
+                <div class="tile-slot"><span class="player3-number">5</span></div>
+            </div>
+            <div class="hex hex-middle" data-position="3,-1" style="left: 867px; top: 620px;">
+                <div class="tile-slot"></div>
+            </div>
+            <div class="hex hex-middle" data-position="3,-2" style="left: 867px; top: 700px;">
+                <div class="tile-slot"></div>
+            </div>
+            <div class="hex hex-middle" data-position="3,-3" style="left: 867px; top: 780px;">
+                <div class="tile-slot"><span class="player4-number">5</span></div>
+            </div>
+            <div class="hex hex-middle" data-position="2,-3" style="left: 798px; top: 820px;">
+                <div class="tile-slot"><span class="player5-number">5</span></div>
+            </div> 
+            <div class="hex hex-middle" data-position="1,-3" style="left: 729px; top: 860px;">
+                <div class="tile-slot"></div>            </div>
+            <!-- Hyperlane copy from (0,-5) -->
+             <div class="hex hex-hyperlane-86A rotate-0" data-position="0,-3" style="left: 660px; top: 900px;">
+                <div class="tile-slot"></div>
+            </div>
+            <div class="hex hex-middle" data-position="-1,-2" style="left: 591px; top: 860px;">
+                <div class="tile-slot"></div>
+            </div>
+            <div class="hex hex-middle" data-position="-2,-1" style="left: 522px; top: 820px;">
+                <div class="tile-slot"><span class="player6-number">5</span></div>
+            </div>
+            <div class="hex hex-middle" data-position="-3,0" style="left: 453px; top: 780px;">
+                <div class="tile-slot"><span class="player7-number">5</span></div>
+            </div>
+            <div class="hex hex-middle" data-position="-3,1" style="left: 453px; top: 700px;">
+                <div class="tile-slot"></div>
+            </div>
+            <div class="hex hex-middle" data-position="-3,2" style="left: 453px; top: 620px;">
+                <div class="tile-slot"></div>
+            </div>
+            <div class="hex hex-middle" data-position="-3,3" style="left: 453px; top: 540px;">
+                <div class="tile-slot"><span class="player8-number">5</span></div>
+            </div>
+            <div class="hex hex-middle" data-position="-2,3" style="left: 522px; top: 500px;">
+                <div class="tile-slot"><span class="player9-number">5</span></div>
+            </div>
+            <div class="hex hex-middle" data-position="-1,3" style="left: 591px; top: 460px;">
+                <div class="tile-slot"></div>
+            </div>
+            <!-- Ring 4: Outer -->
+            <div class="hex hex-outer" data-position="0,4" style="left: 660px; top: 340px;">
+                <div class="tile-slot"><span class="player1-number">2</span></div>
+            </div>
+            <div class="hex hex-outer" data-position="1,3" style="left: 729px; top: 380px;">
+                <div class="tile-slot"><span class="player1-number">4</span></div>
+            </div>
+            <div class="hex hex-outer" data-position="2,2" style="left: 798px; top: 420px;">
+                <div class="tile-slot"><span class="player2-number">2</span></div>
+            </div>
+            <!-- Player 2 position -->
+             <div class="hex hex-outer" data-position="3,1" style="left: 867px; top: 460px;">
+                <div class="tile-slot"><span class="player2-number">3</span></div>
+            </div>
+            <div class="hex hex-outer" data-position="4,0" style="left: 936px; top: 500px;">
+                <div class="tile-slot"><span class="player3-number">2</span></div>
+            </div>
+            <div class="hex hex-outer" data-position="4,-1" style="left: 936px; top: 580px;">
+                <div class="tile-slot"><span class="player3-number">3</span></div>
+            </div>
+            <!-- Player 3 position -->
+             <div class="hex hex-outer" data-position="4,-2" style="left: 936px; top: 660px;">
+                <div class="tile-slot"></div>
+            </div>
+            <div class="hex hex-outer" data-position="4,-3" style="left: 936px; top: 740px;">
+                <div class="tile-slot"><span class="player4-number">2</span></div>
+            </div>
+            <div class="hex hex-outer" data-position="4,-4" style="left: 936px; top: 820px;">
+                <div class="tile-slot"><span class="player4-number">3</span></div>
+            </div>
+            <!-- Player 4 position -->
+             <div class="hex hex-outer" data-position="3,-4" style="left: 867px; top: 860px;">
+                <div class="tile-slot"><span class="player5-number">2</span></div>
+            </div>
+            <div class="hex hex-outer" data-position="2,-4" style="left: 798px; top: 900px;">
+                <div class="tile-slot"><span class="player5-number">3</span></div>
+            </div>
+            <!-- Hyperlane copy from (1,0)-->
+            <div class="hex hex-hyperlane rotate-120" data-position="1,-4" style="left: 729px; top: 940px;">
+                <div class="tile-slot"></div>
+            </div>
+            <!-- Player 5 position -->
+            <div class="hex hex-outer" data-position="0,-4" style="left: 660px; top: 980px;">
+                <div class="tile-slot"></div>            </div>
+            <!-- Hyperlane copy from (-1,1) -->
+            <div class="hex hex-hyperlane rotate-0" data-position="-1,-3" style="left: 591px; top: 940px;">
+                <div class="tile-slot"></div>
+            </div>
+            <div class="hex hex-outer" data-position="-2,-2" style="left: 522px; top: 900px;">
+                <div class="tile-slot"><span class="player6-number">2</span></div>
+            </div>
+            <!-- Player 6 position -->
+             <div class="hex hex-outer" data-position="-3,-1" style="left: 453px; top: 860px;">
+                <div class="tile-slot"><span class="player6-number">3</span></div>
+            </div>
+            <div class="hex hex-outer" data-position="-4,0" style="left: 384px; top: 820px;">
+                <div class="tile-slot"><span class="player7-number">2</span></div>
+            </div>
+            <div class="hex hex-outer" data-position="-4,1" style="left: 384px; top: 740px;">
+                <div class="tile-slot"><span class="player7-number">3</span></div>
+            </div>
+            <!-- Player 7 position -->            <div class="hex hex-outer" data-position="-4,2" style="left: 384px; top: 660px;">
+                <div class="tile-slot"></div>
+            </div>
+            <div class="hex hex-outer" data-position="-4,3" style="left: 384px; top: 580px;">
+                <div class="tile-slot"><span class="player8-number">2</span></div>
+            </div>
+            <div class="hex hex-outer" data-position="-4,4" style="left: 384px; top: 500px;">
+                <div class="tile-slot"><span class="player8-number">3</span></div>
+            </div>
+            <!-- Player 8 position -->
+             <div class="hex hex-outer" data-position="-3,4" style="left: 453px; top: 460px;">
+                <div class="tile-slot"><span class="player9-number">2</span></div>
+            </div>
+            <div class="hex hex-outer" data-position="-2,4" style="left: 522px; top: 420px;">
+                <div class="tile-slot"><span class="player9-number">3</span></div>
+            </div>
+            <!-- Player 9 position -->
+             <div class="hex hex-outer" data-position="-1,4" style="left: 591px; top: 380px;">
+                <div class="tile-slot"><span class="player1-number">4</span></div>
+            </div>
+            <!-- Ring 5: Outermost -->
+            <!-- Top section -->
+            <!-- Player 1 position -->
+            <div class="hex hex-player" data-position="0,5" style="left: 660px; top: 260px;">
+                
+            </div>
+            <div class="hex hex-outermost" data-position="1,4" style="left: 729px; top: 300px;">
+                <div class="tile-slot"><span class="player1-number">3</span></div>
+            </div>
+            <div class="hex hex-outermost" data-position="2,3" style="left: 798px; top: 340px;">
+                <div class="tile-slot"><span class="player2-number">1</span></div>
+            </div>
+              <!-- Top-right section -->
+            <!-- Player 2 position -->
+            <div class="hex hex-player" data-position="3,2" style="left: 867px; top: 380px;">
+                <div class="tile-slot">2</div>
+            </div>
+            <div class="hex hex-outermost" data-position="4,1" style="left: 936px; top: 420px;">
+                <div class="tile-slot"><span class="player2-number">4</span></div>
+            </div>
+            <div class="hex hex-outermost" data-position="5,0" style="left: 1005px; top: 460px;">
+                <div class="tile-slot"><span class="player3-number">1</span></div>
+            </div>
+              <!-- Right section -->
+            <!-- Player 3 position -->
+            <div class="hex hex-player" data-position="5,-1" style="left: 1005px; top: 540px;">
+                <div class="tile-slot">3</div>
+            </div>
+            <div class="hex hex-outermost" data-position="5,-2" style="left: 1005px; top: 620px;">
+                <div class="tile-slot"><span class="player3-number">4</span></div>
+            </div>
+            <div class="hex hex-outermost" data-position="5,-3" style="left: 1005px; top: 700px;">
+                <div class="tile-slot"><span class="player4-number">1</span></div>
+            </div>
+            <!-- Player 4 position -->
+            <div class="hex hex-player" data-position="5,-4" style="left: 1005px; top: 780px;">
+                <div class="tile-slot">4</div>
+            </div>
+            <div class="hex hex-outermost" data-position="5,-5" style="left: 1005px; top: 860px;">
+                <div class="tile-slot"><span class="player4-number">4</span></div>
+            </div>
+              <!-- Bottom-right section -->
+            <div class="hex hex-outermost" data-position="4,-5" style="left: 936px; top: 900px;">
+                <div class="tile-slot"><span class="player5-number">1</span></div>
+            </div>
+            <!-- Player 5 position -->
+            <div class="hex hex-player" data-position="3,-5" style="left: 867px; top: 940px;">
+                <div class="tile-slot">5</div>
+            </div>
+            <div class="hex hex-outermost" data-position="2,-5" style="left: 798px; top: 980px;">
+                <div class="tile-slot"><span class="player5-number">4</span></div>
+            </div>
+            <!-- Bottom section -->
+             <div class="hex hex-hyperlane-83A rotate-0" data-position="1,-5" style="left: 729px; top: 1020px;">
+                <div class="tile-slot"></div>            </div>
+            <!-- Center hyperlane -->
+            <div class="hex hex-hyperlane-86A rotate-0" data-position="0,-5" style="left: 660px; top: 1060px;">
+                <div class="tile-slot"></div>
+            </div>
+            <!-- Left hyperlane -->
+            <div class="hex hex-hyperlane-83A rotate-240" data-position="-1,-4" style="left: 591px; top: 1020px;">
+                <div class="tile-slot"></div>
+            </div>
+            <!-- Bottom-left section -->
+            <div class="hex hex-outermost" data-position="-2,-3" style="left: 522px; top: 980px;">
+                <div class="tile-slot"><span class="player6-number">1</span></div>
+            </div>
+            <!-- Player 6 position -->
+            <div class="hex hex-player" data-position="-3,-2" style="left: 453px; top: 940px;">
+                <div class="tile-slot">6</div>
+            </div>
+            <div class="hex hex-outermost" data-position="-4,-1" style="left: 384px; top: 900px;">
+                <div class="tile-slot"><span class="player6-number">4</span></div>
+            </div>            <!-- Left section -->
+            <div class="hex hex-outermost" data-position="-5,0" style="left: 315px; top: 860px;">
+                <div class="tile-slot"><span class="player7-number">1</span></div>
+            </div>
+            <!-- Player 7 position -->
+            <div class="hex hex-player" data-position="-5,1" style="left: 315px; top: 780px;">
+                <div class="tile-slot">7</div>
+            </div>
+            <div class="hex hex-outermost" data-position="-5,2" style="left: 315px; top: 700px;">
+                <div class="tile-slot"><span class="player7-number">4</span></div>
+            </div>
+            <div class="hex hex-outermost" data-position="-5,3" style="left: 315px; top: 620px;">
+                <div class="tile-slot"><span class="player8-number">1</span></div>
+            </div>
+            <!-- Player 8 position -->
+            <div class="hex hex-player" data-position="-5,4" style="left: 315px; top: 540px;">
+                <div class="tile-slot">8</div>
+            </div>
+            <div class="hex hex-outermost" data-position="-5,5" style="left: 315px; top: 460px;">
+                <div class="tile-slot"><span class="player8-number">4</span></div>
+            </div>
+              <!-- Top-left section -->
+            <div class="hex hex-outermost" data-position="-4,5" style="left: 384px; top: 420px;">
+                <div class="tile-slot"><span class="player9-number">1</span></div>
+            </div>
+            <!-- Player 9 position -->
+            <div class="hex hex-player" data-position="-3,5" style="left: 453px; top: 380px;">
+                <div class="tile-slot">9</div>
+            </div>
+            <div class="hex hex-outermost" data-position="-2,5" style="left: 522px; top: 340px;">
+                <div class="tile-slot"><span class="player9-number">4</span></div>
+            </div>
+            <div class="hex hex-outermost" data-position="-1,5" style="left: 591px; top: 300px;">
+                <div class="tile-slot"><span class="player1-number">1</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-panel">
+        <h3>Map Info</h3>
+        <p>• 9-player TI4 map</p>
+        <p>• Ready for tile placement</p>
+        <p>• Click hexes to select</p>
+        <p>• Hover for coordinates</p>
+    </div>
+
+    <div class="coordinates">
+        <div>Hover over hexes to see coordinates</div>
+        <div id="currentCoord">Position: -</div>
+        <div id="currentTile">Tile ID: -</div>
+    </div>
+
+    <script>
+        // Hex grid management
+        class TI4Map {
+            constructor() {
+                this.selectedHex = null;
+                this.initializeEventListeners();
+            }
+
+            initializeEventListeners() {
+                const hexes = document.querySelectorAll('.hex');
+                const coordDisplay = document.getElementById('currentCoord');
+                const tileDisplay = document.getElementById('currentTile');
+                
+                hexes.forEach(hex => {
+                    hex.addEventListener('mouseenter', (e) => {
+                        const position = e.currentTarget.getAttribute('data-position');
+                        const tileId = e.currentTarget.getAttribute('data-tile-id') || 'Empty';
+                        coordDisplay.textContent = `Position: ${position}`;
+                        tileDisplay.textContent = `Tile ID: ${tileId}`;
+                    });
+                    
+                    hex.addEventListener('mouseleave', () => {
+                        coordDisplay.textContent = 'Position: -';
+                        tileDisplay.textContent = 'Tile ID: -';
+                    });
+                    
+                    hex.addEventListener('click', (e) => {
+                        this.selectHex(e.currentTarget);
+                    });
+                });
+            }
+
+            selectHex(hex) {
+                // Remove previous selection
+                if (this.selectedHex) {
+                    this.selectedHex.style.boxShadow = '';
+                }
+                
+                // Add selection to new hex
+                this.selectedHex = hex;
+                hex.style.boxShadow = '0 0 15px #ff9800, inset 0 0 15px rgba(255, 152, 0, 0.3)';
+                
+                const position = hex.getAttribute('data-position');
+                console.log(`Selected hex at position: ${position}`);
+                
+                // Future: This is where tile placement logic would go
+                this.onHexSelected(hex);
+            }
+
+            onHexSelected(hex) {
+                // Placeholder for future tile placement functionality
+                // This method can be extended to handle tile dropping, validation, etc.
+                console.log('Hex selected:', hex.getAttribute('data-position'));
+            }
+
+            // Method to place a tile (for future use)
+            placeTile(position, tileId, tileImageUrl = null) {
+                const hex = document.querySelector(`[data-position="${position}"]`);
+                if (hex) {
+                    hex.setAttribute('data-tile-id', tileId);
+                    const tileSlot = hex.querySelector('.tile-slot');
+                    if (tileImageUrl) {
+                        tileSlot.style.backgroundImage = `url(${tileImageUrl})`;
+                        tileSlot.textContent = '';
+                    } else {
+                        tileSlot.textContent = tileId;
+                    }
+                }
+            }
+        }
+
+        // Initialize the map when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            window.ti4Map = new TI4Map();
+            console.log('TI4 Map initialized and ready for tile placement');
+        });
+    </script>
+</body>
+</html>
