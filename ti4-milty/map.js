@@ -144,6 +144,9 @@ class TI4Map {    constructor() {
     }// Method to place a tile
     placeTile(hex, tileId) {
         const position = hex.getAttribute('data-position');
+        const isFactionTilePosition = this.factionTileCoordinates.has(position);
+        const tileData = referenceTiles[tileId];
+        const isFactionTile = tileData && tileData.type === 'green' && tileData.faction;
         
         // Prevent placing tiles on special hexes
         if (hex.classList.contains('hex-center')) {
@@ -153,7 +156,7 @@ class TI4Map {    constructor() {
           if (hex.classList.contains('hex-hyperlane') || 
             hex.classList.contains('hex-hyperlane-83A') || 
             hex.classList.contains('hex-hyperlane-86A') || 
-            hex.classList.contains('hex-player')) {
+            (hex.classList.contains('hex-player') && !(isFactionTilePosition && isFactionTile))) {
             console.log('Cannot place tile on special hex (hyperlane or player position)');
             return;
         }
