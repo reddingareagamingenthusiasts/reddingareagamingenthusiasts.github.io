@@ -552,7 +552,34 @@ class TI4Map {    constructor() {
             // Show or hide based on search
             item.style.display = shouldShow ? '' : 'none';
         });
-    }    // Method to fill the universe randomly
+    }    // Parse excluded tiles from input text area
+    parseExcludedTiles() {
+        const excludedTilesInput = document.getElementById('excludedTilesInput');
+        if (!excludedTilesInput || !excludedTilesInput.value.trim()) {
+            return [];
+        }
+        
+        const excludedTilesText = excludedTilesInput.value.trim();
+        const excludedTiles = [];
+        
+        // Split by lines and then by commas
+        const lines = excludedTilesText.split(/\n|\r\n?/);
+        
+        for (const line of lines) {
+            if (line.trim()) {
+                const tilesInLine = line.split(',').map(tile => {
+                    const parsed = parseInt(tile.trim());
+                    return isNaN(parsed) ? null : parsed;
+                }).filter(tile => tile !== null);
+                
+                excludedTiles.push(...tilesInLine);
+            }
+        }
+        
+        return excludedTiles;
+    }
+    
+    // Method to fill the universe randomly
     randomFillUniverse() {
         try {
             console.log('Starting Random Fill Universe...');
@@ -583,6 +610,14 @@ class TI4Map {    constructor() {
             }
 
             console.log(`Found ${allAvailableTiles.length} total available tiles with images for randomization`);
+            
+            // Get excluded tiles from input
+            const excludedTiles = this.parseExcludedTiles();
+            console.log(`Found ${excludedTiles.length} tiles to exclude: ${excludedTiles.join(', ')}`);
+            
+            // Filter out excluded tiles
+            const availableTiles = allAvailableTiles.filter(tileId => !excludedTiles.includes(tileId));
+            console.log(`After excluding tiles, ${availableTiles.length} tiles are available for randomization`);
 
             // Get all fillable hexes
             const fillableHexes = this.getFillableHexes();
@@ -595,8 +630,8 @@ class TI4Map {    constructor() {
             }
 
             // Validate we have enough tiles
-            if (fillableHexes.length > allAvailableTiles.length) {
-                console.warn(`Not enough tiles with images (${allAvailableTiles.length}) for all fillable hexes (${fillableHexes.length})`);
+            if (fillableHexes.length > availableTiles.length) {
+                console.warn(`Not enough tiles with images (${availableTiles.length}) for all fillable hexes (${fillableHexes.length})`);
                 button.textContent = originalText;
                 button.disabled = false;
                 return;
@@ -607,10 +642,12 @@ class TI4Map {    constructor() {
 
             // Shuffle both hexes and tiles for completely random placement
             this.shuffleArray(fillableHexes);
-            this.shuffleArray(allAvailableTiles);            // Randomly assign tiles to hexes
-            for (let i = 0; i < fillableHexes.length && i < allAvailableTiles.length; i++) {
+            this.shuffleArray(availableTiles);
+            
+            // Randomly assign tiles to hexes
+            for (let i = 0; i < fillableHexes.length && i < availableTiles.length; i++) {
                 const hex = fillableHexes[i];
-                const tileId = allAvailableTiles[i];
+                const tileId = availableTiles[i];
                 
                 this.placeTile(hex.element, tileId);
                 console.log(`Placed tile ${tileId} at position ${hex.position}`);
@@ -618,9 +655,17 @@ class TI4Map {    constructor() {
             
             // Generate alternate tile if we have remaining tiles and alternate tile is enabled
             const toggleCheckbox = document.getElementById('toggleAlternateTile');
-            if (toggleCheckbox && toggleCheckbox.checked && allAvailableTiles.length > fillableHexes.length) {
+            if (toggleCheckbox && toggleCheckbox.checked && availableTiles.length > fillableHexes.length) {
                 // Use the next available tile as the alternate
-                const alternateTileId = allAvailableTiles[fillableHexes.length];
+                let alternateTileIndex = fillableHexes.length;
+                let alternateTileId = availableTiles[alternateTileIndex];
+                
+                // If by chance the next tile is Malice (4276), skip it
+                if (alternateTileId === 4276 && availableTiles.length > fillableHexes.length + 1) {
+                    alternateTileIndex++;
+                    alternateTileId = availableTiles[alternateTileIndex];
+                }
+                
                 this.placeAlternateTile(alternateTileId);
                 console.log(`Set alternate tile to: ${alternateTileId}`);
             } else {
@@ -756,6 +801,7 @@ class TI4Map {    constructor() {
     placeAlternateTile(tileId) {
         const alternateSlot = document.getElementById('alternateSlot');
         const alternateInfo = document.getElementById('alternateInfo');
+        const alternateHex = document.getElementById('alternateHex');
         
         if (!alternateSlot || !alternateInfo) return;
 
@@ -775,6 +821,11 @@ class TI4Map {    constructor() {
         if (tileIdDisplay) tileIdDisplay.textContent = `Tile ID: ${tileId}`;
         if (tileTypeDisplay) tileTypeDisplay.textContent = `Type: ${tile.type || 'Unknown'}`;
         
+        // Set data-tile-id attribute for hover functionality
+        if (alternateHex) {
+            alternateHex.setAttribute('data-tile-id', tileId);
+        }
+        
         console.log(`Alternate tile set to: ${tileId}`);
     }
 
@@ -782,6 +833,7 @@ class TI4Map {    constructor() {
     clearAlternateTile() {
         const alternateSlot = document.getElementById('alternateSlot');
         const alternateInfo = document.getElementById('alternateInfo');
+        const alternateHex = document.getElementById('alternateHex');
         
         if (!alternateSlot || !alternateInfo) return;
 
@@ -796,6 +848,11 @@ class TI4Map {    constructor() {
         
         if (tileIdDisplay) tileIdDisplay.textContent = 'Tile ID: -';
         if (tileTypeDisplay) tileTypeDisplay.textContent = 'Type: -';
+        
+        // Remove data-tile-id attribute for hover functionality
+        if (alternateHex) {
+            alternateHex.removeAttribute('data-tile-id');
+        }
         
         console.log('Alternate tile cleared');
     }
@@ -1166,6 +1223,304 @@ class TI4Map {    constructor() {
     }
 }
 
+// State Management Methods
+TI4Map.prototype.saveStateToLocalStorage = function() {
+        const state = {
+            currentTiles: this.currentTiles,
+            alternateTileId: this.alternateTileId,
+            uiSettings: {
+                showPlayerSlices: document.getElementById('togglePlayerSlices').checked,
+                showAlternateTile: document.getElementById('toggleAlternateTile').checked,
+                showTileInfo: document.getElementById('toggleTileInfo').checked,
+                showTileNumbers: document.getElementById('toggleTileNumbers').checked
+            }
+        };
+        
+        localStorage.setItem('ti4MapState', JSON.stringify(state));
+        console.log('Map state saved to local storage');
+        
+        // Show a brief notification
+        this.showNotification('Map state saved to local storage');
+    }
+    
+    // Load the map state from local storage
+TI4Map.prototype.loadStateFromLocalStorage = function() {
+        const savedState = localStorage.getItem('ti4MapState');
+        if (!savedState) {
+            console.log('No saved state found in local storage');
+            this.showNotification('No saved state found');
+            return false;
+        }
+        
+        try {
+            const state = JSON.parse(savedState);
+            
+            // Clear the current map first
+            this.clearUniverse();
+            
+            // Restore tile placements
+            this.currentTiles = state.currentTiles || {};
+            for (const [position, tileId] of Object.entries(this.currentTiles)) {
+                if (position === '0,0') continue; // Skip Mecatol Rex
+                
+                const hex = document.querySelector(`.hex[data-position="${position}"]`);
+                if (hex) {
+                    this.placeTile(hex, tileId, false); // Don't update currentTiles again
+                }
+            }
+            
+            // Restore alternate tile
+            if (state.alternateTileId) {
+                this.placeAlternateTile(state.alternateTileId);
+            }
+            
+            // Restore UI settings
+            if (state.uiSettings) {
+                const { showPlayerSlices, showAlternateTile, showTileInfo, showTileNumbers } = state.uiSettings;
+                
+                const togglePlayerSlices = document.getElementById('togglePlayerSlices');
+                if (togglePlayerSlices) {
+                    togglePlayerSlices.checked = showPlayerSlices;
+                    if (showPlayerSlices) {
+                        document.querySelector('.map-container').classList.remove('hide-player-numbers');
+                    } else {
+                        document.querySelector('.map-container').classList.add('hide-player-numbers');
+                    }
+                }
+                
+                const toggleAlternateTile = document.getElementById('toggleAlternateTile');
+                if (toggleAlternateTile) {
+                    toggleAlternateTile.checked = showAlternateTile;
+                    this.toggleAlternateTilePlaceholder(showAlternateTile);
+                }
+                
+                const toggleTileInfo = document.getElementById('toggleTileInfo');
+                if (toggleTileInfo) {
+                    toggleTileInfo.checked = showTileInfo;
+                    this.updateTileInfoOverlays(showTileInfo);
+                }
+                
+                const toggleTileNumbers = document.getElementById('toggleTileNumbers');
+                if (toggleTileNumbers) {
+                    toggleTileNumbers.checked = showTileNumbers;
+                    this.updateTileNumbersVisibility(showTileNumbers);
+                }
+            }
+            
+            console.log('Map state loaded from local storage');
+            this.showNotification('Map state loaded from local storage');
+            return true;
+        } catch (error) {
+            console.error('Error loading state from local storage:', error);
+            this.showNotification('Error loading saved state');
+            return false;
+        }
+    }
+    
+    // Generate a shareable link with the current state encoded in the URL
+TI4Map.prototype.generateShareableLink = function() {
+        // Create a compressed representation of the current state
+        const state = {
+            t: {}, // tiles (shortened key for smaller URL)
+            a: this.alternateTileId, // alternate tile
+            u: { // UI settings
+                p: document.getElementById('togglePlayerSlices').checked,
+                a: document.getElementById('toggleAlternateTile').checked,
+                i: document.getElementById('toggleTileInfo').checked,
+                n: document.getElementById('toggleTileNumbers').checked
+            }
+        };
+        
+        // Only include non-empty tiles to save space
+        for (const [position, tileId] of Object.entries(this.currentTiles)) {
+            if (position !== '0,0') { // Skip Mecatol Rex as it's always the same
+                state.t[position] = tileId;
+            }
+        }
+        
+        // Convert to JSON and encode for URL
+        const stateStr = JSON.stringify(state);
+        const encodedState = btoa(stateStr);
+        
+        // Create the URL with the encoded state
+        const url = new URL(window.location.href);
+        url.searchParams.set('state', encodedState);
+        
+        // Copy to clipboard
+        navigator.clipboard.writeText(url.toString())
+            .then(() => {
+                console.log('Shareable link copied to clipboard');
+                this.showNotification('Shareable link copied to clipboard');
+            })
+            .catch(err => {
+                console.error('Could not copy link to clipboard:', err);
+                this.showNotification('Link generated but could not copy to clipboard');
+                
+                // Show the link in a modal as fallback
+                this.showShareableLinkModal(url.toString());
+            });
+            
+        return url.toString();
+    }
+    
+    // Load state from URL parameters
+TI4Map.prototype.loadStateFromURL = function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const encodedState = urlParams.get('state');
+        
+        if (!encodedState) {
+            return false;
+        }
+        
+        try {
+            const stateStr = atob(encodedState);
+            const state = JSON.parse(stateStr);
+            
+            // Clear the current map first
+            this.clearUniverse();
+            
+            // Restore tile placements
+            if (state.t) {
+                for (const [position, tileId] of Object.entries(state.t)) {
+                    const hex = document.querySelector(`.hex[data-position="${position}"]`);
+                    if (hex) {
+                        this.placeTile(hex, tileId, false);
+                        this.currentTiles[position] = tileId;
+                    }
+                }
+            }
+            
+            // Restore alternate tile
+            if (state.a) {
+                this.placeAlternateTile(state.a);
+            }
+            
+            // Restore UI settings
+            if (state.u) {
+                const togglePlayerSlices = document.getElementById('togglePlayerSlices');
+                if (togglePlayerSlices && state.u.p !== undefined) {
+                    togglePlayerSlices.checked = state.u.p;
+                    if (state.u.p) {
+                        document.querySelector('.map-container').classList.remove('hide-player-numbers');
+                    } else {
+                        document.querySelector('.map-container').classList.add('hide-player-numbers');
+                    }
+                }
+                
+                const toggleAlternateTile = document.getElementById('toggleAlternateTile');
+                if (toggleAlternateTile && state.u.a !== undefined) {
+                    toggleAlternateTile.checked = state.u.a;
+                    this.toggleAlternateTilePlaceholder(state.u.a);
+                }
+                
+                const toggleTileInfo = document.getElementById('toggleTileInfo');
+                if (toggleTileInfo && state.u.i !== undefined) {
+                    toggleTileInfo.checked = state.u.i;
+                    this.updateTileInfoOverlays(state.u.i);
+                }
+                
+                const toggleTileNumbers = document.getElementById('toggleTileNumbers');
+                if (toggleTileNumbers && state.u.n !== undefined) {
+                    toggleTileNumbers.checked = state.u.n;
+                    this.updateTileNumbersVisibility(state.u.n);
+                }
+            }
+            
+            console.log('Map state loaded from URL');
+            this.showNotification('Map state loaded from shared link');
+            
+            // Clear the URL parameter to avoid reloading the same state on refresh
+            const url = new URL(window.location.href);
+            url.searchParams.delete('state');
+            window.history.replaceState({}, document.title, url.toString());
+            
+            return true;
+        } catch (error) {
+            console.error('Error loading state from URL:', error);
+            return false;
+        }
+    }
+    
+    // Show a notification message
+TI4Map.prototype.showNotification = function(message) {
+        // Create notification element if it doesn't exist
+        let notification = document.getElementById('mapNotification');
+        if (!notification) {
+            notification = document.createElement('div');
+            notification.id = 'mapNotification';
+            notification.className = 'map-notification';
+            document.body.appendChild(notification);
+        }
+        
+        // Set message and show
+        notification.textContent = message;
+        notification.classList.add('show');
+        
+        // Hide after a delay
+        setTimeout(() => {
+            notification.classList.remove('show');
+        }, 3000);
+    }
+    
+    // Show a modal with the shareable link
+TI4Map.prototype.showShareableLinkModal = function(link) {
+        // Create modal if it doesn't exist
+        let modal = document.getElementById('shareableLinkModal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'shareableLinkModal';
+            modal.className = 'modal';
+            
+            const modalContent = document.createElement('div');
+            modalContent.className = 'modal-content';
+            
+            const closeButton = document.createElement('span');
+            closeButton.className = 'close-button';
+            closeButton.innerHTML = '&times;';
+            closeButton.onclick = () => modal.style.display = 'none';
+            
+            const title = document.createElement('h2');
+            title.textContent = 'Shareable Link';
+            
+            const linkContainer = document.createElement('div');
+            linkContainer.className = 'shareable-link-container';
+            
+            const linkInput = document.createElement('input');
+            linkInput.type = 'text';
+            linkInput.id = 'shareableLinkInput';
+            linkInput.readOnly = true;
+            linkInput.value = link;
+            
+            const copyButton = document.createElement('button');
+            copyButton.className = 'action-button';
+            copyButton.textContent = 'Copy';
+            copyButton.onclick = () => {
+                linkInput.select();
+                document.execCommand('copy');
+                copyButton.textContent = 'Copied!';
+                setTimeout(() => {
+                    copyButton.textContent = 'Copy';
+                }, 2000);
+            };
+            
+            linkContainer.appendChild(linkInput);
+            linkContainer.appendChild(copyButton);
+            
+            modalContent.appendChild(closeButton);
+            modalContent.appendChild(title);
+            modalContent.appendChild(linkContainer);
+            modal.appendChild(modalContent);
+            
+            document.body.appendChild(modal);
+        } else {
+            // Update link if modal already exists
+            document.getElementById('shareableLinkInput').value = link;
+        }
+        
+        // Show the modal
+        modal.style.display = 'block';
+    }
+
 // Menu and Toggle Controls
 document.addEventListener('DOMContentLoaded', () => {
     // Toggle menu visibility
@@ -1199,6 +1554,9 @@ document.addEventListener('DOMContentLoaded', () => {
     window.ti4Map = new TI4Map();
     console.log('TI4 Map initialized and ready for tile placement');
     
+    // Check for state in URL parameters
+    window.ti4Map.loadStateFromURL();
+    
     // Initialize tile info overlay after map is created
     window.ti4Map.initializeTileInfoOverlay();
     
@@ -1217,6 +1575,41 @@ document.addEventListener('DOMContentLoaded', () => {
     if (clearUniverseButton) {
         clearUniverseButton.addEventListener('click', () => {
             window.ti4Map.clearUniverse();
+        });
+    }
+    
+    // Add Clear Excluded Tiles functionality
+    const clearExcludedTilesButton = document.getElementById('clearExcludedTilesButton');
+    if (clearExcludedTilesButton) {
+        clearExcludedTilesButton.addEventListener('click', () => {
+            const excludedTilesInput = document.getElementById('excludedTilesInput');
+            if (excludedTilesInput) {
+                excludedTilesInput.value = '';
+            }
+        });
+    }
+    
+    // Add Save State functionality
+    const saveStateButton = document.getElementById('saveStateButton');
+    if (saveStateButton) {
+        saveStateButton.addEventListener('click', () => {
+            window.ti4Map.saveStateToLocalStorage();
+        });
+    }
+    
+    // Add Load State functionality
+    const loadStateButton = document.getElementById('loadStateButton');
+    if (loadStateButton) {
+        loadStateButton.addEventListener('click', () => {
+            window.ti4Map.loadStateFromLocalStorage();
+        });
+    }
+    
+    // Add Share Map functionality
+    const shareMapButton = document.getElementById('shareMapButton');
+    if (shareMapButton) {
+        shareMapButton.addEventListener('click', () => {
+            window.ti4Map.generateShareableLink();
         });
     }
 });

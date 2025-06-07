@@ -356,12 +356,30 @@
                     <span class="toggle-slider"></span>
                     <span class="toggle-label">Show Tile Numbers</span>
                 </label>
-            </div><div class="menu-section">
+            </div>
+            <div class="menu-section">
+                <h3>State Management</h3>
+                <button id="saveStateButton" class="action-button">Save Map State</button>
+                <p class="action-description">Saves the current map state to your browser's local storage</p>
+                <button id="loadStateButton" class="action-button">Load Saved Map</button>
+                <p class="action-description">Loads a previously saved map state from your browser's local storage</p>
+                <button id="shareMapButton" class="action-button">Share Map</button>
+                <p class="action-description">Creates a shareable link with the current map state encoded in the URL</p>
+            </div>
+            <div class="menu-section">
                 <h3>Map Generation</h3>
                 <button id="randomFillButton" class="action-button">Random Fill Universe</button>
                 <p class="action-description">Randomly fills the universe with balanced tiles using Milty draft principles</p>
                 <button id="clearUniverseButton" class="action-button secondary">Clear Universe</button>
                 <p class="action-description">Clears all tiles from fillable hexes (keeps player slices, hyperlanes, and special positions)</p>
+                <div class="excluded-tiles-container">
+                    <h4>Exclude Tiles</h4>
+                    <p class="action-description">Paste tile numbers to exclude from random generation (same format as player slices):</p>
+                    <textarea id="excludedTilesInput" placeholder="19,36,64,77,39
+72,30,44,23,40
+24,35,50,65,42"></textarea>
+                    <button id="clearExcludedTilesButton" class="action-button mini">Clear</button>
+                </div>
             </div>
         </div>
     </div>    <div class="info-panel">
