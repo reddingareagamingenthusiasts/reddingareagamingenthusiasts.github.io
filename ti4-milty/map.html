@@ -10,13 +10,24 @@
     <header>
         <h1>Twilight Imperium 4 - 9 Player Map</h1>
         <p>Hexagonal galaxy map ready for tile placement</p>
-    </header>
+    </header>    <!-- Alternate Tile Placeholder Box -->
+    <div class="alternate-tile-placeholder" id="alternateTilePlaceholder">
+        <div class="placeholder-header">Position 1-4 Tile<br><small>(Player chooses which spot this tile goes<br>vs their 4 slice tiles)</small></div>
+        <div class="placeholder-hex hex" id="alternateHex">
+            <div class="tile-slot" id="alternateSlot">
+                <div class="placeholder-text">No alternate tile</div>
+            </div>
+        </div>
+        <div class="placeholder-info" id="alternateInfo">
+            <div class="tile-id">Tile ID: -</div>
+            <div class="tile-type">Type: -</div>        </div>    </div>
 
-    <div class="map-container">
-        <div class="hex-map" id="hexMap">
+    <div class="map-container">        <div class="hex-map" id="hexMap">
             <!-- Center: Mecatol Rex -->
-            <div class="hex hex-center" data-position="0,0" data-tile-id="18" style="left: 660px; top: 660px;">
-                <div class="tile-slot">MR</div>
+            <div class="hex hex-center has-tile-image" data-position="0,0" data-tile-id="18" style="left: 660px; top: 660px;">
+                <div class="tile-slot">
+                    <div class="hex-tile-id-overlay tile-number">18</div>
+                </div>
             </div>
             <!-- Ring 1: Around center - Hyperlanes -->
             <div class="hex hex-hyperlane rotate-60" data-position="0,1" style="left: 660px; top: 580px;">
@@ -213,7 +224,7 @@
             <!-- Top section -->
             <!-- Player 1 position -->
             <div class="hex hex-player" data-position="0,5" style="left: 660px; top: 260px;">
-                
+                <div class="tile-slot">1</div>
             </div>
             <div class="hex hex-outermost" data-position="1,4" style="left: 729px; top: 300px;">
                 <div class="tile-slot"><span class="player1-number">3</span></div>
@@ -320,96 +331,82 @@
         </div>
     </div>
 
-    <div class="info-panel">
+    <div class="controls-panel">
+        <div class="menu-toggle" id="menuToggle">☰ Menu</div>
+        <div class="menu" id="mainMenu">            <div class="menu-section">
+                <h3>Display Options</h3>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="togglePlayerSlices" checked>
+                    <span class="toggle-slider"></span>
+                    <span class="toggle-label">Show Player Slices</span>
+                </label>
+                
+                <label class="toggle-switch">
+                    <input type="checkbox" id="toggleAlternateTile" checked>
+                    <span class="toggle-slider"></span>
+                    <span class="toggle-label">Show Alternate Tile</span>
+                </label>
+                
+                <label class="toggle-switch">
+                    <input type="checkbox" id="toggleTileInfo">
+                    <span class="toggle-slider"></span>
+                    <span class="toggle-label">Show Tile Info Overlay</span>
+                </label>                <label class="toggle-switch">
+                    <input type="checkbox" id="toggleTileNumbers" checked>
+                    <span class="toggle-slider"></span>
+                    <span class="toggle-label">Show Tile Numbers</span>
+                </label>
+            </div><div class="menu-section">
+                <h3>Map Generation</h3>
+                <button id="randomFillButton" class="action-button">Random Fill Universe</button>
+                <p class="action-description">Randomly fills the universe with balanced tiles using Milty draft principles</p>
+                <button id="clearUniverseButton" class="action-button secondary">Clear Universe</button>
+                <p class="action-description">Clears all tiles from fillable hexes (keeps player slices, hyperlanes, and special positions)</p>
+            </div>
+        </div>
+    </div>    <div class="info-panel">
         <h3>Map Info</h3>
         <p>• 9-player TI4 map</p>
         <p>• Ready for tile placement</p>
         <p>• Click hexes to select</p>
+        <p>• Right-click to clear tiles</p>
         <p>• Hover for coordinates</p>
+    </div>    <div class="coordinates">
+        <div class="coord-header">Tile Information</div>
+        <div class="coord-content">
+            <div class="coord-image-section">
+                <div class="coord-hex-preview" id="coordHexPreview">
+                    <div class="coord-placeholder-text">Hover over a tile</div>
+                </div>
+            </div>
+            <div class="coord-info-section">
+                <div class="coord-basic-info">
+                    <div id="currentCoord">Position: -</div>
+                    <div id="currentTile">Tile ID: -</div>
+                </div>
+                <div class="coord-detailed-info" id="coordDetailedInfo">
+                    <div class="coord-resources" id="coordResources"></div>
+                    <div class="coord-planets" id="coordPlanets"></div>
+                    <div class="coord-special" id="coordSpecial"></div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="coordinates">
-        <div>Hover over hexes to see coordinates</div>
-        <div id="currentCoord">Position: -</div>
-        <div id="currentTile">Tile ID: -</div>
-    </div>
-
-    <script>
-        // Hex grid management
-        class TI4Map {
-            constructor() {
-                this.selectedHex = null;
-                this.initializeEventListeners();
-            }
-
-            initializeEventListeners() {
-                const hexes = document.querySelectorAll('.hex');
-                const coordDisplay = document.getElementById('currentCoord');
-                const tileDisplay = document.getElementById('currentTile');
-                
-                hexes.forEach(hex => {
-                    hex.addEventListener('mouseenter', (e) => {
-                        const position = e.currentTarget.getAttribute('data-position');
-                        const tileId = e.currentTarget.getAttribute('data-tile-id') || 'Empty';
-                        coordDisplay.textContent = `Position: ${position}`;
-                        tileDisplay.textContent = `Tile ID: ${tileId}`;
-                    });
-                    
-                    hex.addEventListener('mouseleave', () => {
-                        coordDisplay.textContent = 'Position: -';
-                        tileDisplay.textContent = 'Tile ID: -';
-                    });
-                    
-                    hex.addEventListener('click', (e) => {
-                        this.selectHex(e.currentTarget);
-                    });
-                });
-            }
-
-            selectHex(hex) {
-                // Remove previous selection
-                if (this.selectedHex) {
-                    this.selectedHex.style.boxShadow = '';
-                }
-                
-                // Add selection to new hex
-                this.selectedHex = hex;
-                hex.style.boxShadow = '0 0 15px #ff9800, inset 0 0 15px rgba(255, 152, 0, 0.3)';
-                
-                const position = hex.getAttribute('data-position');
-                console.log(`Selected hex at position: ${position}`);
-                
-                // Future: This is where tile placement logic would go
-                this.onHexSelected(hex);
-            }
-
-            onHexSelected(hex) {
-                // Placeholder for future tile placement functionality
-                // This method can be extended to handle tile dropping, validation, etc.
-                console.log('Hex selected:', hex.getAttribute('data-position'));
-            }
-
-            // Method to place a tile (for future use)
-            placeTile(position, tileId, tileImageUrl = null) {
-                const hex = document.querySelector(`[data-position="${position}"]`);
-                if (hex) {
-                    hex.setAttribute('data-tile-id', tileId);
-                    const tileSlot = hex.querySelector('.tile-slot');
-                    if (tileImageUrl) {
-                        tileSlot.style.backgroundImage = `url(${tileImageUrl})`;
-                        tileSlot.textContent = '';
-                    } else {
-                        tileSlot.textContent = tileId;
-                    }
-                }
-            }
-        }
-
-        // Initialize the map when the page loads
-        document.addEventListener('DOMContentLoaded', () => {
-            window.ti4Map = new TI4Map();
-            console.log('TI4 Map initialized and ready for tile placement');
-        });
-    </script>
+    <!-- Tile Selection Modal -->
+    <div id="tileSelectionModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Select a Tile</h2>
+            <div class="search-container">
+                <input type="text" id="tileSearchInput" placeholder="Search tiles...">
+            </div>
+            <div class="tile-list-container">
+                <div id="tileList" class="tile-list"></div>
+            </div>
+        </div>
+    </div>    <script src="data/reference-tiles.js"></script>
+    <script src="data/tiles-reference.js"></script>
+    <script src="map.js"></script>
 </body>
 </html>
