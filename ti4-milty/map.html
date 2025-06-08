@@ -15,12 +15,14 @@
         <div class="placeholder-header">Position 1-4 Tile<br><small>(Player chooses which spot this tile goes<br>vs their 4 slice tiles)</small></div>
         <div class="placeholder-hex hex" id="alternateHex">
             <div class="tile-slot" id="alternateSlot">
-                <div class="placeholder-text">No alternate tile</div>
+                <div class="placeholder-text">4</div>
             </div>
         </div>
         <div class="placeholder-info" id="alternateInfo">
             <div class="tile-id">Tile ID: -</div>
-            <div class="tile-type">Type: -</div>        </div>    </div>
+            <div class="tile-type">Type: -</div>
+        </div>
+    </div>
 
     <div class="map-container">        <div class="hex-map" id="hexMap">
             <!-- Center: Mecatol Rex -->
@@ -338,47 +340,59 @@
                 <label class="toggle-switch">
                     <input type="checkbox" id="togglePlayerSlices" checked>
                     <span class="toggle-slider"></span>
-                    <span class="toggle-label">Show Player Slices</span>
+                    <span class="toggle-label">Player Slices</span>
                 </label>
                 
                 <label class="toggle-switch">
                     <input type="checkbox" id="toggleAlternateTile" checked>
                     <span class="toggle-slider"></span>
-                    <span class="toggle-label">Show Alternate Tile</span>
+                    <span class="toggle-label">Position 1-4 Tile</span>
                 </label>
                 
+
+                
+                <label class="toggle-switch">
+                    <input type="checkbox" id="toggleTileArt" checked>
+                    <span class="toggle-slider"></span>
+                    <span class="toggle-label">Tile Art</span>
+                </label>
+
+                <label class="toggle-switch">
+                    <input type="checkbox" id="toggleTileNumbers" checked>
+                    <span class="toggle-slider"></span>
+                    <span class="toggle-label">Tile Numbers</span>
+                </label>
+
                 <label class="toggle-switch">
                     <input type="checkbox" id="toggleTileInfo">
                     <span class="toggle-slider"></span>
-                    <span class="toggle-label">Show Tile Info Overlay</span>
-                </label>                <label class="toggle-switch">
-                    <input type="checkbox" id="toggleTileNumbers" checked>
-                    <span class="toggle-slider"></span>
-                    <span class="toggle-label">Show Tile Numbers</span>
+                    <span class="toggle-label">Tile Info Overlay</span>
                 </label>
+                
+                <label class="toggle-switch">
+                    <input type="checkbox" id="toggleValueHeatmap">
+                    <span class="toggle-slider"></span>
+                    <span class="toggle-label">Value Heatmap</span>
+                </label>
+                
             </div>
             <div class="menu-section">
                 <h3>State Management</h3>
                 <button id="saveStateButton" class="action-button">Save Map State</button>
-                <p class="action-description">Saves the current map state to your browser's local storage</p>
                 <button id="loadStateButton" class="action-button">Load Saved Map</button>
-                <p class="action-description">Loads a previously saved map state from your browser's local storage</p>
                 <button id="shareMapButton" class="action-button">Share Map</button>
-                <p class="action-description">Creates a shareable link with the current map state encoded in the URL</p>
+                <p class="action-description">Create shareable link with the current map state</p>
             </div>
             <div class="menu-section">
                 <h3>Map Generation</h3>
                 <button id="randomFillButton" class="action-button">Random Fill Universe</button>
-                <p class="action-description">Randomly fills the universe with balanced tiles using Milty draft principles</p>
                 <button id="clearUniverseButton" class="action-button secondary">Clear Universe</button>
-                <p class="action-description">Clears all tiles from fillable hexes (keeps player slices, hyperlanes, and special positions)</p>
                 <div class="excluded-tiles-container">
                     <h4>Exclude Tiles</h4>
-                    <p class="action-description">Paste tile numbers to exclude from random generation (same format as player slices):</p>
+                    <p class="action-description">Paste tile numbers to exclude from random generation:</p>
                     <textarea id="excludedTilesInput" placeholder="19,36,64,77,39
 72,30,44,23,40
 24,35,50,65,42"></textarea>
-                    <button id="clearExcludedTilesButton" class="action-button mini">Clear</button>
                 </div>
             </div>
         </div>

@@ -313,6 +313,40 @@ input:checked + .toggle-slider:before {
     display: none !important;
 }
 
+/* Hide tile art when toggled off, but keep special hexes visible */
+.hide-tile-art .hex:not(.hex-hyperlane):not(.hex-hyperlane-83A):not(.hex-hyperlane-86A):not(.hex-center):not(.hex-player) {
+    background-image: none !important;
+}
+
+.hide-tile-art .hex:not(.hex-hyperlane):not(.hex-hyperlane-83A):not(.hex-hyperlane-86A):not(.hex-center):not(.hex-player) .tile-slot {
+    background-image: none !important;
+}
+
+.hide-tile-art .hex:not(.hex-hyperlane):not(.hex-hyperlane-83A):not(.hex-hyperlane-86A):not(.hex-center):not(.hex-player).has-tile-image {
+    background-image: none !important;
+}
+
+/* Restore default ring colors when tile art is hidden */
+.hide-tile-art .hex-inner:not(.hex-hyperlane):not(.hex-hyperlane-83A):not(.hex-hyperlane-86A):not(.hex-center):not(.hex-player) {
+    background: radial-gradient(circle, #44bfff 0%, #0099dd 100%) !important;
+    box-shadow: 0 0 15px rgba(68, 191, 255, 0.4) !important;
+}
+
+.hide-tile-art .hex-middle:not(.hex-hyperlane):not(.hex-hyperlane-83A):not(.hex-hyperlane-86A):not(.hex-center):not(.hex-player) {
+    background: radial-gradient(circle, #4488ff 0%, #0044bb 100%) !important;
+    box-shadow: 0 0 15px rgba(68, 136, 255, 0.4) !important;
+}
+
+.hide-tile-art .hex-outer:not(.hex-hyperlane):not(.hex-hyperlane-83A):not(.hex-hyperlane-86A):not(.hex-center):not(.hex-player) {
+    background: radial-gradient(circle, #3366bb 0%, #002288 100%) !important;
+    box-shadow: 0 0 15px rgba(51, 102, 187, 0.4) !important;
+}
+
+.hide-tile-art .hex-outermost:not(.hex-hyperlane):not(.hex-hyperlane-83A):not(.hex-hyperlane-86A):not(.hex-center):not(.hex-player) {
+    background: radial-gradient(circle, #224488 0%, #001155 100%) !important;
+    box-shadow: 0 0 15px rgba(34, 68, 136, 0.4) !important;
+}
+
 .map-container {
     position: relative;
     padding: 0;
@@ -1186,6 +1220,9 @@ input:checked + .toggle-slider:before {
     position: relative;
     cursor: pointer;
     transition: transform 0.2s ease;
+    /* Default hex-outer styling when no tile is placed */
+    background: radial-gradient(circle, #3366bb 0%, #002288 100%);
+    box-shadow: 0 0 15px rgba(51, 102, 187, 0.4);
 }
 
 .placeholder-hex:hover {
@@ -1327,6 +1364,31 @@ input:checked + .toggle-slider:before {
     display: flex;
 }
 
+/* Show alternate tile info overlays when enabled */
+body.show-tile-info .alternate-tile-placeholder .tile-info-overlay {
+    display: flex;
+}
+
+/* Value heatmap overlay styles */
+.hex-value-heatmap-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5;
+    border-radius: inherit;
+    mix-blend-mode: overlay;
+    opacity: 0.6;
+}
+
+/* Make heatmap overlay more opaque when tile art is off */
+.hide-tile-art .hex-value-heatmap-overlay {
+    opacity: 0.85;
+    mix-blend-mode: hard-light;
+}
+
 /* Adjust overlay positioning for hexes with hover effects */
 .hex:hover .tile-info-overlay {
     transform: translate(-50%, -50%) scale(1.1);
@@ -1360,6 +1422,11 @@ input:checked + .toggle-slider:before {
 }
 
 .map-container.show-tile-numbers .tile-number {
+    display: inline-block;
+}
+
+/* Show tile numbers in alternate tile when enabled */
+body.show-tile-numbers .alternate-tile-placeholder .tile-number {
     display: inline-block;
 }
 
@@ -1422,4 +1489,57 @@ input:checked + .toggle-slider:before {
     color: #ff9800;
     margin-bottom: 10px;
     display: block;
+}
+
+/* Enhanced alternate tile placeholder styling */
+/* When alternate tile has tile art, remove default background */
+.placeholder-hex.has-tile-image {
+    background: none !important;
+    box-shadow: none;
+}
+
+/* When tile art is hidden, revert to hex-outer styling even with tile - maximum specificity */
+.hide-tile-art .placeholder-hex,
+body.hide-tile-art .placeholder-hex,
+.hide-tile-art .placeholder-hex.has-tile-image,
+body.hide-tile-art .placeholder-hex.has-tile-image,
+.hide-tile-art .alternate-tile-placeholder .placeholder-hex.has-tile-image,
+body.hide-tile-art .alternate-tile-placeholder .placeholder-hex.has-tile-image {
+    background: radial-gradient(circle, #3366bb 0%, #002288 100%) !important;
+    box-shadow: 0 0 15px rgba(51, 102, 187, 0.4) !important;
+}
+
+/* Hide tile images in alternate placeholder when tile art is off */
+.hide-tile-art .placeholder-hex img,
+body.hide-tile-art .placeholder-hex img {
+    display: none !important;
+}
+
+/* Style the placeholder text (number 4) to match player slice numbers */
+.placeholder-text {
+    color: orange !important;
+    font-weight: bold !important;
+    font-size: 2em !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    height: 100% !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    pointer-events: none !important;
+    text-shadow: 0 0 3px rgba(0, 0, 0, 0.7);
+}
+
+/* Hide placeholder text when tile is placed */
+.placeholder-hex.has-tile-image .placeholder-text {
+    display: none;
+}
+
+/* Show placeholder text when tile art is hidden */
+.hide-tile-art .placeholder-hex .placeholder-text,
+body.hide-tile-art .placeholder-hex .placeholder-text {
+    display: flex !important;
+    color: orange;
 }

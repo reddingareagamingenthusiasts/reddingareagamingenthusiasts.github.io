@@ -2,7 +2,8 @@
 class TI4Map {    constructor() {
         this.selectedHex = null;
         this.currentTiles = {}; // Store tile assignments
-        this.alternateTileId = null; // Store alternate tile ID        // Define faction tile coordinates for 9-player map
+        this.alternateTileId = null; // Store alternate tile ID
+        this.valueHeatmapActive = false; // Track if value heatmap is active        // Define faction tile coordinates for 9-player map
         // These are the actual player home system positions where faction tiles should be placed
         this.factionTileCoordinates = new Set([
             '0,5',    // Player 1
@@ -20,6 +21,8 @@ class TI4Map {    constructor() {
         this.initializeTileModal();
         this.initializeAlternateTileToggle();
         this.initializeCenterHex();
+        this.initializeValueHeatmapToggle();
+        this.initializeTileArtToggle();
     }// Initialize the center hex (Mecatol Rex) with proper tile info
     initializeCenterHex() {
         const centerHex = document.querySelector('.hex-center[data-position="0,0"]');
@@ -41,7 +44,7 @@ class TI4Map {    constructor() {
             this.createTileInfoOverlay(centerHex, '18');
             console.log('Center hex (Mecatol Rex) initialized with tile 18 and background image');
         }
-    }initializeEventListeners() {
+    }    initializeEventListeners() {
         const hexes = document.querySelectorAll('.hex');
         const coordDisplay = document.getElementById('currentCoord');
         const tileDisplay = document.getElementById('currentTile');
@@ -56,8 +59,14 @@ class TI4Map {    constructor() {
                 const position = e.currentTarget.getAttribute('data-position');
                 const tileId = e.currentTarget.getAttribute('data-tile-id') || 'Empty';
                 
+                // Handle alternate tile position display
+                let displayPosition = position;
+                if (e.currentTarget.id === 'alternateHex') {
+                    displayPosition = 'alt';
+                }
+                
                 // Update basic info
-                coordDisplay.textContent = `Position: ${position}`;
+                coordDisplay.textContent = `Position: ${displayPosition || 'Unknown'}`;
                 tileDisplay.textContent = `Tile ID: ${tileId}`;
                 
                 // Update hex preview image
@@ -184,12 +193,43 @@ class TI4Map {    constructor() {
             // Create an image element to test if the image exists
             const testImage = new Image();
             testImage.onload = () => {
-                // Image exists, set it as background with important styles
-                hex.style.setProperty('background-image', `url('${imagePath}')`, 'important');
-                hex.style.setProperty('background-size', 'cover', 'important');
-                hex.style.setProperty('background-position', 'center', 'important');
-                hex.style.setProperty('background-repeat', 'no-repeat', 'important');
-                console.log(`Successfully loaded tile image: ${imagePath}`);
+                // Check if this is a special hex that should always show tile art
+                const isSpecialHex = hex.classList.contains('hex-hyperlane') || 
+                                   hex.classList.contains('hex-hyperlane-83A') || 
+                                   hex.classList.contains('hex-hyperlane-86A') || 
+                                   hex.classList.contains('hex-center') || 
+                                   hex.classList.contains('hex-player');
+                
+                // Check if tile art is enabled
+                const tileArtEnabled = isSpecialHex || !document.querySelector('.map-container').classList.contains('hide-tile-art');
+                
+                if (tileArtEnabled) {
+                    // Image exists, set it as background with important styles
+                    hex.style.setProperty('background-image', `url('${imagePath}')`, 'important');
+                    hex.style.setProperty('background-size', 'cover', 'important');
+                    hex.style.setProperty('background-position', 'center', 'important');
+                    hex.style.setProperty('background-repeat', 'no-repeat', 'important');
+                    console.log(`Successfully loaded tile image: ${imagePath}`);
+                } else {
+                    // Tile art is disabled, don't show the image but restore the ring color
+                    hex.style.setProperty('background-image', 'none', 'important');
+                    console.log(`Tile art is disabled, not showing image for tile ${tileId}`);
+                    
+                    // Restore the appropriate ring color based on the hex class
+                    if (hex.classList.contains('hex-inner')) {
+                        hex.style.setProperty('background', 'radial-gradient(circle, #44bfff 0%, #0099dd 100%)', 'important');
+                        hex.style.setProperty('box-shadow', '0 0 15px rgba(68, 191, 255, 0.4)', 'important');
+                    } else if (hex.classList.contains('hex-middle')) {
+                        hex.style.setProperty('background', 'radial-gradient(circle, #4488ff 0%, #0044bb 100%)', 'important');
+                        hex.style.setProperty('box-shadow', '0 0 15px rgba(68, 136, 255, 0.4)', 'important');
+                    } else if (hex.classList.contains('hex-outer')) {
+                        hex.style.setProperty('background', 'radial-gradient(circle, #3366bb 0%, #002288 100%)', 'important');
+                        hex.style.setProperty('box-shadow', '0 0 15px rgba(51, 102, 187, 0.4)', 'important');
+                    } else if (hex.classList.contains('hex-outermost')) {
+                        hex.style.setProperty('background', 'radial-gradient(circle, #224488 0%, #001155 100%)', 'important');
+                        hex.style.setProperty('box-shadow', '0 0 15px rgba(34, 68, 136, 0.4)', 'important');
+                    }
+                }
             };
             
             testImage.onerror = () => {
@@ -677,10 +717,16 @@ class TI4Map {    constructor() {
             }
             
             console.log('Random Fill Universe completed!');
-            
-            // Restore button state
-            button.textContent = originalText;
-            button.disabled = false;
+        
+        // Restore button state
+        button.textContent = originalText;
+        button.disabled = false;
+        
+        // Refresh the value heatmap if it's active
+        if (this.valueHeatmapActive) {
+            console.log('Value heatmap is active, refreshing after map generation');
+            this.applyValueHeatmap();
+        }
             
         } catch (error) {
             console.error('Error during random fill:', error);
@@ -802,38 +848,74 @@ class TI4Map {    constructor() {
 
     // Place a tile in the alternate tile placeholder
     placeAlternateTile(tileId) {
+        console.log(`Starting placeAlternateTile with tileId: ${tileId}`);
         const alternateSlot = document.getElementById('alternateSlot');
         const alternateInfo = document.getElementById('alternateInfo');
         const alternateHex = document.getElementById('alternateHex');
         
-        if (!alternateSlot || !alternateInfo) return;
+        console.log('Alternate elements found:', {
+            slot: !!alternateSlot,
+            info: !!alternateInfo,
+            hex: !!alternateHex
+        });
+        
+        if (!alternateSlot || !alternateInfo) {
+            console.error('Missing required alternate tile elements');
+            return;
+        }
 
         const tile = referenceTiles[tileId];
-        if (!tile) return;
+        console.log(`Tile data for ${tileId}:`, tile);
+        if (!tile) {
+            console.error(`No tile data found for tile ID: ${tileId}`);
+            return;
+        }
 
         this.alternateTileId = tileId;
         
         // Update the hex display
         const tileImage = `img/tiles/ST_${tileId}.png`;
-        alternateSlot.innerHTML = `<img src="${tileImage}" alt="Tile ${tileId}" style="width: 100%; height: 100%; object-fit: cover;">`;
+        alternateSlot.innerHTML = `<img src="${tileImage}" alt="Tile ${tileId}" style="width: 100%; height: 100%; object-fit: cover;">
+                                    <div class="tile-number">${tileId}</div>`;
+        
+        // Add has-tile-image class to the placeholder hex
+        if (alternateHex) {
+            alternateHex.classList.add('has-tile-image');
+        }
         
         // Update the info display
         const tileIdDisplay = alternateInfo.querySelector('.tile-id');
         const tileTypeDisplay = alternateInfo.querySelector('.tile-type');
         
-        if (tileIdDisplay) tileIdDisplay.textContent = `Tile ID: ${tileId}`;
-        if (tileTypeDisplay) tileTypeDisplay.textContent = `Type: ${tile.type || 'Unknown'}`;
+        console.log('Info display elements found:', {
+            tileIdDisplay: !!tileIdDisplay,
+            tileTypeDisplay: !!tileTypeDisplay
+        });
+        
+        if (tileIdDisplay) {
+            tileIdDisplay.textContent = `Tile ID: ${tileId}`;
+            console.log(`Set tile ID display to: ${tileIdDisplay.textContent}`);
+        }
+        if (tileTypeDisplay) {
+            tileTypeDisplay.textContent = `Type: ${tile.type || 'Unknown'}`;
+            console.log(`Set tile type display to: ${tileTypeDisplay.textContent}`);
+        }
         
         // Set data-tile-id attribute for hover functionality
         if (alternateHex) {
             alternateHex.setAttribute('data-tile-id', tileId);
+            alternateHex.setAttribute('data-position', 'alt');
         }
         
-        console.log(`Alternate tile set to: ${tileId}`);
+        // Create tile info overlay for alternate tile
+        this.createTileInfoOverlay(alternateHex, tileId);
+        
+        console.log(`Placed alternate tile: ${tileId}`);
     }
 
     // Clear the alternate tile placeholder
     clearAlternateTile() {
+        console.log('clearAlternateTile called');
         const alternateSlot = document.getElementById('alternateSlot');
         const alternateInfo = document.getElementById('alternateInfo');
         const alternateHex = document.getElementById('alternateHex');
@@ -843,7 +925,12 @@ class TI4Map {    constructor() {
         this.alternateTileId = null;
         
         // Clear the hex display
-        alternateSlot.innerHTML = '<div class="placeholder-text">No alternate tile</div>';
+        alternateSlot.innerHTML = '<div class="placeholder-text">4</div>';
+        
+        // Remove has-tile-image class from the placeholder hex
+        if (alternateHex) {
+            alternateHex.classList.remove('has-tile-image');
+        }
         
         // Clear the info display
         const tileIdDisplay = alternateInfo.querySelector('.tile-id');
@@ -855,6 +942,13 @@ class TI4Map {    constructor() {
         // Remove data-tile-id attribute for hover functionality
         if (alternateHex) {
             alternateHex.removeAttribute('data-tile-id');
+            alternateHex.removeAttribute('data-position');
+            
+            // Remove any existing tile info overlay
+            const existingOverlay = alternateHex.querySelector('.tile-info-overlay');
+            if (existingOverlay) {
+                existingOverlay.remove();
+            }
         }
         
         console.log('Alternate tile cleared');
@@ -910,14 +1004,18 @@ class TI4Map {    constructor() {
     updateTileInfoOverlays(show) {
         console.log(`Updating tile info overlays visibility: ${show}`);
         const mapContainer = document.querySelector('.map-container');
+        const body = document.body;
+        
         if (mapContainer) {
             if (show) {
                 console.log('Adding show-tile-info class and creating overlays');
                 mapContainer.classList.add('show-tile-info');
+                body.classList.add('show-tile-info');
                 this.createTileInfoOverlays();
             } else {
                 console.log('Removing show-tile-info class and removing overlays');
                 mapContainer.classList.remove('show-tile-info');
+                body.classList.remove('show-tile-info');
                 this.removeTileInfoOverlays();
             }
         }
@@ -942,11 +1040,152 @@ class TI4Map {    constructor() {
     // Update tile numbers visibility
     updateTileNumbersVisibility(show) {
         const mapContainer = document.querySelector('.map-container');
+        const body = document.body;
+        
         if (mapContainer) {
             if (show) {
                 mapContainer.classList.add('show-tile-numbers');
+                body.classList.add('show-tile-numbers');
             } else {
                 mapContainer.classList.remove('show-tile-numbers');
+                body.classList.remove('show-tile-numbers');
+            }
+        }
+    }
+    
+    // Initialize value heatmap toggle
+    initializeValueHeatmapToggle() {
+        const toggleValueHeatmap = document.getElementById('toggleValueHeatmap');
+        
+        if (toggleValueHeatmap) {
+            // Set initial state based on checkbox
+            this.valueHeatmapActive = toggleValueHeatmap.checked;
+            if (this.valueHeatmapActive) {
+                this.applyValueHeatmap();
+            }
+            
+            // Add event listener for changes
+            toggleValueHeatmap.addEventListener('change', () => {
+                this.valueHeatmapActive = toggleValueHeatmap.checked;
+                if (this.valueHeatmapActive) {
+                    this.applyValueHeatmap();
+                } else {
+                    this.removeValueHeatmap();
+                }
+            });
+        }
+    }
+    
+    // Initialize tile art toggle
+    initializeTileArtToggle() {
+        const toggleTileArt = document.getElementById('toggleTileArt');
+        const mapContainer = document.querySelector('.map-container');
+        
+        if (toggleTileArt && mapContainer) {
+            // Function to update tile visibility
+            const updateTileArtVisibility = (show) => {
+                console.log(`Updating tile art visibility: ${show ? 'show' : 'hide'}`);
+                
+                // Update container class and body class for alternate tile
+                if (show) {
+                    mapContainer.classList.remove('hide-tile-art');
+                    document.body.classList.remove('hide-tile-art');
+                } else {
+                    mapContainer.classList.add('hide-tile-art');
+                    document.body.classList.add('hide-tile-art');
+                }
+                
+                // Update inline styles for all non-special hexes
+                const regularHexes = document.querySelectorAll('.hex:not(.hex-hyperlane):not(.hex-hyperlane-83A):not(.hex-hyperlane-86A):not(.hex-center):not(.hex-player)');
+                console.log(`Found ${regularHexes.length} regular hexes to update`);
+                
+                regularHexes.forEach(hex => {
+                    const tileId = hex.getAttribute('data-tile-id');
+                    if (tileId) {
+                        if (show) {
+                            // Restore tile image
+                            const imagePath = `img/tiles/ST_${tileId}.png`;
+                            console.log(`Showing tile art for tile ${tileId} at ${imagePath}`);
+                            hex.style.setProperty('background-image', `url('${imagePath}')`, 'important');
+                            hex.style.setProperty('background-size', 'cover', 'important');
+                            hex.style.setProperty('background-position', 'center', 'important');
+                            hex.style.setProperty('background-repeat', 'no-repeat', 'important');
+                        } else {
+                            // Hide tile image but keep the ring color
+                            console.log(`Hiding tile art for tile ${tileId}`);
+                            hex.style.setProperty('background-image', 'none', 'important');
+                            
+                            // Restore the appropriate ring color based on the hex class
+                            if (hex.classList.contains('hex-inner')) {
+                                hex.style.setProperty('background', 'radial-gradient(circle, #44bfff 0%, #0099dd 100%)', 'important');
+                                hex.style.setProperty('box-shadow', '0 0 15px rgba(68, 191, 255, 0.4)', 'important');
+                            } else if (hex.classList.contains('hex-middle')) {
+                                hex.style.setProperty('background', 'radial-gradient(circle, #4488ff 0%, #0044bb 100%)', 'important');
+                                hex.style.setProperty('box-shadow', '0 0 15px rgba(68, 136, 255, 0.4)', 'important');
+                            } else if (hex.classList.contains('hex-outer')) {
+                                hex.style.setProperty('background', 'radial-gradient(circle, #3366bb 0%, #002288 100%)', 'important');
+                                hex.style.setProperty('box-shadow', '0 0 15px rgba(51, 102, 187, 0.4)', 'important');
+                            } else if (hex.classList.contains('hex-outermost')) {
+                                hex.style.setProperty('background', 'radial-gradient(circle, #224488 0%, #001155 100%)', 'important');
+                                hex.style.setProperty('box-shadow', '0 0 15px rgba(34, 68, 136, 0.4)', 'important');
+                            }
+                        }
+                    }
+                });
+                
+                // Also handle the alternate tile placeholder
+                const alternatePlaceholder = document.querySelector('.placeholder-hex');
+                if (alternatePlaceholder) {
+                    const hasImage = alternatePlaceholder.classList.contains('has-tile-image');
+                    console.log(`Alternate tile placeholder found, has image: ${hasImage}`);
+                    
+                    if (show && hasImage) {
+                        // Show tile image for alternate tile
+                        console.log('Showing alternate tile image');
+                        // Image should be restored by CSS when hide-tile-art class is removed
+                    } else if (!show) {
+                        // Force blue background for alternate tile when tile art is hidden
+                        console.log('Forcing blue background for alternate tile');
+                        alternatePlaceholder.style.setProperty('background', 'radial-gradient(circle, #3366bb 0%, #002288 100%)', 'important');
+                        alternatePlaceholder.style.setProperty('box-shadow', '0 0 15px rgba(51, 102, 187, 0.4)', 'important');
+                    } else {
+                        // Remove inline styles to let CSS handle it
+                        alternatePlaceholder.style.removeProperty('background');
+                        alternatePlaceholder.style.removeProperty('box-shadow');
+                    }
+                }
+            };
+            
+            // Set initial state based on checkbox
+            console.log(`Initial tile art toggle state: ${toggleTileArt.checked}`);
+            updateTileArtVisibility(toggleTileArt.checked);
+            
+            // Add event listener for changes
+            toggleTileArt.addEventListener('change', (e) => {
+                console.log(`Tile art toggle changed to: ${e.target.checked}`);
+                updateTileArtVisibility(e.target.checked);
+                
+                // Don't save tile art state to localStorage - it should reset on refresh (but preserved in shareable links)
+                console.log('Tile art toggled - not saving to localStorage (resets on refresh, but preserved in shareable links)');
+                
+                // Refresh the value heatmap if it's active to update opacity
+                if (this.valueHeatmapActive) {
+                    console.log('Refreshing heatmap after tile art toggle');
+                    this.removeValueHeatmap();
+                    this.applyValueHeatmap();
+                }
+            });
+            
+            // Load saved preference if it exists
+            const savedState = localStorage.getItem('ti4MapState');
+            if (savedState) {
+                try {
+                    const state = JSON.parse(savedState);
+                    // Remove tile art state restoration - should always default to true
+                    console.log('Skipping tile art state restoration - always defaults to true');
+                } catch (e) {
+                    console.error('Error parsing saved state:', e);
+                }
             }
         }
     }    // Create tile info overlays for all tiles
@@ -964,17 +1203,131 @@ class TI4Map {    constructor() {
             }
         });
     }
-
+    
     // Remove all tile info overlays
     removeTileInfoOverlays() {
         const overlays = document.querySelectorAll('.tile-info-overlay');
         overlays.forEach(overlay => overlay.remove());
-    }    // Create a single tile info overlay
+    }
+    
+    // Place a tile in the alternate tile placeholder
+
+    
+    // Apply value heatmap to all tiles
+    applyValueHeatmap() {
+        // Remove any existing heatmap overlays first
+        this.removeValueHeatmap();
+        
+        // Get all hexes with tiles
+        const hexes = document.querySelectorAll('.hex[data-tile-id]');
+        hexes.forEach(hex => {
+            const tileId = hex.getAttribute('data-tile-id');
+            if (tileId) {
+                const value = this.calculateTileValue(tileId);
+                const color = this.getHeatmapColor(value);
+                
+                // Create and apply the heatmap overlay
+                const overlay = document.createElement('div');
+                overlay.className = 'hex-value-heatmap-overlay';
+                overlay.style.backgroundColor = color;
+                hex.appendChild(overlay);
+            }
+        });
+    }
+    
+    // Remove all value heatmap overlays
+    removeValueHeatmap() {
+        const overlays = document.querySelectorAll('.hex-value-heatmap-overlay');
+        overlays.forEach(overlay => overlay.remove());
+    }
+    
+    // Calculate the value of a tile based on resources, influence, and other factors
+    calculateTileValue(tileId) {
+        // Get tile data from reference
+        const tileData = calculateTileTotals(tileId);
+        if (!tileData) return 0;
+        
+        // Base value is resources + influence
+        let value = tileData.resources + tileData.influence;
+        
+        // Add bonus for tech specialties
+        if (tileData.specialty) {
+            value += 1; // Tech specialties are valuable
+        }
+        
+        // Add bonus for wormholes
+        if (tileData.wormhole) {
+            value += 0.5; // Wormholes add some value
+        }
+        
+        // Reduce value for anomalies
+        if (tileData.anomaly) {
+            // Different anomalies have different impacts
+            switch (tileData.anomaly) {
+                case 'supernova':
+                    value -= 2; // Supernovas are very negative
+                    break;
+                case 'asteroid field':
+                case 'asteroid-rift':
+                    value -= 1; // Asteroid fields are negative
+                    break;
+                case 'nebula':
+                    value -= 0.5; // Nebulas are slightly negative
+                    break;
+                case 'gravity rift':
+                    value -= 1; // Gravity rifts are negative
+                    break;
+            }
+        }
+        
+        return value;
+    }
+    
+    // Get a color for the heatmap based on the value
+    getHeatmapColor(value) {
+        // Define color scale
+        // Red (low value) to Yellow to Green (high value)
+        
+        // Normalize value to a 0-1 scale
+        // Assuming values typically range from -2 to 8
+        const minValue = -2;
+        const maxValue = 8;
+        const normalizedValue = Math.max(0, Math.min(1, (value - minValue) / (maxValue - minValue)));
+        
+        // Generate RGB color
+        let r, g, b;
+        
+        if (normalizedValue < 0.5) {
+            // Red to Yellow
+            r = 255;
+            g = Math.round(255 * (normalizedValue * 2));
+            b = 0;
+        } else {
+            // Yellow to Green
+            r = Math.round(255 * (1 - (normalizedValue - 0.5) * 2));
+            g = 255;
+            b = 0;
+        }
+        
+        // Return with opacity for overlay effect
+        return `rgba(${r}, ${g}, ${b}, 0.5)`;
+    }
+    
+    // Toggle alternate tile placeholder visibility
+    toggleAlternateTilePlaceholder(show) {
+        const alternatePlaceholder = document.getElementById('alternateTilePlaceholder');
+        if (alternatePlaceholder) {
+            alternatePlaceholder.style.display = show ? 'block' : 'none';
+        }
+    }
+
+    // Create tile info overlay for a hex
     createTileInfoOverlay(hex, tileId) {
-        console.log(`Creating tile info overlay for hex ${hex.getAttribute('data-position')} with tile ID ${tileId}`);
-          // Don't add overlays to hyperlanes and player positions (but allow center hex since it has tile 18)
-        const classes = hex.className;        if (classes.includes('hex-hyperlane') || 
-            classes.includes('hex-hyperlane-83A') || 
+        // Get the hex classes to check if it's a special hex
+        const classes = hex.className;
+        
+        // Check if classes include any of these specific hyperlanes or player
+        if (classes.includes('hex-hyperlane-83A') || 
             classes.includes('hex-hyperlane-86A') || 
             classes.includes('hex-player')) {
             console.log(`Skipping overlay for special hex: ${classes}`);
@@ -1055,38 +1408,42 @@ class TI4Map {    constructor() {
             wormholeIcon.className = 'tile-wormhole-icon';
             wormholeIcon.textContent = wormholeIcons[tileInfo.wormhole] || '?';
             wormholeIcon.title = `${tileInfo.wormhole.charAt(0).toUpperCase() + tileInfo.wormhole.slice(1)} Wormhole`;
-            overlay.appendChild(wormholeIcon);        }
+            overlay.appendChild(wormholeIcon);
+        }
 
         hex.appendChild(overlay);
         console.log(`Successfully created tile info overlay for tile ${tileId}`);
-    }// Update tile info overlay when a tile is placed
-    updateTileInfoOverlay(hex, tileId) {
-        // Remove existing overlay
-        const existingOverlay = hex.querySelector('.tile-info-overlay');
-        if (existingOverlay) {
-            existingOverlay.remove();
-        }        // Always create new overlay if tileId is provided, regardless of current toggle state
-        // The CSS will control visibility based on .show-tile-info class
-        if (tileId) {
-            this.createTileInfoOverlay(hex, tileId);
-        }
     }
 
-    // Update the hex preview image in the coordinates box
-    updateHexPreview(hex, previewContainer) {
-        // Clear existing content
-        previewContainer.innerHTML = '';
+// Update tile info overlay when a tile is placed
+updateTileInfoOverlay(hex, tileId) {
+    // Remove existing overlay
+    const existingOverlay = hex.querySelector('.tile-info-overlay');
+    if (existingOverlay) {
+        existingOverlay.remove();
+    }
+    // Always create new overlay if tileId is provided, regardless of current toggle state
+    // The CSS will control visibility based on .show-tile-info class
+    if (tileId) {
+        this.createTileInfoOverlay(hex, tileId);
+    }
+}
 
-        const tileId = hex.getAttribute('data-tile-id');
-        
-        if (!tileId || tileId === 'Empty') {
-            previewContainer.innerHTML = '<div class="coord-placeholder-text">Hover over a tile</div>';
-            return;
-        }
+// Update the hex preview image in the coordinates box
+updateHexPreview(hex, previewContainer) {
+    // Clear existing content
+    previewContainer.innerHTML = '';
 
-        // Create a miniature hex with the tile image
-        const miniHex = document.createElement('div');
-        miniHex.className = 'coord-mini-hex';
+    const tileId = hex.getAttribute('data-tile-id');
+    
+    if (!tileId || tileId === 'Empty') {
+        previewContainer.innerHTML = '<div class="coord-placeholder-text">Hover over a tile</div>';
+        return;
+    }
+
+    // Create a miniature hex with the tile image
+    const miniHex = document.createElement('div');
+    miniHex.className = 'coord-mini-hex';
         
         // Try to load the tile image
         const imagePath = `img/tiles/ST_${tileId}.png`;
@@ -1224,7 +1581,7 @@ class TI4Map {    constructor() {
             specialDiv.appendChild(specialContent);
         }
     }
-}
+} // End of TI4Map class
 
 // State Management Methods
 TI4Map.prototype.saveStateToLocalStorage = function() {
@@ -1234,8 +1591,10 @@ TI4Map.prototype.saveStateToLocalStorage = function() {
             uiSettings: {
                 showPlayerSlices: document.getElementById('togglePlayerSlices').checked,
                 showAlternateTile: document.getElementById('toggleAlternateTile').checked,
+                // showTileArt: document.getElementById('toggleTileArt').checked, // Don't save tile art to localStorage (but included in shareable links)
                 showTileInfo: document.getElementById('toggleTileInfo').checked,
-                showTileNumbers: document.getElementById('toggleTileNumbers').checked
+                showTileNumbers: document.getElementById('toggleTileNumbers').checked,
+                showValueHeatmap: document.getElementById('toggleValueHeatmap').checked
             }
         };
         
@@ -1275,11 +1634,9 @@ TI4Map.prototype.loadStateFromLocalStorage = function() {
             // Restore alternate tile
             if (state.alternateTileId) {
                 this.placeAlternateTile(state.alternateTileId);
-            }
-            
-            // Restore UI settings
+            }                // Restore UI settings
             if (state.uiSettings) {
-                const { showPlayerSlices, showAlternateTile, showTileInfo, showTileNumbers } = state.uiSettings;
+                const { showPlayerSlices, showAlternateTile, showTileInfo, showTileNumbers, showValueHeatmap } = state.uiSettings;
                 
                 const togglePlayerSlices = document.getElementById('togglePlayerSlices');
                 if (togglePlayerSlices) {
@@ -1308,6 +1665,29 @@ TI4Map.prototype.loadStateFromLocalStorage = function() {
                     toggleTileNumbers.checked = showTileNumbers;
                     this.updateTileNumbersVisibility(showTileNumbers);
                 }
+                
+                const toggleValueHeatmap = document.getElementById('toggleValueHeatmap');
+                if (toggleValueHeatmap) {
+                    toggleValueHeatmap.checked = showValueHeatmap;
+                    this.valueHeatmapActive = showValueHeatmap;
+                    if (showValueHeatmap) {
+                        this.applyValueHeatmap();
+                    } else {
+                        this.removeValueHeatmap();
+                    }
+                }
+                
+                // Tile art toggle should always default to ON (true) and not be saved/restored
+                const toggleTileArt = document.getElementById('toggleTileArt');
+                if (toggleTileArt) {
+                    toggleTileArt.checked = true; // Always default to true
+                    // Ensure tile art is shown by default
+                    const mapContainer = document.querySelector('.map-container');
+                    if (mapContainer) {
+                        mapContainer.classList.remove('hide-tile-art');
+                        document.body.classList.remove('hide-tile-art');
+                    }
+                }
             }
             
             console.log('Map state loaded from local storage');
@@ -1330,7 +1710,9 @@ TI4Map.prototype.generateShareableLink = function() {
                 p: document.getElementById('togglePlayerSlices').checked,
                 a: document.getElementById('toggleAlternateTile').checked,
                 i: document.getElementById('toggleTileInfo').checked,
-                n: document.getElementById('toggleTileNumbers').checked
+                n: document.getElementById('toggleTileNumbers').checked,
+                v: document.getElementById('toggleValueHeatmap').checked,
+                ta: document.getElementById('toggleTileArt').checked
             }
         };
         
@@ -1426,6 +1808,76 @@ TI4Map.prototype.loadStateFromURL = function() {
                 if (toggleTileNumbers && state.u.n !== undefined) {
                     toggleTileNumbers.checked = state.u.n;
                     this.updateTileNumbersVisibility(state.u.n);
+                }
+                
+                const toggleValueHeatmap = document.getElementById('toggleValueHeatmap');
+                if (toggleValueHeatmap && state.u.v !== undefined) {
+                    toggleValueHeatmap.checked = state.u.v;
+                    this.valueHeatmapActive = state.u.v;
+                    if (state.u.v) {
+                        this.applyValueHeatmap();
+                    } else {
+                        this.removeValueHeatmap();
+                    }
+                }
+                
+                const toggleTileArt = document.getElementById('toggleTileArt');
+                if (toggleTileArt && state.u.ta !== undefined) {
+                    toggleTileArt.checked = state.u.ta;
+                    const mapContainer = document.querySelector('.map-container');
+                    if (mapContainer) {
+                        if (state.u.ta) {
+                            mapContainer.classList.remove('hide-tile-art');
+                            document.body.classList.remove('hide-tile-art');
+                        } else {
+                            mapContainer.classList.add('hide-tile-art');
+                            document.body.classList.add('hide-tile-art');
+                        }
+                    }
+                    
+                    // Apply tile art visibility to all tiles
+                    const regularHexes = document.querySelectorAll('.hex:not(.hex-hyperlane):not(.hex-hyperlane-83A):not(.hex-hyperlane-86A):not(.hex-center):not(.hex-player)');
+                    regularHexes.forEach(hex => {
+                        const tileId = hex.getAttribute('data-tile-id');
+                        if (tileId) {
+                            if (state.u.ta) {
+                                // Show tile image
+                                const imagePath = `img/tiles/ST_${tileId}.png`;
+                                hex.style.setProperty('background-image', `url('${imagePath}')`, 'important');
+                                hex.style.setProperty('background-size', 'cover', 'important');
+                                hex.style.setProperty('background-position', 'center', 'important');
+                                hex.style.setProperty('background-repeat', 'no-repeat', 'important');
+                            } else {
+                                // Hide tile image but restore ring color
+                                hex.style.setProperty('background-image', 'none', 'important');
+                                if (hex.classList.contains('hex-inner')) {
+                                    hex.style.setProperty('background', 'radial-gradient(circle, #44bfff 0%, #0099dd 100%)', 'important');
+                                    hex.style.setProperty('box-shadow', '0 0 15px rgba(68, 191, 255, 0.4)', 'important');
+                                } else if (hex.classList.contains('hex-middle')) {
+                                    hex.style.setProperty('background', 'radial-gradient(circle, #4488ff 0%, #0044bb 100%)', 'important');
+                                    hex.style.setProperty('box-shadow', '0 0 15px rgba(68, 136, 255, 0.4)', 'important');
+                                } else if (hex.classList.contains('hex-outer')) {
+                                    hex.style.setProperty('background', 'radial-gradient(circle, #3366bb 0%, #002288 100%)', 'important');
+                                    hex.style.setProperty('box-shadow', '0 0 15px rgba(51, 102, 187, 0.4)', 'important');
+                                } else if (hex.classList.contains('hex-outermost')) {
+                                    hex.style.setProperty('background', 'radial-gradient(circle, #224488 0%, #001155 100%)', 'important');
+                                    hex.style.setProperty('box-shadow', '0 0 15px rgba(34, 68, 136, 0.4)', 'important');
+                                }
+                            }
+                        }
+                    });
+                    
+                    // Handle alternate tile placeholder
+                    const alternatePlaceholder = document.querySelector('.placeholder-hex');
+                    if (alternatePlaceholder && alternatePlaceholder.classList.contains('has-tile-image')) {
+                        if (!state.u.ta) {
+                            alternatePlaceholder.style.setProperty('background', 'radial-gradient(circle, #3366bb 0%, #002288 100%)', 'important');
+                            alternatePlaceholder.style.setProperty('box-shadow', '0 0 15px rgba(51, 102, 187, 0.4)', 'important');
+                        } else {
+                            alternatePlaceholder.style.removeProperty('background');
+                            alternatePlaceholder.style.removeProperty('box-shadow');
+                        }
+                    }
                 }
             }
             
@@ -1566,29 +2018,25 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize tile numbers toggle after map is created
     window.ti4Map.initializeTileNumbersToggle();
     
+    // Initialize value heatmap toggle after map is created
+    window.ti4Map.initializeValueHeatmapToggle();
+    
+    // Initialize tile art toggle after map is created
+    window.ti4Map.initializeTileArtToggle();
+    
     // Add Random Fill Universe functionality
     const randomFillButton = document.getElementById('randomFillButton');
     if (randomFillButton) {
         randomFillButton.addEventListener('click', () => {
             window.ti4Map.randomFillUniverse();
-        });    }
+        });
+    }
     
     // Add Clear Universe functionality
     const clearUniverseButton = document.getElementById('clearUniverseButton');
     if (clearUniverseButton) {
         clearUniverseButton.addEventListener('click', () => {
             window.ti4Map.clearUniverse();
-        });
-    }
-    
-    // Add Clear Excluded Tiles functionality
-    const clearExcludedTilesButton = document.getElementById('clearExcludedTilesButton');
-    if (clearExcludedTilesButton) {
-        clearExcludedTilesButton.addEventListener('click', () => {
-            const excludedTilesInput = document.getElementById('excludedTilesInput');
-            if (excludedTilesInput) {
-                excludedTilesInput.value = '';
-            }
         });
     }
     
