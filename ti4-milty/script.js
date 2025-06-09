@@ -42,23 +42,41 @@ function initializeApp() {
             techSpecialties: [],
             wormholes: []
         };
-        const resourceValues = [];
-        const influenceValues = [];
+        
         tileIds.forEach(tileId => {
             const tileInfo = calculateTileTotals(tileId.toString());
             if (tileInfo) {
                 stats.totalResources += tileInfo.resources || 0;
                 stats.totalInfluence += tileInfo.influence || 0;
-                resourceValues.push(tileInfo.resources || 0);
-                influenceValues.push(tileInfo.influence || 0);
                 if (tileInfo.specialty) stats.techSpecialties.push(tileInfo.specialty);
                 if (tileInfo.wormhole) stats.wormholes.push(tileInfo.wormhole);
+                
+                // Calculate optimal values at planet level (like the original project)
+                if (referenceTileData && referenceTileData[tileId.toString()]) {
+                    const tile = referenceTileData[tileId.toString()];
+                    if (tile.planets) {
+                        tile.planets.forEach(planet => {
+                            const planetResources = planet.resources || 0;
+                            const planetInfluence = planet.influence || 0;
+                            
+                            // Apply optimal calculation logic from original project
+                            if (planetInfluence > planetResources) {
+                                stats.optimalInfluence += planetInfluence;
+                                // stats.optimalResources += 0; (no need to add 0)
+                            } else if (planetResources > planetInfluence) {
+                                stats.optimalResources += planetResources;
+                                // stats.optimalInfluence += 0; (no need to add 0)
+                            } else if (planetResources === planetInfluence) {
+                                // If equal, take half of each
+                                stats.optimalResources += planetResources / 2;
+                                stats.optimalInfluence += planetInfluence / 2;
+                            }
+                        });
+                    }
+                }
             }
         });
-        resourceValues.sort((a, b) => b - a);
-        for (let i = 0; i < Math.min(4, resourceValues.length); i++) stats.optimalResources += resourceValues[i];
-        influenceValues.sort((a, b) => b - a);
-        for (let i = 0; i < Math.min(4, influenceValues.length); i++) stats.optimalInfluence += influenceValues[i];
+        
         return stats;
     }
 
