@@ -12,10 +12,24 @@
         <p>Displaying slices with tiles in order</p>
     </header>
 
-    <div id="custom-slice-loader" style="margin-bottom: 20px; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
-        <label for="custom-slices-input" style="display: block; margin-bottom: 5px;">Paste your slice data below (one slice per line, tile IDs separated by commas):</label>
-        <textarea id="custom-slices-input" rows="10" style="width: 98%; margin-bottom: 10px; padding: 5px;"></textarea>
-        <button id="load-custom-slices-btn" style="padding: 8px 15px;">Load Custom Slices</button>
+    <div class="controls-panel">
+        <div class="menu-toggle" id="menuToggle">☰ Menu</div>
+        <div class="menu" id="mainMenu">
+            <div class="menu-section">
+                <h3>Slice Data</h3>
+                <label for="custom-slices-input" style="display: block; margin-bottom: 5px; font-size: 0.9rem;">Paste slice data (one per line, tile IDs separated by commas):</label>
+                <textarea id="custom-slices-input" rows="6" style="width: 95%; margin-bottom: 8px; padding: 5px; font-size: 0.85rem;"></textarea>
+                <button id="load-custom-slices-btn" class="action-button">Load Custom Slices</button>
+            </div>
+            
+            <div class="menu-section">
+                <h3>Share & State</h3>
+                <button id="shareSlicesButton" class="action-button">Share Slices</button>
+                <p class="action-description">Create a shareable link with current slice states</p>
+                <button id="resetAllSlicesButton" class="action-button secondary">Reset All Slices</button>
+                <p class="action-description">Mark all slices as available</p>
+            </div>
+        </div>
     </div>
 
     <main id="slices-container">

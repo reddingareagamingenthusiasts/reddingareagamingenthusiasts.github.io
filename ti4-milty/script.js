@@ -1,5 +1,12 @@
 // Variables will be defined in tiles-reference.js and available globally
 
+// State management for slices
+let sliceStates = {}; // Track which slices are taken
+let currentSlices = []; // Track current loaded slices
+
+// Global reference to the loadAndRenderCustomSlices function
+let loadAndRenderCustomSlices;
+
 // Initialize the app once the reference tile data is loaded
 initializeApp();
 
@@ -151,6 +158,10 @@ function initializeApp() {
             }
             tile.appendChild(tileStats);
         }
+        
+        // Add magnifier functionality
+        addTileMagnifier(tile, tileId, tileInfo);
+        
         return tile;
     }
 
@@ -243,14 +254,17 @@ function initializeApp() {
         });
         sliceElement.appendChild(tilesRow);
         targetContainer.appendChild(sliceElement);
+
+        addTakeSliceButton(sliceElement, slice.id);
     }
 
     // Function to load and render custom slices
-    function loadAndRenderCustomSlices() {
+    loadAndRenderCustomSlices = function() {
         const inputText = customSlicesInput.value.trim();
         slicesContainer.innerHTML = ''; // Clear existing slices
 
         if (!inputText) {
+            currentSlices = [...defaultSlices]; // Update currentSlices
             defaultSlices.forEach(slice => renderSlice(slice, slicesContainer));
             alert("Input is empty. Displaying default slices.");
             return;
@@ -287,7 +301,7 @@ function initializeApp() {
 
             if (tileIds.length > 0) {
                 customSlices.push({
-                    id: `Custom ${customSlices.length + 1}`,
+                    id: `Slice ${customSlices.length + 1}`,
                     tiles: tileIds
                 });
             }
@@ -295,15 +309,18 @@ function initializeApp() {
 
         if (parseErrorEncountered) {
             slicesContainer.innerHTML = ''; // Clear again in case some valid lines were processed before error
+            currentSlices = [...defaultSlices]; // Update currentSlices
             defaultSlices.forEach(slice => renderSlice(slice, slicesContainer));
             alert("Error parsing one or more tile IDs. Please ensure all tile IDs are numbers, separated by commas, with each slice on a new line. Displaying default slices.");
             return;
         }
 
         if (customSlices.length > 0) {
+            currentSlices = [...customSlices]; // Update currentSlices
             customSlices.forEach(slice => renderSlice(slice, slicesContainer));
         } else {
             // This case handles if input was non-empty but yielded no valid slices (e.g. all lines empty or just commas)
+            currentSlices = [...defaultSlices]; // Update currentSlices
             defaultSlices.forEach(slice => renderSlice(slice, slicesContainer));
             if (inputText) { // Only alert if there was some input
                 alert("No valid custom slices found in the input. Displaying default slices.");
@@ -319,5 +336,404 @@ function initializeApp() {
     }
 
     // Initial rendering of default slices
+    currentSlices = [...defaultSlices];
     defaultSlices.forEach(slice => renderSlice(slice, slicesContainer));
+}
+
+// Initialize menu controls and sharing functionality
+document.addEventListener('DOMContentLoaded', () => {
+    initializeMenuControls();
+    initializeSharing();
+    loadStateFromURL();
+});
+
+function initializeMenuControls() {
+    // Toggle menu visibility
+    const menuToggle = document.getElementById('menuToggle');
+    const mainMenu = document.getElementById('mainMenu');
+    
+    if (menuToggle && mainMenu) {
+        menuToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            mainMenu.classList.toggle('show');
+        });
+        
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!mainMenu.contains(e.target) && e.target !== menuToggle) {
+                mainMenu.classList.remove('show');
+            }
+        });
+    }
+}
+
+function initializeSharing() {
+    const shareButton = document.getElementById('shareSlicesButton');
+    const resetButton = document.getElementById('resetAllSlicesButton');
+    
+    if (shareButton) {
+        shareButton.addEventListener('click', generateShareableLink);
+    }
+    
+    if (resetButton) {
+        resetButton.addEventListener('click', resetAllSlices);
+    }
+}
+
+function addTakeSliceButton(sliceElement, sliceId) {
+    const sliceHeader = sliceElement.querySelector('.slice-header');
+    const takeButton = document.createElement('button');
+    takeButton.className = 'take-slice-btn';
+    takeButton.textContent = sliceStates[sliceId] ? 'Mark Available' : 'Mark Taken';
+    takeButton.dataset.sliceId = sliceId;
+    
+    takeButton.addEventListener('click', () => {
+        toggleSliceState(sliceId);
+        updateSliceDisplay(sliceElement, sliceId);
+        updateTakeButton(takeButton, sliceId);
+    });
+    
+    sliceHeader.appendChild(takeButton);
+    return takeButton;
+}
+
+function toggleSliceState(sliceId) {
+    sliceStates[sliceId] = !sliceStates[sliceId];
+}
+
+function updateSliceDisplay(sliceElement, sliceId) {
+    if (sliceStates[sliceId]) {
+        sliceElement.classList.add('taken');
+    } else {
+        sliceElement.classList.remove('taken');
+    }
+}
+
+function updateTakeButton(button, sliceId) {
+    if (sliceStates[sliceId]) {
+        button.textContent = 'Mark Available';
+        button.classList.add('taken');
+    } else {
+        button.textContent = 'Mark Taken';
+        button.classList.remove('taken');
+    }
+}
+
+function resetAllSlices() {
+    sliceStates = {};
+    const sliceElements = document.querySelectorAll('.slice-container');
+    sliceElements.forEach(element => {
+        element.classList.remove('taken');
+        const takeButton = element.querySelector('.take-slice-btn');
+        if (takeButton) {
+            const sliceId = takeButton.dataset.sliceId;
+            updateTakeButton(takeButton, sliceId);
+        }
+    });
+    console.log('All slices reset to available');
+}
+
+function generateShareableLink() {
+    const baseUrl = window.location.origin + window.location.pathname;
+    const params = new URLSearchParams();
+    
+    // Encode slice data
+    if (currentSlices.length > 0) {
+        const sliceData = currentSlices.map(slice => slice.tiles.join(',')).join('|');
+        params.set('slices', sliceData);
+    }
+    
+    // Encode taken states
+    const takenSlices = Object.keys(sliceStates).filter(id => sliceStates[id]);
+    if (takenSlices.length > 0) {
+        params.set('taken', takenSlices.join(','));
+    }
+    
+    const shareUrl = `${baseUrl}?${params.toString()}`;
+    showShareModal(shareUrl);
+}
+
+function showShareModal(link) {
+    let modal = document.getElementById('shareModal');
+    
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'shareModal';
+        modal.className = 'modal';
+        
+        const modalContent = document.createElement('div');
+        modalContent.className = 'modal-content';
+        
+        const closeButton = document.createElement('span');
+        closeButton.className = 'close-button';
+        closeButton.innerHTML = '&times;';
+        closeButton.onclick = () => modal.style.display = 'none';
+        
+        const title = document.createElement('h2');
+        title.textContent = 'Shareable Link';
+        
+        const description = document.createElement('p');
+        description.textContent = 'Share this link to let others view the current slices and their taken/available states:';
+        description.style.marginBottom = '15px';
+        
+        const linkContainer = document.createElement('div');
+        linkContainer.className = 'shareable-link-container';
+        
+        const linkInput = document.createElement('input');
+        linkInput.type = 'text';
+        linkInput.id = 'shareableLinkInput';
+        linkInput.readOnly = true;
+        linkInput.value = link;
+        
+        const copyButton = document.createElement('button');
+        copyButton.textContent = 'Copy';
+        copyButton.onclick = () => {
+            linkInput.select();
+            navigator.clipboard.writeText(linkInput.value).then(() => {
+                copyButton.textContent = 'Copied!';
+                setTimeout(() => {
+                    copyButton.textContent = 'Copy';
+                }, 2000);
+            }).catch(() => {
+                // Fallback for older browsers
+                document.execCommand('copy');
+                copyButton.textContent = 'Copied!';
+                setTimeout(() => {
+                    copyButton.textContent = 'Copy';
+                }, 2000);
+            });
+        };
+        
+        linkContainer.appendChild(linkInput);
+        linkContainer.appendChild(copyButton);
+        
+        modalContent.appendChild(closeButton);
+        modalContent.appendChild(title);
+        modalContent.appendChild(description);
+        modalContent.appendChild(linkContainer);
+        modal.appendChild(modalContent);
+        
+        document.body.appendChild(modal);
+    } else {
+        // Update link if modal already exists
+        document.getElementById('shareableLinkInput').value = link;
+    }
+    
+    // Show the modal
+    modal.style.display = 'block';
+    
+    // Close modal when clicking outside
+    modal.onclick = (e) => {
+        if (e.target === modal) {
+            modal.style.display = 'none';
+        }
+    };
+}
+
+function loadStateFromURL() {
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    // Load slice data from URL
+    const slicesParam = urlParams.get('slices');
+    if (slicesParam) {
+        const sliceLines = slicesParam.split('|');
+        const customSlicesInput = document.getElementById('custom-slices-input');
+        if (customSlicesInput) {
+            customSlicesInput.value = sliceLines.join('\n');
+            // Trigger loading after a short delay to ensure DOM is ready
+            setTimeout(() => {
+                loadAndRenderCustomSlices();
+                
+                // Load taken states after slices are rendered
+                const takenParam = urlParams.get('taken');
+                if (takenParam) {
+                    const takenIds = takenParam.split(',');
+                    takenIds.forEach(id => {
+                        sliceStates[id] = true;
+                    });
+                    
+                    // Apply taken states to rendered slices
+                    setTimeout(() => {
+                        applyTakenStates();
+                    }, 100);
+                }
+            }, 100);
+        }
+    } else {
+        // Load taken states for default slices
+        const takenParam = urlParams.get('taken');
+        if (takenParam) {
+            const takenIds = takenParam.split(',');
+            takenIds.forEach(id => {
+                sliceStates[id] = true;
+            });
+            
+            // Apply taken states after default slices are rendered
+            setTimeout(() => {
+                applyTakenStates();
+            }, 100);
+        }
+    }
+}
+
+function applyTakenStates() {
+    const sliceElements = document.querySelectorAll('.slice-container');
+    sliceElements.forEach(element => {
+        const takeButton = element.querySelector('.take-slice-btn');
+        if (takeButton) {
+            const sliceId = takeButton.dataset.sliceId;
+            if (sliceStates[sliceId]) {
+                updateSliceDisplay(element, sliceId);
+                updateTakeButton(takeButton, sliceId);
+            }
+        }
+    });
+}
+
+// Tile magnifier functionality
+function addTileMagnifier(tileElement, tileId, tileInfo) {
+    const img = tileElement.querySelector('img');
+    if (!img) return;
+
+    tileElement.addEventListener('mouseenter', (e) => {
+        showTileMagnifier(e, tileId, tileInfo, img.src);
+    });
+
+    tileElement.addEventListener('mousemove', (e) => {
+        updateMagnifierPosition(e);
+    });
+
+    tileElement.addEventListener('mouseleave', () => {
+        hideTileMagnifier();
+    });
+}
+
+function showTileMagnifier(event, tileId, tileInfo, imageSrc) {
+    // Remove any existing magnifier
+    hideTileMagnifier();
+
+    const magnifier = document.createElement('div');
+    magnifier.id = 'tileMagnifier';
+    magnifier.className = 'tile-magnifier';
+
+    // Create magnified image
+    const img = document.createElement('img');
+    img.src = imageSrc;
+    img.alt = `Tile ${tileId}`;
+    magnifier.appendChild(img);
+
+    // Add tile ID
+    const tileIdLabel = document.createElement('div');
+    tileIdLabel.className = 'magnifier-tile-id';
+    tileIdLabel.textContent = tileId;
+    magnifier.appendChild(tileIdLabel);
+
+    // Add stats if available
+    if (tileInfo) {
+        const statsContainer = document.createElement('div');
+        statsContainer.className = 'magnifier-stats';
+
+        const statsText = document.createElement('div');
+        statsText.className = 'magnifier-stats-text';
+
+        if (tileInfo.type === 'red') {
+            if (tileInfo.anomaly) {
+                statsText.textContent = tileInfo.anomaly;
+                statsText.classList.add('anomaly-text');
+            } else if (tileInfo.wormhole) {
+                const wormholeType = tileInfo.wormhole === 'alpha' ? 'α' : 'β';
+                statsText.textContent = wormholeType;
+                statsText.classList.add('wormhole-text');
+            } else {
+                statsText.textContent = 'Empty';
+                statsText.classList.add('empty-text');
+            }
+        } else if (tileInfo.resources > 0 || tileInfo.influence > 0) {
+            const resourceValue = tileInfo.resources || 0;
+            const influenceValue = tileInfo.influence || 0;
+            const resourceSpan = document.createElement('span');
+            resourceSpan.className = 'tile-resource';
+            resourceSpan.textContent = resourceValue;
+            const separator = document.createElement('span');
+            separator.textContent = '/';
+            separator.className = 'tile-stat-separator';
+            const influenceSpan = document.createElement('span');
+            influenceSpan.className = 'tile-influence';
+            influenceSpan.textContent = influenceValue;
+            statsText.appendChild(resourceSpan);
+            statsText.appendChild(separator);
+            statsText.appendChild(influenceSpan);
+        } else {
+            statsText.textContent = '0/0';
+        }
+
+        statsContainer.appendChild(statsText);
+
+        // Add tech specialty icon if available
+        if (tileInfo.specialty) {
+            const techIcon = document.createElement('div');
+            techIcon.className = 'magnifier-tech-icon';
+            const techImg = document.createElement('img');
+            techImg.src = techSpecialtyIcons[tileInfo.specialty];
+            techImg.alt = tileInfo.specialty;
+            techImg.title = tileInfo.specialty;
+            techIcon.appendChild(techImg);
+            statsContainer.appendChild(techIcon);
+        }
+
+        // Add wormhole icon if available (for non-red tiles or red tiles with anomalies)
+        if (tileInfo.wormhole && !(tileInfo.type === 'red' && !tileInfo.anomaly)) {
+            const wormholeIcon = document.createElement('div');
+            wormholeIcon.className = 'magnifier-wormhole-icon';
+            wormholeIcon.textContent = wormholeIcons[tileInfo.wormhole] || '?';
+            wormholeIcon.title = `${tileInfo.wormhole.charAt(0).toUpperCase() + tileInfo.wormhole.slice(1)} Wormhole`;
+            statsContainer.appendChild(wormholeIcon);
+        }
+
+        magnifier.appendChild(statsContainer);
+    }
+
+    document.body.appendChild(magnifier);
+    magnifier.style.display = 'block';
+    
+    // Position the magnifier
+    updateMagnifierPosition(event);
+}
+
+function updateMagnifierPosition(event) {
+    const magnifier = document.getElementById('tileMagnifier');
+    if (!magnifier) return;
+
+    const offset = 20;
+    const mouseX = event.clientX;
+    const mouseY = event.clientY;
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+    const magnifierWidth = 300;
+    const magnifierHeight = 300;
+
+    let left = mouseX + offset;
+    let top = mouseY + offset;
+
+    // Adjust position if magnifier would go off screen
+    if (left + magnifierWidth > windowWidth) {
+        left = mouseX - magnifierWidth - offset;
+    }
+    if (top + magnifierHeight > windowHeight) {
+        top = mouseY - magnifierHeight - offset;
+    }
+
+    // Ensure magnifier stays within viewport
+    left = Math.max(10, Math.min(left, windowWidth - magnifierWidth - 10));
+    top = Math.max(10, Math.min(top, windowHeight - magnifierHeight - 10));
+
+    magnifier.style.left = left + 'px';
+    magnifier.style.top = top + 'px';
+}
+
+function hideTileMagnifier() {
+    const existing = document.getElementById('tileMagnifier');
+    if (existing) {
+        existing.remove();
+    }
 }
