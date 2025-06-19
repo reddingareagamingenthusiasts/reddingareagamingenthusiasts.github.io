@@ -4,7 +4,11 @@ const STAGE_I_OBJECTIVES_BASE = [
     { id: "s1b3", name: "Intimidate Council", text: "Have 1 or more ships in 2 systems that are adjacent to Mecatol Rex's System.", points: 1, type: "Stage I" },
     { id: "s1b4", name: "Lead from the Front", text: "Spend a total of 3 tokens from your tactic and/or strategy pools.", points: 1, type: "Stage I" },
     { id: "s1b5", name: "Negotiate Trade Routes", text: "Spend 5 trade goods.", points: 1, type: "Stage I" },
-    { id: "s1b6", name: "Sway the Council", text: "Spend 8 influence.", points: 1, type: "Stage I" }
+    { id: "s1b6", name: "Sway the Council", text: "Spend 8 influence.", points: 1, type: "Stage I" },
+    { id: "s1b7", name: "Amass Wealth", text: "Spend 3 influence, 3 resources, and 3 trade goods.", points: 1, type: "Stage I" },
+    { id: "s1b8", name: "Corner the Market", text: "Control 4 planets that each have the same planet trait.", points: 1, type: "Stage I" },
+    { id: "s1b9", name: "Develop Weaponry", text: "Own 2 unit upgrade technologies.", points: 1, type: "Stage I" },
+    { id: "s1b10", name: "Build Defenses", text: "Have 4 or more structures.", points: 1, type: "Stage I" }
 ];
 
 const STAGE_I_OBJECTIVES_POK = [
