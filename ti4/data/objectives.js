@@ -8,7 +8,8 @@ const STAGE_I_OBJECTIVES_BASE = [
     { id: "s1b7", name: "Amass Wealth", text: "Spend 3 influence, 3 resources, and 3 trade goods.", points: 1, type: "Stage I" },
     { id: "s1b8", name: "Corner the Market", text: "Control 4 planets that each have the same planet trait.", points: 1, type: "Stage I" },
     { id: "s1b9", name: "Develop Weaponry", text: "Own 2 unit upgrade technologies.", points: 1, type: "Stage I" },
-    { id: "s1b10", name: "Build Defenses", text: "Have 4 or more structures.", points: 1, type: "Stage I" }
+    { id: "s1b10", name: "Build Defenses", text: "Have 4 or more structures.", points: 1, type: "Stage I" },
+    { id: "s1b11", name: "Diversify Research", text: "Own 2 technologies in each of 2 colors.", points: 1, type: "Stage I" }
 ];
 
 const STAGE_I_OBJECTIVES_POK = [
