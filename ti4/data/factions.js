@@ -3,6 +3,7 @@ const FACTIONS = [
     'Argent Flight',
     'Barony of Letnev',
     'Clan of Saar',
+    'Council Keleres',
     'Embers of Muaat',
     'Emirates of Hacan',
     'Empyrean',

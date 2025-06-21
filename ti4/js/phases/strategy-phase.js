@@ -124,7 +124,27 @@ function selectStrategyCard(playerId, cardName) {
         delete state.selectedCards[playerId];
     }
     
-    updateTurnOrderByInitiative(); // This will call saveGameState()
+    // End current player's turn timer and start next player's turn timer
+    if (state.stage === 'strategy-selection') {
+        if (window.gameTimer && typeof window.gameTimer.endCurrentPlayerTurn === 'function') {
+            window.gameTimer.endCurrentPlayerTurn();
+        }
+        
+        // Get the next player before updating turn order (which might change the order)
+        const nextPlayerAfterSelection = getNextPlayerInOrder();
+        
+        // Update turn order by initiative
+        updateTurnOrderByInitiative(); // This will call saveGameState()
+        
+        // Start timer for next player if there is one
+        if (nextPlayerAfterSelection && window.gameTimer && typeof window.gameTimer.startPlayerTurn === 'function') {
+            window.gameTimer.startPlayerTurn(nextPlayerAfterSelection);
+        }
+    } else {
+        // If not in strategy selection phase, just update turn order
+        updateTurnOrderByInitiative(); // This will call saveGameState()
+    }
+    
     return true;
 }
 
@@ -154,6 +174,15 @@ function proceedToActivePhase() {
 
             state.stage = 'active';
             state.phase = 'Action';
+            
+            // Start the turn timer for the first player in the action phase
+            if (state.turnOrder && state.turnOrder.length > 0) {
+                const firstPlayerId = state.turnOrder[0];
+                if (window.gameTimer && typeof window.gameTimer.startPlayerTurn === 'function') {
+                    window.gameTimer.startPlayerTurn(firstPlayerId);
+                }
+            }
+            
             window.stateCore.saveGameState();
         } else {
             console.warn("Not all players have selected strategy cards.");

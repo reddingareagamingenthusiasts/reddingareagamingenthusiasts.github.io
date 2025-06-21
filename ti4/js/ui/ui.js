@@ -266,6 +266,32 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Menu Item: Export Game
+    const menuExportBtn = document.getElementById('menu-export-button');
+    if (menuExportBtn) {
+        menuExportBtn.addEventListener('click', () => {
+            window.stateCore.exportGameState();
+            // Close the menu after clicking
+            const menuDropdown = document.getElementById('menu-dropdown');
+            if (menuDropdown) {
+                menuDropdown.classList.remove('open');
+            }
+        });
+    }
+
+    // Menu Item: Import Game
+    const menuImportBtn = document.getElementById('menu-import-button');
+    if (menuImportBtn) {
+        menuImportBtn.addEventListener('click', () => {
+            window.stateCore.promptImportGameState();
+            // Close the menu after clicking
+            const menuDropdown = document.getElementById('menu-dropdown');
+            if (menuDropdown) {
+                menuDropdown.classList.remove('open');
+            }
+        });
+    }
+
     // Listener for Next Round (assuming it's static in active-stage)
     const nextRoundBtn = document.getElementById('next-round');
     if (nextRoundBtn) {
@@ -555,9 +581,7 @@ function updateStrategySelectionUI(container) { // Changed from state.js, now ta
             gameState.strategyCards = [...BASE_STRATEGY_CARDS];
             console.log('Initialized strategy cards from BASE_STRATEGY_CARDS');
         }
-    }
-
-    const header = document.createElement('div');
+    }    const header = document.createElement('div');
     header.className = 'setup-header';
     header.innerHTML = `
         <h3>Strategy Phase</h3>
@@ -568,22 +592,70 @@ function updateStrategySelectionUI(container) { // Changed from state.js, now ta
     // Main content wrapper for side-by-side layout
     const mainContentWrapper = document.createElement('div');
     mainContentWrapper.className = 'strategy-selection-main-content';
-    container.appendChild(mainContentWrapper);
-
-    // Left side: Turn Order
+    container.appendChild(mainContentWrapper);    // Left side: Turn Order with Round Tracker
     const turnOrderDisplay = document.createElement('div');
     turnOrderDisplay.className = 'turn-order-display vertical-turn-order'; // New class for vertical styling
-    turnOrderDisplay.innerHTML = `
-        <h3>Turn Order</h3>
-        <div class="turn-order-list">
-            ${getTurnOrderDisplay()
-                .map((p, i) => `
-                    <div class="turn-order-item" style="color: ${p.color}">
-                        ${i + 1}. ${p.name} ${p.card ? `(${p.card} - ${p.initiative})` : ''}
-                    </div>
-                `).join('')}
+    turnOrderDisplay.innerHTML = ''; // Clear existing content
+
+    // Create Turn Order Header
+    const turnOrderHeaderEl = document.createElement('div');
+    turnOrderHeaderEl.className = 'turn-order-header';
+
+    const turnOrderTitle = document.createElement('h3');
+    turnOrderTitle.textContent = 'Turn Order';
+    // Create Container for Round Tracker and Timer
+    const roundTrackerAndTimerContainerEl = document.createElement('div');
+    roundTrackerAndTimerContainerEl.className = 'round-tracker-timer-container'; // Reuse class for styling
+
+    // Create Round Tracker Widget
+    const roundTrackerWidgetEl = document.createElement('div');
+    roundTrackerWidgetEl.className = 'round-tracker-widget';
+    roundTrackerWidgetEl.innerHTML = `
+        <i class="fas fa-clock"></i>
+        <div class="round-info-text">
+            <span class="label">Round</span>
+            <span id="round-number-strategy" class="value">${gameState.round}</span>
         </div>
     `;
+    roundTrackerAndTimerContainerEl.appendChild(roundTrackerWidgetEl);
+
+    // Create Game Timer Controls
+    const gameTimerControlsEl = document.createElement('div');
+    gameTimerControlsEl.className = 'game-timer-controls';
+
+    const gameTimerDisplayEl = document.createElement('span');
+    gameTimerDisplayEl.id = 'game-timer-display-strategy'; // Unique ID for this instance
+    gameTimerDisplayEl.className = 'game-timer-display';
+    gameTimerDisplayEl.textContent = '00:00:00';
+    gameTimerControlsEl.appendChild(gameTimerDisplayEl);
+
+    const gameTimerToggleButtonEl = document.createElement('button');
+    gameTimerToggleButtonEl.id = 'game-timer-toggle-button-strategy'; // Unique ID for this instance
+    gameTimerToggleButtonEl.className = 'game-timer-toggle-button';
+    gameTimerToggleButtonEl.innerHTML = '<i class="fas fa-pause"></i>'; // Initial state: Pause
+    gameTimerControlsEl.appendChild(gameTimerToggleButtonEl);
+
+    roundTrackerAndTimerContainerEl.appendChild(gameTimerControlsEl);
+
+    // Append the container (tracker and timer) to the header FIRST
+    turnOrderHeaderEl.appendChild(roundTrackerAndTimerContainerEl);
+
+    // Then append the Turn Order Title to the header
+    turnOrderHeaderEl.appendChild(turnOrderTitle);
+
+    // Append header to turnOrderDisplay
+    turnOrderDisplay.appendChild(turnOrderHeaderEl);
+
+    // Create Turn Order List
+    const turnOrderListEl = document.createElement('div');
+    turnOrderListEl.className = 'turn-order-list';
+    turnOrderListEl.innerHTML = getTurnOrderDisplay()
+        .map((p, i) => `
+            <div class="turn-order-item" style="color: ${p.color}">
+                ${i + 1}. ${p.name} ${p.card ? `(${p.card} - ${p.initiative})` : ''}
+            </div>
+        `).join('');
+    turnOrderDisplay.appendChild(turnOrderListEl);
     mainContentWrapper.appendChild(turnOrderDisplay);
 
     // Right side: Strategy Cards Grid (which includes banner and cards)
@@ -693,7 +765,11 @@ function updateStrategySelectionUI(container) { // Changed from state.js, now ta
         cardElement.dataset.card = card.name;
 
         if (isClickable) {
-            cardElement.onclick = () => handleStrategyCardClick(nextPlayer, card.name);
+            cardElement.onclick = (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                window.strategyPhaseUI.handleStrategyCardClick(event, nextPlayer, card.name);
+            };
         }
 
         // Calculate total characters for dynamic font sizing
@@ -1285,6 +1361,10 @@ function updateActiveGameUI(container) {
         topBarWrapper.innerHTML = ''; // Clear only the top bar for re-rendering
     }
 
+    // Container for Round Tracker and Game Timer
+    const roundTrackerAndTimerContainer = document.createElement('div');
+    roundTrackerAndTimerContainer.className = 'round-tracker-timer-container';
+
     // Round Tracker (Clock Icon and Round Number)
     const roundTrackerWidget = document.createElement('div');
     roundTrackerWidget.className = 'round-tracker-widget';
@@ -1295,7 +1375,27 @@ function updateActiveGameUI(container) {
             <span id="round-number" class="value">${gameState.round}</span>
         </div>
     `;
-    topBarWrapper.appendChild(roundTrackerWidget);
+    roundTrackerAndTimerContainer.appendChild(roundTrackerWidget);
+
+    // Game Timer and Controls
+    const gameTimerControls = document.createElement('div');
+    gameTimerControls.className = 'game-timer-controls';
+
+    const gameTimerDisplay = document.createElement('span');
+    gameTimerDisplay.id = 'game-timer-display';
+    gameTimerDisplay.className = 'game-timer-display';
+    gameTimerDisplay.textContent = '00:00:00';
+    gameTimerControls.appendChild(gameTimerDisplay);
+
+    const gameTimerToggleButton = document.createElement('button');
+    gameTimerToggleButton.id = 'game-timer-toggle-button';
+    gameTimerToggleButton.className = 'game-timer-toggle-button';
+    gameTimerToggleButton.innerHTML = '<i class="fas fa-pause"></i>'; // Initial state: Pause
+    gameTimerControls.appendChild(gameTimerToggleButton);
+
+    roundTrackerAndTimerContainer.appendChild(gameTimerControls);
+
+    topBarWrapper.appendChild(roundTrackerAndTimerContainer);
 
     // Score Track
     const scoreTrackContainer = document.createElement('div');
@@ -1399,7 +1499,7 @@ function createPlayerCard(player) {
         </div>
         <div class="strategy-cards">
             ${card ? `
-                <div class="strategy-card selected" onclick="handleStrategyCardClick('${player.id}', '${selectedCard}')" data-card="${selectedCard}">
+                <div class="strategy-card selected" onclick="event.preventDefault(); event.stopPropagation(); window.strategyPhaseUI.handleStrategyCardClick(event, '${player.id}', '${selectedCard}')" data-card="${selectedCard}">
                     <span class="initiative-number">${card.initiative}</span>
                     <i class="fas ${getStrategyCardIcon(selectedCard)}"></i>
                     ${selectedCard}

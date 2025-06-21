@@ -1,0 +1,112 @@
+/* Agenda Phase Voting Styles */
+.voting-controls {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 8px;
+    justify-content: center;
+}
+
+.vote-btn {
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    background-color: var(--secondary-color);
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-size: 0.9rem;
+}
+
+.vote-btn:hover {
+    background-color: rgba(var(--accent-secondary-rgb), 0.2);
+    border-color: rgba(var(--accent-secondary-rgb), 0.5);
+    transform: translateY(-1px);
+}
+
+.vote-btn.active {
+    color: white;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+}
+
+.vote-btn.active.for {
+    background-color: #28a745; /* Green for 'For' */
+    border-color: #28a745;
+}
+
+.vote-btn.active.against {
+    background-color: #dc3545; /* Red for 'Against' */
+    border-color: #dc3545;
+}
+
+.vote-btn.active.abstain {
+    background-color: #6c757d; /* Gray for 'Abstain' */
+    border-color: #6c757d;
+}
+
+.vote-btn i {
+    pointer-events: none; /* Ensures clicking the icon triggers the button's onclick */
+}
+
+/* Compact vote results in step 6 */
+.step-vote-results {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.vote-display-compact {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 6px;
+}
+
+.vote-count-compact {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.vote-count-compact.for-votes {
+    color: #28a745;
+}
+
+.vote-count-compact.against-votes {
+    color: #dc3545;
+}
+
+.vote-count-compact i {
+    font-size: 0.9rem;
+}
+
+.step-result-message {
+    font-size: 0.7rem;
+    text-align: center;
+    font-weight: bold;
+    padding: 2px 4px;
+    border-radius: 3px;
+    margin-top: 4px;
+}
+
+.step-result-message.tie-result {
+    color: #ffc107;
+    background: rgba(255, 193, 7, 0.1);
+}
+
+.step-result-message.for-result {
+    color: #28a745;
+    background: rgba(40, 167, 69, 0.1);
+}
+
+.step-result-message.against-result {
+    color: #dc3545;
+    background: rgba(220, 53, 69, 0.1);
+}
+
+.step-result-message.waiting-result {
+    color: #6c757d;
+    background: rgba(108, 117, 125, 0.1);
+}

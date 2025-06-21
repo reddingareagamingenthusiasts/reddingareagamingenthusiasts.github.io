@@ -48,13 +48,13 @@ function renderStatusPhaseUI(container) {
         'Repair units',
         'Return Strategies'
     ];
-    
-    steps.forEach((step, index) => {
+      steps.forEach((step, index) => {
         const stepCard = document.createElement('div');
         stepCard.className = 'status-step-card';
+        stepCard.dataset.stepIndex = index;
         
-        // Highlight current step
-        if (index === state.statusStep) {
+        // Highlight current step if it's set in state
+        if (state.currentStatusStep === index) {
             stepCard.classList.add('current-step');
         }
         
@@ -68,6 +68,35 @@ function renderStatusPhaseUI(container) {
         
         stepCard.appendChild(stepNumber);
         stepCard.appendChild(stepText);
+        
+        // Add click handler to toggle highlighting
+        stepCard.addEventListener('click', (e) => {
+            // Toggle current step in UI
+            const wasActive = stepCard.classList.contains('current-step');
+            
+            // Remove current-step class from all cards
+            document.querySelectorAll('.status-step-card').forEach(card => {
+                card.classList.remove('current-step');
+            });
+            
+            // If this card wasn't active, make it active and update state
+            if (!wasActive) {
+                stepCard.classList.add('current-step');
+                
+                // Update state with current step
+                const state = window.stateCore.getGameState();
+                window.stateCore.recordHistory();
+                state.currentStatusStep = index;
+                window.stateCore.saveGameState();
+            } else {
+                // If it was active and we clicked it again, clear the current step
+                const state = window.stateCore.getGameState();
+                window.stateCore.recordHistory();
+                state.currentStatusStep = undefined;
+                window.stateCore.saveGameState();
+            }
+        });
+        
         cardsWrapper.appendChild(stepCard);
     });
     

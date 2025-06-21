@@ -4,6 +4,11 @@ function advanceActionPhaseTurn() {
     const state = window.stateCore.getGameState();
     window.stateCore.recordHistory();
 
+    // End the current player's turn timer before advancing
+    if (window.gameTimer && typeof window.gameTimer.endCurrentPlayerTurn === 'function') {
+        window.gameTimer.endCurrentPlayerTurn();
+    }
+
     // Clear any staged action when advancing turns
     clearStagedAction();
 
@@ -40,6 +45,13 @@ function advanceActionPhaseTurn() {
 
     // Update the active player index
     state.activePlayer = state.actionPhasePlayerIndex;
+    
+    // Start the new player's turn timer
+    const newCurrentPlayerId = state.turnOrder[state.actionPhasePlayerIndex];
+    if (window.gameTimer && typeof window.gameTimer.startPlayerTurn === 'function') {
+        window.gameTimer.startPlayerTurn(newCurrentPlayerId);
+    }
+    
     window.stateCore.saveGameState();
 }
 
@@ -160,6 +172,11 @@ function proceedToStatusPhase() {
     const state = window.stateCore.getGameState();
     window.stateCore.recordHistory();
     
+    // End the current player's turn timer when moving to Status Phase
+    if (window.gameTimer && typeof window.gameTimer.endCurrentPlayerTurn === 'function') {
+        window.gameTimer.endCurrentPlayerTurn();
+    }
+    
     state.phase = 'Status';
     console.log("Proceeding to Status Phase. Players will score objectives, reveal objectives, etc.");
 
@@ -215,15 +232,15 @@ function promptForNewSpeaker(currentPlayerId) {
     modalContent.appendChild(title);
     
     const description = document.createElement('p');
-    description.textContent = 'The Politics strategy card allows you to select a new Speaker.';
+    description.textContent = 'Choose a player other than the current speaker to become the new speaker.';
     modalContent.appendChild(description);
     
     const playerList = document.createElement('div');
     playerList.className = 'speaker-selection-list';
     
-    // Add all players except the current one
+    // Add all players except the current speaker (Politics card allows selecting anyone other than the current speaker)
     state.players.forEach(player => {
-        if (player.id !== currentPlayerId) {
+        if (!player.isCurrentSpeaker) {
             const playerOption = document.createElement('div');
             playerOption.className = 'speaker-option';
             playerOption.style.borderColor = player.color;
@@ -286,7 +303,7 @@ function selectNewSpeaker(newSpeakerId) {
     
     window.stateCore.saveGameState();
     
-    // Now continue with the turn
+    // Now continue with the turn (this will handle timer transitions)
     advanceActionPhaseTurn();
 }
 

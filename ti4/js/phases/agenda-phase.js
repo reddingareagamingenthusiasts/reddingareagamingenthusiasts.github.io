@@ -21,6 +21,7 @@ function proceedToAgendaPhase() {
     // Initialize agenda tracking
     state.currentAgendaStep = 0; // First step
     state.currentAgendaNumber = 1; // First agenda
+    state.agendaVotes = {}; // Initialize votes for the first agenda
       // Initialize influence counters if they don't exist
     if (!state.influenceCounters) {
         state.influenceCounters = {};
@@ -51,6 +52,7 @@ function completeAgendaPhase() {
     
     // Reset agenda phase data
     state.agendaPhase = null;
+    state.agendaVotes = undefined;
     
     // Reset agenda tracking
     state.currentAgendaStep = undefined;
@@ -76,6 +78,19 @@ function completeAgendaPhase() {
         state.players.forEach(player => {
             player.isCurrentSpeaker = (player.id === state.speaker);
         });
+    }
+
+    // Start the turn timer for the first player in strategy selection
+    // Since we cleared turn order, we need to initialize it first
+    if (window.strategyPhase && typeof window.strategyPhase.initializeStrategyPhaseTurnOrder === 'function') {
+        window.strategyPhase.initializeStrategyPhaseTurnOrder();
+        if (state.turnOrder && state.turnOrder.length > 0) {
+            const firstPlayerId = state.turnOrder[0];
+            if (window.gameTimer && typeof window.gameTimer.startPlayerTurn === 'function') {
+                window.gameTimer.startPlayerTurn(firstPlayerId);
+                console.log('Started turn timer for first player in new round strategy selection:', firstPlayerId);
+            }
+        }
     }
 
     console.log(`Agenda Phase complete. Starting Round ${state.round} in Strategy Phase.`);
@@ -107,9 +122,47 @@ function initializeAgendaPhaseTurnOrder(state) {
     console.log('Initialized agenda phase turn order:', state.agendaTurnOrder);
 }
 
+/**
+ * Sets a player's vote for the current agenda.
+ * @param {string} playerId - The ID of the player voting.
+ * @param {string} vote - The vote ('for', 'against', 'abstain').
+ */
+function setPlayerVote(playerId, vote) {
+    const state = window.stateCore.getGameState();
+    window.stateCore.recordHistory();
+
+    if (!state.agendaVotes) {
+        state.agendaVotes = {};
+    }
+
+    // If player clicks the same vote again, clear their vote
+    if (state.agendaVotes[playerId] === vote) {
+        delete state.agendaVotes[playerId];
+    } else {
+        state.agendaVotes[playerId] = vote;
+    }
+
+    console.log(`Player ${playerId} voted ${state.agendaVotes[playerId] || 'cleared vote'}`);
+    window.stateCore.saveGameState();
+    window.ui.updateUI(); // Re-render to show vote status
+}
+
+/**
+ * Clears all votes for the current agenda.
+ */
+function clearAllVotes() {
+    const state = window.stateCore.getGameState();
+    window.stateCore.recordHistory();
+    state.agendaVotes = {};
+    console.log('All votes cleared for the current agenda.');
+    window.stateCore.saveGameState();
+}
+
 // Export all functions that will be used by other modules
 window.agendaPhase = {
     proceedToAgendaPhase,
     completeAgendaPhase,
-    initializeAgendaPhaseTurnOrder
+    initializeAgendaPhaseTurnOrder,
+    setPlayerVote,
+    clearAllVotes
 };

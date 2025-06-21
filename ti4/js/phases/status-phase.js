@@ -170,6 +170,28 @@ function proceedToNextRound() {
             player.passed = false;
         });
 
+        // Start the turn timer for the first player in strategy selection
+        // Need to ensure turn order is initialized first
+        if (state.turnOrder && state.turnOrder.length > 0) {
+            const firstPlayerId = state.turnOrder[0];
+            if (window.gameTimer && typeof window.gameTimer.startPlayerTurn === 'function') {
+                window.gameTimer.startPlayerTurn(firstPlayerId);
+                console.log('Started turn timer for first player in new round strategy selection:', firstPlayerId);
+            }
+        } else {
+            // If turn order is empty, initialize it and then start timer
+            if (window.strategyPhase && typeof window.strategyPhase.initializeStrategyPhaseTurnOrder === 'function') {
+                window.strategyPhase.initializeStrategyPhaseTurnOrder();
+                if (state.turnOrder && state.turnOrder.length > 0) {
+                    const firstPlayerId = state.turnOrder[0];
+                    if (window.gameTimer && typeof window.gameTimer.startPlayerTurn === 'function') {
+                        window.gameTimer.startPlayerTurn(firstPlayerId);
+                        console.log('Initialized turn order and started turn timer for first player:', firstPlayerId);
+                    }
+                }
+            }
+        }
+
         console.log(`Starting Round ${state.round}. Proceed to Strategy Phase.`);
     }
     

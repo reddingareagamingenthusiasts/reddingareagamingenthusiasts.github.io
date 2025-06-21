@@ -4,6 +4,7 @@ let gameStateHistory = [];
 
 // Initial game state
 const MAX_PLAYERS = 10;
+const MAX_HISTORY_SIZE = 50; // Limit undo history to last 50 actions
 
 // Function to record current state to history before a change
 function recordHistory() {
@@ -15,6 +16,11 @@ function recordHistory() {
     // For all other stages, record the history.
     try {
         gameStateHistory.push(JSON.parse(JSON.stringify(gameState)));
+        
+        // Limit history size to prevent memory issues
+        if (gameStateHistory.length > MAX_HISTORY_SIZE) {
+            gameStateHistory.shift(); // Remove oldest entry
+        }
     } catch (error) {
         console.error("Error recording history:", error);
     }
@@ -186,6 +192,123 @@ function getGameState() {
     return gameState;
 }
 
+// Export game state as JSON file
+function exportGameState() {
+    if (!gameState) {
+        console.error('No game state to export');
+        return;
+    }
+    
+    const exportData = {
+        gameState: gameState,
+        exportDate: new Date().toISOString(),
+        version: '1.0'
+    };
+    
+    const jsonString = JSON.stringify(exportData, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `ti4-game-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    console.log('Game state exported successfully (current state only)');
+}
+
+// Import game state from JSON file
+function importGameState(file) {
+    if (!file) {
+        console.error('No file provided for import');
+        return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const importData = JSON.parse(e.target.result);
+            
+            // Validate the imported data structure
+            if (!importData.gameState) {
+                throw new Error('Invalid file format: missing gameState');
+            }
+            
+            // Backup current state before importing (just in case)
+            const currentStateBackup = {
+                gameState: gameState ? JSON.parse(JSON.stringify(gameState)) : null,
+                gameStateHistory: [...gameStateHistory]
+            };
+            
+            // Import the new state
+            gameState = importData.gameState;
+            gameStateHistory = importData.gameStateHistory || [];
+            
+            // Run migration to ensure compatibility
+            migrateGameState();
+            
+            // Save the imported state
+            saveGameState();
+            
+            const historySize = gameStateHistory.length;
+            console.log('Game state imported successfully');
+            console.log('Import date:', importData.exportDate);
+            console.log('Import version:', importData.version);
+            console.log(`History entries: ${historySize}`);
+            
+            // Show success message to user
+            if (typeof showThemedAlert === 'function') {
+                showThemedAlert(`Game imported successfully!${historySize > 0 ? ` (${historySize} undo steps available)` : ' (no history)'}`);
+            } else {
+                alert(`Game imported successfully!${historySize > 0 ? ` (${historySize} undo steps available)` : ' (no history)'}`);
+            }
+            
+        } catch (error) {
+            console.error('Error importing game state:', error);
+            
+            // Show error message to user
+            if (typeof showThemedAlert === 'function') {
+                showThemedAlert(`Error importing game: ${error.message}`);
+            } else {
+                alert(`Error importing game: ${error.message}`);
+            }
+        }
+    };
+    
+    reader.onerror = function() {
+        console.error('Error reading file');
+        if (typeof showThemedAlert === 'function') {
+            showThemedAlert('Error reading file');
+        } else {
+            alert('Error reading file');
+        }
+    };
+    
+    reader.readAsText(file);
+}
+
+// Prompt user to select a file for import
+function promptImportGameState() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.style.display = 'none';
+    
+    input.onchange = function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            importGameState(file);
+        }
+        document.body.removeChild(input);
+    };
+    
+    document.body.appendChild(input);
+    input.click();
+}
+
 // Export all functions that will be used by other modules
 window.stateCore = {
     generateId,
@@ -194,5 +317,8 @@ window.stateCore = {
     saveGameState,
     recordHistory,
     undoAction,
-    getGameState
+    getGameState,
+    exportGameState,
+    importGameState,
+    promptImportGameState
 };

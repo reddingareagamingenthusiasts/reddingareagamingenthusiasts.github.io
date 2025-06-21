@@ -26,7 +26,7 @@ function renderSelectedCard(player, cardName) {
                 ${player.isCurrentSpeaker ? `<i class="fas fa-gavel speaker-icon" title="Current Speaker"></i>` : ''}
             </div>
         </div>
-        <div class="strategy-card selected" onclick="handleStrategyCardClick('${player.id}', '${cardName}')" data-card="${cardName}">
+        <div class="strategy-card selected" onclick="event.preventDefault(); event.stopPropagation(); window.strategyPhaseUI.handleStrategyCardClick(event, '${player.id}', '${cardName}')" data-card="${cardName}">
             <span class="initiative-number">${card.initiative}</span>
             <i class="fas ${getStrategyCardIcon(cardName)}"></i>
             ${cardName}
@@ -36,22 +36,25 @@ function renderSelectedCard(player, cardName) {
 
 function renderAvailableCards(player, isActive) {
     const state = window.stateCore.getGameState();
+    const selectedCards = Object.values(state.selectedCards);
+    
     return `
-        <div class="player-header">            <div class="player-name" style="color: ${player.color}">
+        <div class="player-header">
+            <div class="player-name" style="color: ${player.color}">
                 <i class="fas fa-user-astronaut"></i>
-                ${player.name} (${isActive ? 'Picking...' : 'Waiting...'})
+                ${player.name}
                 ${player.isCurrentSpeaker ? `<i class="fas fa-gavel speaker-icon" title="Current Speaker"></i>` : ''}
+                ${isActive ? '<span class="player-turn-indicator">(Selecting...)</span>' : ''}
             </div>
         </div>
-        <div class="cards-grid">
+        <div class="strategy-cards-grid">
             ${state.strategyCards.map(card => {
-                const isUnavailable = Object.values(state.selectedCards).includes(card.name);
+                const isUnavailable = selectedCards.includes(card.name) && selectedCards[player.id] !== card.name;
                 const canSelect = isActive && !isUnavailable;
                 
                 return `
-                    <div class="strategy-card ${isUnavailable ? 'unavailable' : ''} ${canSelect ? 'selectable' : ''}"
-                         onclick="${canSelect ? `handleStrategyCardClick('${player.id}', '${card.name}')` : ''}"
-                         style="${!canSelect && isActive ? 'cursor: not-allowed;' : ''}"
+                    <div class="strategy-card ${isUnavailable ? 'unavailable' : ''} ${canSelect ? 'selectable' : ''}" 
+                         onclick="${canSelect ? `event.preventDefault(); event.stopPropagation(); window.strategyPhaseUI.handleStrategyCardClick(event, '${player.id}', '${card.name}')` : ''}" 
                          data-card="${card.name}">
                         <span class="initiative-number">${card.initiative}</span>
                         <i class="fas ${getStrategyCardIcon(card.name)}"></i>
@@ -63,10 +66,41 @@ function renderAvailableCards(player, isActive) {
     `;
 }
 
-function handleStrategyCardClick(playerId, cardName) {
-    if (window.strategyPhase.selectStrategyCard(playerId, cardName)) {
-        updateUI();
+function handleStrategyCardClick(event, playerId, cardName) {
+    // Prevent all default behavior and stop event propagation
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (event.stopImmediatePropagation) {
+            event.stopImmediatePropagation();
+        }
     }
+    
+    // Store current scroll position
+    const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+    
+    try {
+        // Process the card selection
+        const selectionResult = window.strategyPhase.selectStrategyCard(playerId, cardName);
+        
+        if (selectionResult) {
+            // Update UI in the next tick to prevent layout thrashing
+            setTimeout(() => {
+                try {
+                    updateUI();
+                    // Restore scroll position after UI update
+                    window.scrollTo(0, scrollPosition);
+                } catch (e) {
+                    console.error('Error during UI update:', e);
+                }
+            }, 0);
+        }
+    } catch (e) {
+        console.error('Error in handleStrategyCardClick:', e);
+    }
+    
+    // Return false to prevent any default behavior
+    return false;
 }
 
 function updateStrategySelectionUI() {
@@ -118,9 +152,11 @@ function updateStrategySelectionUI() {
         
         const proceedBtn = proceedButton.querySelector('#proceed-to-action-phase');
         if (proceedBtn) {
-            proceedBtn.onclick = () => {
+            proceedBtn.onclick = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 window.strategyPhase.proceedToActivePhase();
-                updateUI();
+                // updateUI() is called by proceedToActivePhase via saveGameState
             };
         }
     }

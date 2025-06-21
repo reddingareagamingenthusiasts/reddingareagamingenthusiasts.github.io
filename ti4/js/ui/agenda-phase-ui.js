@@ -32,12 +32,6 @@ function renderAgendaPhaseUI(container) {
     const agendaContentWrapper = document.createElement('div');
     agendaContentWrapper.className = 'agenda-content-wrapper';
     
-    // Add header for influence counters with proper spacing
-    const header = document.createElement('h2');
-    header.className = 'phase-header influence-counters-header';
-    header.textContent = 'Influence counters';
-    agendaContentWrapper.appendChild(header);
-    
     // Create influence counters container
     const influenceContainer = document.createElement('div');
     influenceContainer.className = 'influence-counters-container';
@@ -52,10 +46,35 @@ function renderAgendaPhaseUI(container) {
         // If no speaker found, use default player order
         orderedPlayers = [...state.players];
     } else {
-        // Create player order starting with speaker and going clockwise
-        for (let i = 0; i < state.players.length; i++) {
-            const playerIndex = (speakerIndex + i) % state.players.length;
-            orderedPlayers.push(state.players[playerIndex]);
+        // Check if Argent Flight is present - they always vote first
+        const argentPlayer = state.players.find(player => player.faction === 'Argent Flight');
+        
+        if (argentPlayer) {
+            // Argent Flight votes first
+            orderedPlayers.push(argentPlayer);
+            
+            // Then add all other players in normal order (starting with player after speaker)
+            for (let i = 1; i < state.players.length; i++) {
+                const playerIndex = (speakerIndex + i) % state.players.length;
+                const player = state.players[playerIndex];
+                // Skip Argent Flight since they're already first
+                if (player.faction !== 'Argent Flight') {
+                    orderedPlayers.push(player);
+                }
+            }
+            // Add the speaker at the end (unless they are Argent Flight)
+            if (state.players[speakerIndex].faction !== 'Argent Flight') {
+                orderedPlayers.push(state.players[speakerIndex]);
+            }
+        } else {
+            // Normal order: start with the player AFTER the speaker
+            // Speaker votes last, so we start with the next player
+            for (let i = 1; i < state.players.length; i++) {
+                const playerIndex = (speakerIndex + i) % state.players.length;
+                orderedPlayers.push(state.players[playerIndex]);
+            }
+            // Add the speaker at the end
+            orderedPlayers.push(state.players[speakerIndex]);
         }
     }
     
@@ -73,6 +92,18 @@ function renderAgendaPhaseUI(container) {
         playerName.style.color = player.color;
         playerName.textContent = player.name;
         
+        // Add faction icon next to player name if available
+        if (player.faction) {
+            const factionDetails = state.factions.find(f => f.name.replace(/^The /, '') === player.faction);
+            if (factionDetails && factionDetails.id) {
+                const factionIcon = document.createElement('img');
+                factionIcon.src = `images/factions/${factionDetails.id}.webp`;
+                factionIcon.alt = player.faction;
+                factionIcon.className = 'influence-pill-faction-icon';
+                playerName.appendChild(factionIcon);
+            }
+        }
+        
         // Add speaker icon if applicable
         if (player.isCurrentSpeaker) {
             const speakerIcon = document.createElement('i');
@@ -83,21 +114,9 @@ function renderAgendaPhaseUI(container) {
         
         pillCounter.appendChild(playerName);
         
-        // Create content wrapper for icon and counter
+        // Create content wrapper for counter
         const pillContent = document.createElement('div');
         pillContent.className = 'influence-pill-content';
-        
-        // Add faction icon on the left if available
-        if (player.faction) {
-            const factionDetails = state.factions.find(f => f.name.replace(/^The /, '') === player.faction);
-            if (factionDetails && factionDetails.id) {
-                const factionIcon = document.createElement('img');
-                factionIcon.src = `images/factions/${factionDetails.id}.webp`;
-                factionIcon.alt = player.faction;
-                factionIcon.className = 'influence-pill-faction-icon';
-                pillContent.appendChild(factionIcon);
-            }
-        }
         
         // Influence counter with +/- buttons
         const counterControls = document.createElement('div');
@@ -125,11 +144,36 @@ function renderAgendaPhaseUI(container) {
         
         pillContent.appendChild(counterControls);
         pillCounter.appendChild(pillContent);
+
+        // Add voting controls below the counter controls
+        const votingControls = document.createElement('div');
+        votingControls.className = 'voting-controls';
+
+        const voteForBtn = document.createElement('button');
+        voteForBtn.className = `vote-btn for ${state.agendaVotes?.[player.id] === 'for' ? 'active' : ''}`;
+        voteForBtn.title = 'Vote For';
+        voteForBtn.innerHTML = '<i class="fas fa-thumbs-up"></i>';
+        voteForBtn.onclick = () => window.agendaPhase.setPlayerVote(player.id, 'for');
+        votingControls.appendChild(voteForBtn);
+
+        const voteAgainstBtn = document.createElement('button');
+        voteAgainstBtn.className = `vote-btn against ${state.agendaVotes?.[player.id] === 'against' ? 'active' : ''}`;
+        voteAgainstBtn.title = 'Vote Against';
+        voteAgainstBtn.innerHTML = '<i class="fas fa-thumbs-down"></i>';
+        voteAgainstBtn.onclick = () => window.agendaPhase.setPlayerVote(player.id, 'against');
+        votingControls.appendChild(voteAgainstBtn);
+
+        const voteAbstainBtn = document.createElement('button');
+        voteAbstainBtn.className = `vote-btn abstain ${state.agendaVotes?.[player.id] === 'abstain' ? 'active' : ''}`;
+        voteAbstainBtn.title = 'Abstain';
+        voteAbstainBtn.innerHTML = '<i class="fas fa-minus-circle"></i>';
+        voteAbstainBtn.onclick = () => window.agendaPhase.setPlayerVote(player.id, 'abstain');
+        votingControls.appendChild(voteAbstainBtn);
+
+        pillCounter.appendChild(votingControls);
         
         influenceContainer.appendChild(pillCounter);
     });
-    
-    agendaContentWrapper.appendChild(influenceContainer);
     
     // Add agenda phase title
     const agendaTitle = document.createElement('h2');
@@ -173,6 +217,59 @@ function renderAgendaPhaseUI(container) {
         stepCard.appendChild(stepNumber);
         stepCard.appendChild(stepText);
         
+        // Add vote results to step 6 (Result & resolve)
+        if (index === 5) { // Step 6 (0-indexed)
+            const voteTotals = calculateVoteTotals(state);
+            const voteResultsDiv = document.createElement('div');
+            voteResultsDiv.className = 'step-vote-results';
+            
+            // Create compact vote display
+            const voteDisplay = document.createElement('div');
+            voteDisplay.className = 'vote-display-compact';
+            voteDisplay.innerHTML = `
+                <div class="vote-count-compact for-votes">
+                    <i class="fas fa-thumbs-up"></i>
+                    <span>${voteTotals.forVotes}</span>
+                </div>
+                <div class="vote-count-compact against-votes">
+                    <i class="fas fa-thumbs-down"></i>
+                    <span>${voteTotals.againstVotes}</span>
+                </div>
+            `;
+            
+            voteResultsDiv.appendChild(voteDisplay);
+            
+            // Add result message
+            let resultMessage = '';
+            let resultClass = '';
+            
+            if (voteTotals.forVotes === voteTotals.againstVotes && voteTotals.forVotes > 0) {
+                // Tie situation
+                const speakerPlayer = state.players.find(p => p.isCurrentSpeaker);
+                const speakerName = speakerPlayer ? speakerPlayer.name : 'Speaker';
+                resultMessage = `Tied! ${speakerName} decides`;
+                resultClass = 'tie-result';
+            } else if (voteTotals.forVotes > voteTotals.againstVotes) {
+                resultMessage = 'Agenda passes';
+                resultClass = 'for-result';
+            } else if (voteTotals.againstVotes > voteTotals.forVotes) {
+                resultMessage = 'Agenda fails';
+                resultClass = 'against-result';
+            } else {
+                resultMessage = 'Waiting for votes...';
+                resultClass = 'waiting-result';
+            }
+            
+            if (resultMessage) {
+                const resultDiv = document.createElement('div');
+                resultDiv.className = `step-result-message ${resultClass}`;
+                resultDiv.textContent = resultMessage;
+                voteResultsDiv.appendChild(resultDiv);
+            }
+            
+            stepCard.appendChild(voteResultsDiv);
+        }
+        
         // Highlight current step if it's set in state
         if (state.currentAgendaStep === index) {
             stepCard.classList.add('current-step');
@@ -213,6 +310,9 @@ function renderAgendaPhaseUI(container) {
     
     agendaContentWrapper.appendChild(stepsContainer);
     
+    // Add influence counters container
+    agendaContentWrapper.appendChild(influenceContainer);
+    
     // Add Next button
     const nextButton = document.createElement('button');
     nextButton.className = 'btn btn-primary next-btn';
@@ -237,6 +337,30 @@ function renderAgendaPhaseUI(container) {
     // Container is already populated
 }
 
+// Function to calculate vote totals including influence
+function calculateVoteTotals(state) {
+    let forVotes = 0;
+    let againstVotes = 0;
+    let abstainVotes = 0;
+    
+    if (state.agendaVotes) {
+        state.players.forEach(player => {
+            const vote = state.agendaVotes[player.id];
+            const influence = state.influenceCounters[player.id] || 0;
+            
+            if (vote === 'for') {
+                forVotes += influence;
+            } else if (vote === 'against') {
+                againstVotes += influence;
+            } else if (vote === 'abstain') {
+                abstainVotes += influence;
+            }
+        });
+    }
+    
+    return { forVotes, againstVotes, abstainVotes };
+}
+
 // Function to update a player's influence count
 function updateInfluence(playerId, amount) {
     const state = window.stateCore.getGameState();
@@ -257,7 +381,7 @@ function updateInfluence(playerId, amount) {
     
     window.stateCore.saveGameState();
     
-    // Re-render the UI
+    // Re-render the UI to update vote tallies
     const container = document.getElementById('agenda-phase-container');
     if (container) renderAgendaPhaseUI(container);
 }
@@ -266,6 +390,11 @@ function updateInfluence(playerId, amount) {
 function advanceAgendaStep() {
     const state = window.stateCore.getGameState();
     window.stateCore.recordHistory();
+
+    // Clear votes before advancing to the next agenda
+    if (window.agendaPhase && typeof window.agendaPhase.clearAllVotes === 'function') {
+        window.agendaPhase.clearAllVotes();
+    }
     
     // Initialize if needed
     if (state.currentAgendaNumber === undefined) {
@@ -277,6 +406,13 @@ function advanceAgendaStep() {
         // Move from Agenda 1 to Agenda 2
         state.currentAgendaNumber = 2;
         state.currentAgendaStep = 0; // Reset step for new agenda
+        
+        // Reset all influence counters to 0 for the new agenda
+        if (state.influenceCounters) {
+            Object.keys(state.influenceCounters).forEach(playerId => {
+                state.influenceCounters[playerId] = 0;
+            });
+        }
     } else {
         // We've completed both agendas, complete the phase
         window.agendaPhase.completeAgendaPhase();

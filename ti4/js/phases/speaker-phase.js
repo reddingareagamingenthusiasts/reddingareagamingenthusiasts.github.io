@@ -86,6 +86,21 @@ function confirmSpeakerAndProceed() {
     state.stage = 'strategy-selection';
     state.phase = 'Strategy';
     
+    // Auto-start the timer when transitioning to strategy selection (game officially begins)
+    if (window.gameTimer && typeof window.gameTimer.startTimer === 'function') {
+        window.gameTimer.startTimer();
+        console.log('Timer auto-started on transition to strategy selection');
+    }
+    
+    // Start the turn timer for the first player in strategy selection
+    if (state.turnOrder && state.turnOrder.length > 0) {
+        const firstPlayerId = state.turnOrder[0];
+        if (window.gameTimer && typeof window.gameTimer.startPlayerTurn === 'function') {
+            window.gameTimer.startPlayerTurn(firstPlayerId);
+            console.log('Started turn timer for first player in strategy selection:', firstPlayerId);
+        }
+    }
+    
     window.stateCore.saveGameState();
     return true;
 }

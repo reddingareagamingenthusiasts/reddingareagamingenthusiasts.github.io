@@ -133,7 +133,7 @@ function renderPlayerScoreBar(container, options = {}) {
                         <div class="score-component other-vps">
                             <span class="component-label">Other VPs</span>
                             <div class="component-dots">
-                                ${generateDotIndicators(player.otherVPs || 0, 5)}
+                                ${generateDotIndicators(player.otherVPs || 0, 10)}
                             </div>
                         </div>
                     </div>
@@ -316,7 +316,7 @@ function createScoreMenu(player) {
                         </button>
                     </div>
                     <div class="score-menu-dots">
-                        ${generateDotIndicators(player.otherVPs || 0, 5)}
+                        ${generateDotIndicators(player.otherVPs || 0, 10)}
                     </div>
                 </div>
                 
@@ -371,7 +371,7 @@ function updateScoreMenuDisplay(playerId) {
             
             if (secretsDots) secretsDots.innerHTML = generateDotIndicators(player.secretObjectives || 0, 3);
             if (supportDots) supportDots.innerHTML = generateDotIndicators(player.supportForThrone || 0, Math.max(0, state.players.length - 1));
-            if (otherVPsDots) otherVPsDots.innerHTML = generateDotIndicators(player.otherVPs || 0, 5);
+            if (otherVPsDots) otherVPsDots.innerHTML = generateDotIndicators(player.otherVPs || 0, 10);
         }
     }
 }

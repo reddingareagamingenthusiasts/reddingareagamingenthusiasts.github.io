@@ -378,7 +378,7 @@ function updateOtherVPs(playerId, change) {
         }
         
         // Calculate new value with a reasonable max limit
-        const MAX_OTHER_VPS = 5; // Adjust as needed based on game rules
+        const MAX_OTHER_VPS = 10; // Adjust as needed based on game rules
         const newValue = Math.max(0, Math.min(MAX_OTHER_VPS, player.otherVPs + change));
         
         // Only update if there's an actual change
@@ -934,6 +934,21 @@ function createGame(playerCount) {
     gameState.players = []; // Clear any existing players from a previous incomplete setup
     gameState.availableFactions = [...FACTIONS]; // Reset available factions
     gameState.availableColors = [...defaultGameState.availableColors]; // Reset available colors
+    
+    // Generate a new unique game ID for timer tracking
+    gameState.gameId = 'game-' + Date.now();
+    gameState.createdAt = Date.now();
+    
+    // Reset the game timer if it exists
+    if (window.gameTimer && typeof window.gameTimer.resetTimer === 'function') {
+        console.log('[STATE] Resetting game timer for new game');
+        window.gameTimer.resetTimer();
+    }
+    
+    // Clear any existing timer state
+    if (gameState.gameTimer) {
+        delete gameState.gameTimer;
+    }
     
     // Preserve existing extendedMode if playerCount doesn't force it.
     // setExtendedMode will handle the mandatory logic and strategy card updates.

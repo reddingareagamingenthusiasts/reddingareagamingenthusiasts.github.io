@@ -29,8 +29,15 @@
     font-weight: 500;
     letter-spacing: 0.5px;
     margin-bottom: 0.5rem;
-    transition: background 0.15s, border 0.15s;
+    transition: background 0.15s, border 0.15s, transform 0.15s;
     max-width: 100%;
+    cursor: pointer;
+}
+
+.status-step-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent-secondary);
+    background: rgba(26, 35, 50, 0.8);
 }
 
 .status-step-card.current-step {

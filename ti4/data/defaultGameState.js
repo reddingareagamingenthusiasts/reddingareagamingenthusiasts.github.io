@@ -45,7 +45,9 @@ const defaultGameState = {
         { name: 'The Empyrean', id: 'EmpyreanFactionSymbol', color: '#87CEEB' },
         { name: 'The Mahact Gene-Sorcerers', id: 'MahactFactionSymbol', color: '#9932CC' },
         { name: 'The Naaz-Rokha Alliance', id: 'NaazRokhaFactionSymbol', color: '#20B2AA' },
-        { name: 'The Argent Flight', id: 'ArgentFactionSymbol', color: '#F5F5F5' }
+        { name: 'The Argent Flight', id: 'ArgentFactionSymbol', color: '#F5F5F5' },
+        // Codex III Factions
+        { name: 'The Council Keleres', id: 'KeleresFactionSymbol', color: '#FF8C00' }
     ],
     availableFactions: [], // Will be populated with unused factions
     availableColors: [

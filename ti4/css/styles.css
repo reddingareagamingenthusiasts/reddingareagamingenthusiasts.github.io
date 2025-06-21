@@ -1,4 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Roboto:wght@300;400;500&display=swap');
+@import url('components/phase-specific/_agenda-phase.css');
+@import url('components/_stats-page.css');
 
 :root {
     --primary-color: #0a0f1c;
@@ -501,20 +503,24 @@ gap: 20px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
 .influence-pill-content {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
 }
 
 .influence-pill-faction-icon {
-    width: 30px;
-    height: 30px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
     object-fit: cover;
-    margin-right: 8px;
+    flex-shrink: 0;
 }
 
 .influence-pill-controls {
@@ -643,16 +649,171 @@ gap: 20px;
     background-color: rgba(255, 255, 255, 0.4);
 }
 
+/* Round Tracker and Timer Container */
+.round-tracker-timer-container {
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    align-items: center; /* Center items horizontally */
+    margin-right: 20px; /* Spacing from the score track */
+}
+
+/* Game Timer Styles */
+.game-timer-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Center the timer display */
+    margin-top: 8px; /* Spacing from the round tracker above */
+    padding: 5px 10px;
+    background-color: rgba(0, 0, 0, 0.3); /* Dark, semi-transparent background */
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    min-width: 120px; /* Ensure container is wide enough for timer display */
+}
+
+.game-timer-display {
+    font-size: 1.1em;
+    color: #e0e0e0; /* Light grey, adjust to match other text */
+    width: 100px; /* Increased width to accommodate full timer text with spacing */
+    text-align: left; /* Left-align to prevent bouncing as digits change */
+    display: inline-block;
+    font-family: 'Orbitron', sans-serif; /* Example of a futuristic font, if available */
+    letter-spacing: 1px;
+}
+
+/* Dual Timer Layout Styles */
+.timers-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+}
+
+.timer-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.timer-label {
+    font-size: 0.7rem;
+    color: var(--text-color-medium, #aaa);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-align: center;
+    line-height: 1;
+}
+
+.turn-timer-display {
+    font-size: 1.0em;
+    color: #ffcc00; /* Different color for turn timer */
+    width: 100px;
+    text-align: left;
+    display: inline-block;
+    font-family: 'Orbitron', sans-serif;
+    letter-spacing: 1px;
+}
+
+/* General Round Tracker Widget Styling (if not already present or needs adjustment) */
+.round-tracker-widget {
+    display: flex;
+    align-items: center;
+}
+
+.round-tracker-widget .fa-clock {
+    margin-right: 8px; /* Space between icon and text */
+    font-size: 1.4em; /* Adjust icon size if needed */
+}
+
+.round-info-text {
+    display: flex; /* Default for other places */
+    flex-direction: column; /* Default for other places */
+}
+
+.round-info-text .label {
+    font-size: 0.8em; /* Default for other places */
+    color: var(--text-color-medium, #aaa);
+}
+
+.round-info-text .value {
+    font-size: 1.2em; /* Default for other places */
+    font-weight: bold;
+    color: var(--text-color-light, #fff);
+}
+
+/* Strategy Phase Turn Order Header Layout */
+.turn-order-header {
+display: flex;
+flex-direction: column;
+align-items: center; /* Center the row of tracker/timer and the title below it */
+width: 100%;
+}
+
+.turn-order-header .round-tracker-timer-container {
+    flex-direction: row; /* Horizontal layout */
+    justify-content: space-between; /* Space out tracker and timer */
+    align-items: center; /* Vertically align items in the row */
+    width: 100%; /* Take full width of .turn-order-header */
+    padding: 0 10px; /* Add some padding to prevent content touching edges */
+    box-sizing: border-box; /* Include padding in width calculation */
+    margin-right: 0; /* Override general margin-right from .round-tracker-timer-container */
+    margin-bottom: 8px; /* Space below this line, before the "Turn Order" title */
+}
+
+.turn-order-header .round-tracker-widget .fa-clock {
+    font-size: 1.6em; /* Slightly larger clock icon */
+    margin-right: 5px;
+}
+
+.turn-order-header .round-tracker-widget .round-info-text {
+    display: flex;
+    flex-direction: row; /* Make "Round" and number inline */
+    align-items: baseline; /* Align text nicely */
+    font-size: 1.3em; /* Increase overall size of "Round X" */
+}
+
+.turn-order-header .round-tracker-widget .round-info-text .label {
+    font-size: 1em; /* Relative to parent's 1.3em */
+    font-weight: normal;
+    color: var(--text-color-medium, #ccc);
+    margin-right: 0.3em;
+}
+
+.turn-order-header .round-tracker-widget .round-info-text .value {
+    font-size: 1em; /* Relative to parent's 1.3em */
+    font-weight: bold;
+    color: var(--text-color-light, #fff);
+}
+
+.turn-order-header .round-tracker-timer-container .game-timer-controls {
+    margin-top: 0; /* Reset vertical margin */
+    margin-left: 10px; /* Space it from the round tracker on its left */
+}
+
+.turn-order-header .game-timer-display {
+    font-size: 1.0em; /* Make timer display slightly smaller */
+    letter-spacing: 0.5px;
+}
+
+.turn-order-header > h3 { /* The "Turn Order" title */
+    text-align: center;
+    margin-top: 8px; /* A little space above it */
+    font-size: 1.6em; /* Make "Turn Order" title larger */
+    font-weight: bold;
+    color: var(--text-color-light, #fff);
+    width: 100%;
+}
+
 /* Agenda Steps */
 .agenda-steps-header {
-    margin-top: 0.5rem;
+margin-top: 0.5rem;
 }
 
 .agenda-steps-container {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    margin: 0.5rem 0;
+    margin: 0.25rem 0;
 }
 
 .agenda-steps-container .cards-wrapper {
@@ -660,7 +821,7 @@ gap: 20px;
     flex-wrap: wrap;
     justify-content: space-between;
     gap: 0.5rem;
-    margin-top: 0.25rem;
+    margin: 0.25rem 0 0.5rem 0;
 }
 
 .agenda-step {
@@ -1517,6 +1678,7 @@ gap: 0.5rem;
     display: flex;
     flex-direction: column;
     justify-content: space-between; /* Distribute space between children */
+    cursor: pointer;
 }
 
 /* New wrapper for special and primary abilities to control spacing */
@@ -1637,9 +1799,8 @@ gap: 0.5rem;
 }
 
 .turn-order-display.vertical-turn-order {
-    flex: 0 0 280px; /* Give it a fixed width, don't grow or shrink excessively */
-    /* max-height: fit-content; /* This might be too aggressive, let's rely on parent alignment */
-    align-self: flex-start; /* Ensure it doesn't stretch to the height of the taller card grid */
+    flex: 0 0 180px; /* Compact width for strategy phase */
+    align-self: flex-start; /* Don't stretch with height */
 }
 
 /* Star field animation */
@@ -2551,41 +2712,84 @@ input::placeholder {
 }
 
 .turn-order-display.vertical-turn-order {
-    flex: 0 0 220px; /* Adjusted width */
+    flex: 0 0 180px; /* Reduced width further for more compact layout */
     margin-bottom: 0;
-    padding: 10px; /* Reduced padding */
-    background-color: var(--secondary-color); /* Use theme color */
+    padding: 0.75rem; /* Compact padding */
+    background-color: var(--secondary-color);
     border-radius: 8px;
-    border: 1px solid var(--accent-secondary); /* Theme accent border */
-    box-shadow: 0 0 8px var(--glow-color); /* Thematic glow using variable */
-    align-self: stretch; /* Make it stretch to the height of the cards container if cards are taller */
+    border: 1px solid var(--accent-secondary);
+    box-shadow: 0 0 8px var(--glow-color);
+    align-self: flex-start; /* Don't stretch with height */
 }
 
 .turn-order-display.vertical-turn-order h3 {
     margin-top: 0;
-    color: var(--text-color); /* Theme text color */
+    color: var(--text-color);
     font-family: var(--header-font);
-    font-size: 1.1em;
-    text-align: center;
-    border-bottom: 1px solid var(--accent-secondary); /* Theme accent border */
-    padding-bottom: 8px; /* Adjusted padding */
-    margin-bottom: 8px; /* Adjusted margin */
+    font-size: 1rem; /* Smaller font size */
+    text-align: left; /* Changed to left align to work with header layout */
+    border-bottom: none; /* Remove border since header will handle it */
+    padding-bottom: 0;
+    margin-bottom: 0;
+}
+
+.turn-order-display.vertical-turn-order .turn-order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--accent-secondary);
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.turn-order-display.vertical-turn-order .round-tracker-widget {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0;
+}
+
+.turn-order-display.vertical-turn-order .round-tracker-widget .fa-clock {
+    font-size: 1.2rem;
+    color: var(--accent-secondary);
+}
+
+.turn-order-display.vertical-turn-order .round-tracker-widget .round-info-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.turn-order-display.vertical-turn-order .round-tracker-widget .round-info-text .label {
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    color: var(--text-color);
+    opacity: 0.8;
+    line-height: 1;
+}
+
+.turn-order-display.vertical-turn-order .round-tracker-widget .round-info-text .value {
+    font-family: var(--header-font);
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--text-color);
+    line-height: 1;
 }
 
 .turn-order-display.vertical-turn-order .turn-order-list {
     display: flex;
-    flex-direction: column; /* Stack items vertically */
-    gap: 6px; /* Adjusted space */
+    flex-direction: column;
+    gap: 0.25rem; /* Compact spacing between items */
 }
 
 .turn-order-display.vertical-turn-order .turn-order-item {
-    font-size: 0.9em; /* Slightly smaller font */
-    padding: 6px 8px; /* Adjusted padding */
+    font-size: 0.85rem; /* Smaller font */
+    padding: 0.4rem 0.5rem; /* Compact padding */
     border-radius: 4px;
-    background-color: var(--primary-color); /* Theme primary color for items */
+    background-color: var(--primary-color);
     border: 1px solid var(--border-color);
-    color: var(--text-color); /* Ensure text color is consistent, player color will override */
-    line-height: 1.4;
+    color: var(--text-color);
+    line-height: 1.3;
 }
 
 /* Ensure player-specific colors (applied inline) are still prominent */
@@ -3741,3 +3945,4 @@ body .status-step-card .step-number {
 body .status-step-card .step-text {
     font-size: 1.08rem !important;
 }
+

@@ -62,6 +62,7 @@
     text-align: center;
     position: relative;
     box-sizing: border-box;
+    cursor: pointer;
 }
 
 .status-step-card.current-step {
@@ -217,7 +218,7 @@
     margin: 0 auto 15px;
     display: flex;
     justify-content: center;
-    padding: 0 20px;
+    padding: 0 20px 50px 20px; /* Removed top padding since timer is no longer in player score bar */
     box-sizing: border-box;
 }
 
@@ -225,7 +226,7 @@
 .action-phase-players-container {
     width: 100%;
     margin: 0;
-    padding: 0;
+    padding: 0 0 50px 0; /* Removed top padding since timer is no longer in player score bar */
     justify-content: flex-start;
     background: none;
     border: none;
@@ -238,10 +239,12 @@
     gap: 2px;
     width: 100%;
     max-width: 100%;
-    padding: 0 0 20px 0; /* Reduced bottom padding for speaker icon */
+    padding: 30px 0 50px 0; /* Added top padding to ensure player cards are visible */
     margin: 0;
     justify-content: space-between;
-    box-sizing: border-box;
+    position: relative;
+    overflow-x: auto;
+    scrollbar-width: none; /* Firefox */
 }
 
 /* Ensure player cards have no animations whatsoever - with extremely high specificity */
@@ -487,6 +490,32 @@ html body .player-score-bar .player-card.active-player,
     background-color: rgba(0, 255, 255, 0.8); /* Cyan for support */
 }
 
+/* Other VPs specific styling - 2 rows of 5 dots each */
+.other-vps .component-dots {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    max-width: 50px; /* Optimal width for 5 dots per row */
+    margin: 0 auto;
+}
+
+.other-vps .dot {
+    margin: 1px 1px; /* Tighter spacing for the grid */
+    width: 8px;
+    height: 8px;
+    flex-shrink: 0; /* Prevent dots from shrinking */
+}
+
+/* Force break after 5th dot to ensure 2 rows */
+.other-vps .dot:nth-child(6) {
+    margin-left: 1px; /* Start of second row */
+}
+
+.other-vps .dot.active {
+    background-color: rgba(138, 43, 226, 0.8); /* Purple/violet for other VPs */
+}
+
 .score-btn {
     width: 18px;
     height: 18px;
@@ -645,7 +674,7 @@ html body .player-score-bar .player-card.active-player,
 /* Speaker Icon Below Player Card */
 .speaker-icon-below {
     position: absolute;
-    bottom: -38px; /* Moved down another 8px for better visual separation */
+    bottom: -35px; /* Adjusted to ensure better visibility within container */
     left: 50%;
     transform: translateX(-50%);
     z-index: 10;
@@ -668,7 +697,7 @@ html body .player-score-bar .player-card.active-player,
 /* Custodians Icon Below Player Card */
 .custodians-icon-below {
     position: absolute;
-    bottom: -38px; /* Same position as speaker icon */
+    bottom: -35px; /* Same position as speaker icon for consistency */
     left: calc(50% + 40px); /* Offset to the right of the speaker icon */
     transform: translateX(-50%);
     z-index: 10;
@@ -943,6 +972,33 @@ html body .player-score-bar .player-card.active-player,
     background: linear-gradient(135deg, rgba(78, 124, 255, 0.8) 0%, rgba(78, 124, 255, 0.6) 100%);
     border-color: rgba(78, 124, 255, 1);
     box-shadow: 0 1px 4px rgba(78, 124, 255, 0.5);
+}
+
+/* Other VPs specific styling in score menu - 2 rows of 5 dots each */
+.score-menu-item:nth-child(3) .score-menu-dots {
+    flex-wrap: wrap;
+    width: 100%;
+    max-width: 120px; /* Wider to accommodate 5 dots per row */
+    margin: 0 auto;
+    justify-content: center;
+}
+
+.score-menu-item:nth-child(3) .score-menu-dots .dot {
+    margin: 2px 2px; /* Consistent spacing */
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0; /* Prevent dots from shrinking */
+}
+
+/* Force exactly 5 dots per row by targeting specific dot positions */
+.score-menu-item:nth-child(3) .score-menu-dots .dot:nth-child(6) {
+    margin-left: 2px; /* Start of second row */
+}
+
+.score-menu-item:nth-child(3) .score-menu-dots .dot.active {
+    background: linear-gradient(135deg, rgba(138, 43, 226, 0.8) 0%, rgba(138, 43, 226, 0.6) 100%);
+    border-color: rgba(138, 43, 226, 1);
+    box-shadow: 0 1px 4px rgba(138, 43, 226, 0.5);
 }
 
 /* Custodians claim button in menu */
