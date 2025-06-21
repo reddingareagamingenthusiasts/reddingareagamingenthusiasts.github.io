@@ -1,6 +1,4 @@
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Roboto:wght@300;400;500&display=swap');
-@import url('components/phase-specific/_agenda-phase.css');
-@import url('components/_stats-page.css');
 
 :root {
     --primary-color: #0a0f1c;
@@ -1979,7 +1977,7 @@ gap: 0.5rem;
     border-right: none;
 }
 
-.score-label {
+.score-track .score-label {
     font-size: 1.2em;
     color: #e0e0e0;
     margin-bottom: 8px; /* Space between score number and tokens */
@@ -2036,7 +2034,7 @@ gap: 0.5rem;
         width: 22px; /* Adjust icon size for smaller tokens */
         height: 22px;
     }
-    .score-label {
+    .score-track .score-label {
         font-size: 1em;
     }
 }
