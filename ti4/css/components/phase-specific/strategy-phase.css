@@ -13,11 +13,10 @@
 
 /* Strategy Cards Container */
 .strategy-cards-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.5rem;
-    width: 100%;
-    margin: 2rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
 }
 
 /* Individual Strategy Card */
@@ -25,11 +24,12 @@
     background: rgba(26, 35, 50, 0.9);
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius-lg);
-    padding: 1.5rem;
+    padding: 0.4rem 0.6rem;
     transition: all var(--transition-normal);
     cursor: pointer;
     position: relative;
     overflow: hidden;
+    font-size: 0.9rem;
 }
 
 .strategy-card::before {
@@ -116,6 +116,14 @@
     font-size: 0.9rem;
     line-height: 1.5;
     color: rgba(209, 226, 255, 0.8);
+}
+
+/* Card count indicator for dual strategy cards */
+.card-count {
+    font-size: 0.8rem;
+    color: var(--accent-secondary);
+    margin-left: 0.5rem;
+    font-weight: normal;
 }
 
 /* Turn Order Display */
@@ -206,6 +214,21 @@
     margin-top: 2rem;
     padding-top: 2rem;
     border-top: 1px solid var(--border-color);
+}
+
+/* Strategy card buttons for action phase */
+.btn-strategy-card {
+    background: rgba(78, 124, 255, 0.1);
+    border: 1px solid var(--accent-secondary);
+}
+
+.btn-strategy-card:hover:not(:disabled) {
+    background: rgba(78, 124, 255, 0.2);
+}
+
+.btn-strategy-card:disabled {
+    opacity: 0.5;
+    text-decoration: line-through;
 }
 
 /* Responsive Adjustments */

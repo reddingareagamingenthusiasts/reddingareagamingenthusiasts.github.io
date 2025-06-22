@@ -18,25 +18,76 @@ function getStrategyCardIcon(cardName) {
 
 function renderSelectedCard(player, cardName) {
     const state = window.stateCore.getGameState();
-    const card = state.strategyCards.find(c => c.name === cardName);
-    return `
-        <div class="player-header">            <div class="player-name" style="color: ${player.color}">
-                <i class="fas fa-user-astronaut"></i>
-                ${player.name}
-                ${player.isCurrentSpeaker ? `<i class="fas fa-gavel speaker-icon" title="Current Speaker"></i>` : ''}
+    const needsDualCards = state.players.length <= 4;
+    
+    if (needsDualCards && player.strategyCards && player.strategyCards.length > 0) {
+        // Render multiple cards for dual card mode
+        const cardCount = player.strategyCards.length;
+        const maxCards = 2;
+        
+        let cardsHTML = '';
+        player.strategyCards.forEach(card => {
+            const cardData = state.strategyCards.find(c => c.name === card);
+            cardsHTML += `
+                <div class="strategy-card selected" data-card="${card}">
+                    <span class="initiative-number">${cardData ? cardData.initiative : '?'}</span>
+                    <i class="fas ${getStrategyCardIcon(card)}"></i>
+                    ${card}
+                </div>
+            `;
+        });
+        
+        return `
+            <div class="player-header">
+                <div class="player-name" style="color: ${player.color}">
+                    <i class="fas fa-user-astronaut"></i>
+                    ${player.name}
+                    ${player.isCurrentSpeaker ? `<i class="fas fa-gavel speaker-icon" title="Current Speaker"></i>` : ''}
+                    <span class="card-count">(${cardCount}/${maxCards} cards)</span>
+                </div>
             </div>
-        </div>
-        <div class="strategy-card selected" onclick="event.preventDefault(); event.stopPropagation(); window.strategyPhaseUI.handleStrategyCardClick(event, '${player.id}', '${cardName}')" data-card="${cardName}">
-            <span class="initiative-number">${card.initiative}</span>
-            <i class="fas ${getStrategyCardIcon(cardName)}"></i>
-            ${cardName}
-        </div>
-    `;
+            <div class="strategy-cards-container">
+                ${cardsHTML}
+            </div>
+        `;
+    } else {
+        // Standard single card display
+        const card = state.strategyCards.find(c => c.name === cardName);
+        return `
+            <div class="player-header">
+                <div class="player-name" style="color: ${player.color}">
+                    <i class="fas fa-user-astronaut"></i>
+                    ${player.name}
+                    ${player.isCurrentSpeaker ? `<i class="fas fa-gavel speaker-icon" title="Current Speaker"></i>` : ''}
+                </div>
+            </div>
+            <div class="strategy-card selected" onclick="event.preventDefault(); event.stopPropagation(); window.strategyPhaseUI.handleStrategyCardClick(event, '${player.id}', '${cardName}')" data-card="${cardName}">
+                <span class="initiative-number">${card ? card.initiative : '?'}</span>
+                <i class="fas ${getStrategyCardIcon(cardName)}"></i>
+                ${cardName}
+            </div>
+        `;
+    }
 }
 
 function renderAvailableCards(player, isActive) {
     const state = window.stateCore.getGameState();
-    const selectedCards = Object.values(state.selectedCards);
+    const needsDualCards = state.players.length <= 4;
+    
+    // Get already selected cards by OTHER players
+    const cardsSelectedByOthers = [];
+    state.players.forEach(p => {
+        if (p.id === player.id) return; // Skip current player
+        
+        if (needsDualCards && p.strategyCards) {
+            cardsSelectedByOthers.push(...p.strategyCards);
+        } else if (!needsDualCards && state.selectedCards[p.id]) {
+            cardsSelectedByOthers.push(state.selectedCards[p.id]);
+        }
+    });
+    
+    const playerCardCount = needsDualCards && player.strategyCards ? player.strategyCards.length : 0;
+    const maxCards = needsDualCards ? 2 : 1;
     
     return `
         <div class="player-header">
@@ -45,11 +96,19 @@ function renderAvailableCards(player, isActive) {
                 ${player.name}
                 ${player.isCurrentSpeaker ? `<i class="fas fa-gavel speaker-icon" title="Current Speaker"></i>` : ''}
                 ${isActive ? '<span class="player-turn-indicator">(Selecting...)</span>' : ''}
+                ${needsDualCards ? `<span class="card-count">(${playerCardCount}/${maxCards} cards)</span>` : ''}
             </div>
         </div>
         <div class="strategy-cards-grid">
             ${state.strategyCards.map(card => {
-                const isUnavailable = selectedCards.includes(card.name) && selectedCards[player.id] !== card.name;
+                // Check if card is taken by another player
+                const isTakenByOthers = cardsSelectedByOthers.includes(card.name);
+                // Check if current player already has this card (prevent duplicates)
+                const playerAlreadyHas = player.strategyCards && player.strategyCards.includes(card.name);
+                // Check if player has reached their card limit
+                const playerAtLimit = needsDualCards && playerCardCount >= maxCards;
+                
+                const isUnavailable = isTakenByOthers || playerAlreadyHas || playerAtLimit;
                 const canSelect = isActive && !isUnavailable;
                 
                 return `
@@ -108,6 +167,8 @@ function updateStrategySelectionUI() {
     const grid = document.getElementById('strategy-selection-grid');
     grid.innerHTML = '';
     
+    const needsDualCards = state.players.length <= 4;
+    
     // Add player score bar at the top
     const playerBarContainer = document.createElement('div');
     playerBarContainer.className = 'strategy-player-bar-container';
@@ -128,18 +189,36 @@ function updateStrategySelectionUI() {
         const playerCard = document.createElement('div');
         playerCard.className = `strategy-selection-player ${isActive ? 'active' : ''}`;
         
-        const selectedCard = state.selectedCards[player.id];
-        
-        if (selectedCard) {
-            playerCard.innerHTML = renderSelectedCard(player, selectedCard);
+        if (needsDualCards) {
+            // For dual cards, check if player has any cards selected
+            if (player.strategyCards && player.strategyCards.length > 0) {
+                playerCard.innerHTML = renderSelectedCard(player, null); // Pass null since we handle multiple cards
+            } else {
+                playerCard.innerHTML = renderAvailableCards(player, isActive);
+            }
         } else {
-            playerCard.innerHTML = renderAvailableCards(player, isActive);
+            // Standard single card logic
+            const selectedCard = state.selectedCards[player.id];
+            if (selectedCard) {
+                playerCard.innerHTML = renderSelectedCard(player, selectedCard);
+            } else {
+                playerCard.innerHTML = renderAvailableCards(player, isActive);
+            }
         }
+        
         grid.appendChild(playerCard);
     });
     
-    // Add a "Proceed to Action Phase" button if all players have selected cards
-    const allPlayersSelected = state.players.every(p => state.selectedCards[p.id]);
+    // Add a "Proceed to Action Phase" button if all players have selected all required cards
+    let allPlayersSelected = false;
+    if (needsDualCards) {
+        allPlayersSelected = state.players.every(p => 
+            p.strategyCards && p.strategyCards.length === 2
+        );
+    } else {
+        allPlayersSelected = state.players.every(p => state.selectedCards[p.id]);
+    }
+    
     if (allPlayersSelected) {
         const proceedButton = document.createElement('div');
         proceedButton.className = 'proceed-button-container';

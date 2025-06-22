@@ -1042,3 +1042,32 @@ html body .player-score-bar .player-card.active-player,
 .score-component .component-value {
     display: none;
 }
+
+/* Multiple strategy cards container for 4 or fewer players */
+.player-sc-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-top: 3px;
+}
+
+.player-sc-container .player-sc {
+    margin-top: 0;
+    font-size: 0.8rem;
+    padding: 3px 6px;
+}
+
+.player-sc-container .player-sc .sc-name {
+    max-width: 80px;
+    font-size: 0.75rem;
+}
+
+.player-sc-container .player-sc .sc-initiative {
+    width: 16px;
+    height: 16px;
+    font-size: 0.7rem;
+}
+
+.player-sc-container .player-sc .sc-icon {
+    font-size: 0.9rem;
+}

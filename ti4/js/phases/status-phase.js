@@ -166,7 +166,9 @@ function proceedToNextRound() {
 
         state.players.forEach(player => {
             player.strategyCard = null; // Strategy card is returned
+            player.strategyCards = []; // Reset multiple strategy cards
             player.strategyCardUsed = false;
+            player.strategyCardsUsed = []; // Reset used cards tracking
             player.passed = false;
         });
 

@@ -61,7 +61,9 @@ function addPlayer(index, name = '') {
         color: null,
         score: 0,
         strategyCard: null,
+        strategyCards: [], // Support multiple strategy cards for 4 or fewer players
         strategyCardUsed: false,
+        strategyCardsUsed: [], // Track which cards have been used
         passed: false,
         isReady: false
     });

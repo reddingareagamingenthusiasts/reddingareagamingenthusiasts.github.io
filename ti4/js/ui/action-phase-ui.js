@@ -65,17 +65,44 @@ function renderActionControls(controlsContainer) {
     const actionSelectionDiv = document.createElement('div');
     actionSelectionDiv.className = 'action-select-buttons';
 
-    // Strategy Card Button
-    const playSCButton = document.createElement('button');
-    playSCButton.className = 'btn btn-action';
-    const hasStrategyCard = player.strategyCard !== null && player.strategyCard !== undefined;
-    const scName = hasStrategyCard ? player.strategyCard : 'Strategy Card';
-    playSCButton.innerHTML = `<i class="fas fa-play-circle"></i> Play ${scName}`;
-    playSCButton.onclick = () => window.actionPhase.playerPlaysStrategyCard(player.id);
-    playSCButton.disabled = player.strategyCardUsed || !hasStrategyCard;
-    playSCButton.title = player.strategyCardUsed ? 'Strategy Card already used' : 
-                        !hasStrategyCard ? 'No Strategy Card available' : 
-                        'Play your Strategy Card';
+    // Strategy Card Button(s)
+    const needsDualCards = state.players.length <= 4;
+    
+    if (needsDualCards && player.strategyCards && player.strategyCards.length > 0) {
+        // For dual cards, create buttons for each strategy card
+        player.strategyCards.forEach(cardName => {
+            const scData = state.strategyCards.find(sc => sc.name === cardName);
+            const isUsed = player.strategyCardsUsed && player.strategyCardsUsed.includes(cardName);
+            
+            const playSCButton = document.createElement('button');
+            playSCButton.className = 'btn btn-action btn-strategy-card';
+            playSCButton.innerHTML = `<i class="fas fa-play-circle"></i> Play ${cardName}`;
+            playSCButton.onclick = () => window.actionPhase.playerPlaysStrategyCard(player.id, cardName);
+            playSCButton.disabled = isUsed;
+            playSCButton.title = isUsed ? `${cardName} already used` : `Play ${cardName} Strategy Card`;
+            playSCButton.dataset.card = cardName;
+            
+            if (scData) {
+                playSCButton.innerHTML = `<i class="fas fa-play-circle"></i> Play ${cardName} (${scData.initiative})`;
+            }
+            
+            actionSelectionDiv.appendChild(playSCButton);
+        });
+    } else {
+        // Standard single strategy card button
+        const playSCButton = document.createElement('button');
+        playSCButton.className = 'btn btn-action';
+        const hasStrategyCard = player.strategyCard !== null && player.strategyCard !== undefined;
+        const scName = hasStrategyCard ? player.strategyCard : 'Strategy Card';
+        playSCButton.innerHTML = `<i class="fas fa-play-circle"></i> Play ${scName}`;
+        playSCButton.onclick = () => window.actionPhase.playerPlaysStrategyCard(player.id);
+        playSCButton.disabled = player.strategyCardUsed || !hasStrategyCard;
+        playSCButton.title = player.strategyCardUsed ? 'Strategy Card already used' : 
+                            !hasStrategyCard ? 'No Strategy Card available' : 
+                            'Play your Strategy Card';
+        
+        actionSelectionDiv.appendChild(playSCButton);
+    }
 
     // Component Action Button
     const componentActionButton = document.createElement('button');
@@ -83,38 +110,67 @@ function renderActionControls(controlsContainer) {
     componentActionButton.innerHTML = '<i class="fas fa-cogs"></i> Component/Tactical Action';
     componentActionButton.onclick = () => window.actionPhase.playerPerformsComponentAction(player.id);
     componentActionButton.title = 'Perform a tactical or component action';
+    
+    actionSelectionDiv.appendChild(componentActionButton);
 
     // Pass Button
     const passButton = document.createElement('button');
     passButton.className = 'btn btn-action btn-pass';
     passButton.innerHTML = '<i class="fas fa-sign-out-alt"></i> Pass';
     passButton.onclick = () => window.actionPhase.playerPassesActionPhase(player.id);
-    passButton.disabled = !player.strategyCardUsed;
-    passButton.title = player.strategyCardUsed ? 
-        'Pass your turn and end your participation in this Action Phase' : 
-        'Must use Strategy Card before passing';
+    
+    // Determine if player can pass based on strategy card usage
+    let canPass = false;
+    let passTooltip = '';
+    
+    if (needsDualCards && player.strategyCards && player.strategyCards.length > 0) {
+        const usedCards = player.strategyCardsUsed ? player.strategyCardsUsed.length : 0;
+        const totalCards = player.strategyCards.length;
+        canPass = usedCards >= totalCards;
+        passTooltip = canPass ? 
+            'Pass your turn and end your participation in this Action Phase' : 
+            `Must use all strategy cards before passing (${usedCards}/${totalCards} used)`;
+    } else {
+        canPass = player.strategyCardUsed || !player.strategyCard;
+        passTooltip = canPass ? 
+            'Pass your turn and end your participation in this Action Phase' : 
+            'Must use Strategy Card before passing';
+    }
+    
+    passButton.disabled = !canPass;
+    passButton.title = passTooltip;
+    
+    actionSelectionDiv.appendChild(passButton);
 
     // Add selected-action class if action is staged
     if (state.stagedPlayerAction && state.stagedPlayerAction.playerId === player.id) {
-        // Map the action types to their respective buttons
-        const buttonMap = {
-            'strategy': playSCButton,
-            'component': componentActionButton,
-            'pass': passButton
-        };
-        
-        // The action type is inside the actionType object property
         const actionType = state.stagedPlayerAction.actionType?.type;
+        const actionCard = state.stagedPlayerAction.actionType?.card;
         
-        const buttonToHighlight = buttonMap[actionType];
-        if (buttonToHighlight) {
-            buttonToHighlight.classList.add('selected-action');
+        if (actionType === 'strategy' && needsDualCards && actionCard) {
+            // For dual cards, highlight the specific strategy card button
+            const strategyButtons = actionSelectionDiv.querySelectorAll('.btn-strategy-card');
+            strategyButtons.forEach(button => {
+                if (button.dataset.card === actionCard) {
+                    button.classList.add('selected-action');
+                }
+            });
+        } else {
+            // Map the action types to their respective buttons for single card or other actions
+            const buttonMap = {
+                'strategy': actionSelectionDiv.querySelector('.btn-action:not(.btn-pass):not(.btn-strategy-card)') || 
+                           actionSelectionDiv.querySelector('.btn-strategy-card'),
+                'component': componentActionButton,
+                'pass': passButton
+            };
+            
+            const buttonToHighlight = buttonMap[actionType];
+            if (buttonToHighlight) {
+                buttonToHighlight.classList.add('selected-action');
+            }
         }
     }
 
-    actionSelectionDiv.appendChild(playSCButton);
-    actionSelectionDiv.appendChild(componentActionButton);
-    actionSelectionDiv.appendChild(passButton);
     actionsWrapper.appendChild(actionSelectionDiv);
 
     // Confirmation Buttons (only shown when an action is staged)

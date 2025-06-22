@@ -55,18 +55,55 @@ function advanceActionPhaseTurn() {
     window.stateCore.saveGameState();
 }
 
-function playerPlaysStrategyCard(playerId) {
+function playerPlaysStrategyCard(playerId, cardName = null) {
     const state = window.stateCore.getGameState();
     window.stateCore.recordHistory();
 
     const player = state.players.find(p => p.id === playerId);
-    if (!player || player.strategyCard === null) return;
+    if (!player) return;
 
-    // Record the action
-    stageAction(playerId, {
-        type: 'strategy',
-        card: player.strategyCard
-    });
+    const needsDualCards = state.players.length <= 4;
+    
+    if (needsDualCards) {
+        // For dual cards, specify which card to play
+        if (!cardName) {
+            console.warn('Card name required for dual strategy card play');
+            return;
+        }
+        
+        if (!player.strategyCards || !player.strategyCards.includes(cardName)) {
+            console.warn('Player does not have the specified strategy card');
+            return;
+        }
+        
+        if (player.strategyCardsUsed && player.strategyCardsUsed.includes(cardName)) {
+            console.warn('Strategy card already used');
+            return;
+        }
+        
+        // Record the action
+        stageAction(playerId, {
+            type: 'strategy',
+            card: cardName
+        });
+    } else {
+        // Standard single card logic
+        if (!player.strategyCard) {
+            console.warn('Player has no strategy card');
+            return;
+        }
+        
+        if (player.strategyCardUsed) {
+            console.warn('Strategy card already used');
+            return;
+        }
+        
+        // Record the action
+        stageAction(playerId, {
+            type: 'strategy',
+            card: player.strategyCard
+        });
+    }
 
     window.stateCore.saveGameState();
 }
@@ -134,11 +171,22 @@ function confirmCurrentPlayerAction() {
     // Mark the action as confirmed
     state.stagedPlayerAction.confirmed = true;
 
+    const needsDualCards = state.players.length <= 4;
+
     // Process the action based on its type
     switch (state.stagedPlayerAction.actionType.type) {
         case 'strategy':
-            // Mark the strategy card as used instead of removing it
-            player.strategyCardUsed = true;
+            if (needsDualCards) {
+                // For dual cards, mark the specific card as used
+                if (!player.strategyCardsUsed) {
+                    player.strategyCardsUsed = [];
+                }
+                player.strategyCardsUsed.push(state.stagedPlayerAction.actionType.card);
+                console.log(`Player ${player.name} used strategy card: ${state.stagedPlayerAction.actionType.card}`);
+            } else {
+                // Standard single card logic
+                player.strategyCardUsed = true;
+            }
             
             // Check if this is the Politics strategy card
             if (state.stagedPlayerAction.actionType.card === 'Politics') {
@@ -148,6 +196,27 @@ function confirmCurrentPlayerAction() {
             }
             break;
         case 'pass':
+            // Check if player can pass (for dual cards, both must be used)
+            if (needsDualCards) {
+                const usedCards = player.strategyCardsUsed ? player.strategyCardsUsed.length : 0;
+                const totalCards = player.strategyCards ? player.strategyCards.length : 0;
+                
+                if (usedCards < totalCards) {
+                    console.warn(`Player ${player.name} cannot pass - must use all strategy cards first (${usedCards}/${totalCards} used)`);
+                    // Don't allow passing, clear the staged action
+                    clearStagedAction();
+                    return;
+                }
+            } else {
+                // For standard play, check if strategy card was used (if they have one)
+                if (player.strategyCard && !player.strategyCardUsed) {
+                    console.warn(`Player ${player.name} cannot pass - must use strategy card first`);
+                    // Don't allow passing, clear the staged action
+                    clearStagedAction();
+                    return;
+                }
+            }
+            
             // Mark the player as passed
             player.passed = true;
             state.passedPlayerCount++;

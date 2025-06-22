@@ -69,7 +69,9 @@ function completeAgendaPhase() {
       // Reset player states for new round
     state.players.forEach(player => {
         player.strategyCard = null;
+        player.strategyCards = []; // Reset multiple strategy cards
         player.strategyCardUsed = false;
+        player.strategyCardsUsed = []; // Reset used cards tracking
         player.passed = false;
     });
 

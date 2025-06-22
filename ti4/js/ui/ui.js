@@ -583,9 +583,15 @@ function updateStrategySelectionUI(container) { // Changed from state.js, now ta
         }
     }    const header = document.createElement('div');
     header.className = 'setup-header';
+    
+    const needsDualCards = gameState.players.length <= 4;
+    const instructionText = needsDualCards 
+        ? `With ${gameState.players.length} players, each player will select 2 strategy cards. Selection happens in two rounds - first each player selects one card, then everyone selects a second card. The card with the lower initiative will determine turn order.`
+        : 'Players will select strategy cards in turn order, starting with the Speaker. Each card provides unique abilities.';
+    
     header.innerHTML = `
         <h3>Strategy Phase</h3>
-        <p class="setup-instructions">Players will select strategy cards in turn order, starting with the Speaker. Each card provides unique abilities.</p>
+        <p class="setup-instructions">${instructionText}</p>
     `;
     container.appendChild(header);
     
@@ -690,7 +696,20 @@ function updateStrategySelectionUI(container) { // Changed from state.js, now ta
     proceedButton.className = 'btn btn-large';
     proceedButton.id = 'proceed-to-active-btn';
     proceedButton.innerHTML = '<i class="fas fa-arrow-right"></i> Proceed to Action Phase';
-    const allPlayersSelectedCards = gameState.players.every(p => gameState.selectedCards[p.id]);
+    
+    // Check if all players have selected their required cards
+    let allPlayersSelectedCards = false;
+    
+    if (needsDualCards) {
+        // For dual cards, all players need exactly 2 strategy cards
+        allPlayersSelectedCards = gameState.players.every(p => 
+            p.strategyCards && p.strategyCards.length === 2
+        );
+    } else {
+        // Standard single card logic
+        allPlayersSelectedCards = gameState.players.every(p => gameState.selectedCards[p.id]);
+    }
+    
     proceedButton.disabled = !allPlayersSelectedCards;
 
     proceedButton.onclick = () => {
@@ -756,9 +775,34 @@ function updateStrategySelectionUI(container) { // Changed from state.js, now ta
     let cardsInCurrentRow = 0;
 
     sortedCards.forEach((card, index) => {
-        const isSelectedByOther = Object.values(gameState.selectedCards).includes(card.name);
-        const selectedByPlayer = isSelectedByOther ? gameState.players.find(p => gameState.selectedCards[p.id] === card.name) : null;
-        const isClickable = !isSelectedByOther && nextPlayer && !gameState.selectedCards[nextPlayer];
+        const needsDualCards = gameState.players.length <= 4;
+        
+        let isSelectedByOther = false;
+        let selectedByPlayer = null;
+        
+        if (needsDualCards) {
+            // For dual cards, check if any OTHER player has this card
+            selectedByPlayer = gameState.players.find(p => 
+                p.id !== nextPlayer && p.strategyCards && p.strategyCards.includes(card.name)
+            );
+            isSelectedByOther = !!selectedByPlayer;
+        } else {
+            // Standard single card logic
+            isSelectedByOther = Object.values(gameState.selectedCards).includes(card.name);
+            selectedByPlayer = isSelectedByOther ? gameState.players.find(p => gameState.selectedCards[p.id] === card.name) : null;
+        }
+        
+        // Check if current player already has this card (prevent duplicates)
+        const currentPlayer = gameState.players.find(p => p.id === nextPlayer);
+        const playerAlreadyHas = needsDualCards && currentPlayer && currentPlayer.strategyCards && 
+                                currentPlayer.strategyCards.includes(card.name);
+        
+        // Check if player has reached their card limit
+        const playerCardCount = needsDualCards && currentPlayer && currentPlayer.strategyCards ? 
+                               currentPlayer.strategyCards.length : 0;
+        const playerAtLimit = needsDualCards && playerCardCount >= 2;
+        
+        const isClickable = !isSelectedByOther && !playerAlreadyHas && !playerAtLimit && nextPlayer;
 
         const cardElement = document.createElement('div');
         cardElement.className = `strategy-card-large ${isSelectedByOther ? 'selected' : ''}`;

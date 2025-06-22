@@ -172,83 +172,138 @@
         playerTitle.textContent = 'Player Statistics';
         playerTitle.className = 'stats-section-title';
         
-        const playerList = document.createElement('div');
-        playerList.className = 'player-stats-list';
+        // Create table structure
+        const tableContainer = document.createElement('div');
+        tableContainer.className = 'player-stats-table-container';
         
-        // Add data attribute for player count to enable CSS optimizations
-        playerList.setAttribute('data-player-count', playerStats.length.toString());
+        const table = document.createElement('table');
+        table.className = 'player-stats-table';
+        
+        // Create table header
+        const thead = document.createElement('thead');
+        const headerRow = document.createElement('tr');
+        headerRow.innerHTML = `
+            <th class="rank-header">#</th>
+            <th class="stats-player-header">Player</th>
+            <th class="faction-header">Faction</th>
+            <th class="score-header">Score</th>
+            <th class="time-header">Total Time</th>
+            <th class="secrets-header">Secrets</th>
+            <th class="support-header">Support</th>
+            <th class="other-header">Other VPs</th>
+            <th class="custodians-header">Custodians</th>
+        `;
+        thead.appendChild(headerRow);
+        
+        // Create table body
+        const tbody = document.createElement('tbody');
         
         playerStats.forEach((player, index) => {
-            const playerCard = document.createElement('div');
-            playerCard.className = 'player-stat-card';
+            const row = document.createElement('tr');
+            row.className = 'player-row';
             if (index === 0 && gameEnded) {
-                playerCard.classList.add('winner');
+                row.classList.add('winner-row');
             }
             
-            // Player header with faction info
-            const playerHeader = document.createElement('div');
-            playerHeader.className = 'player-stat-header';
+            // Rank
+            const rankCell = document.createElement('td');
+            rankCell.className = 'rank-cell';
+            rankCell.innerHTML = index === 0 && gameEnded ? '👑' : (index + 1).toString();
             
-            const playerInfo = document.createElement('div');
-            playerInfo.className = 'player-info';
-            
+            // Player name
+            const playerCell = document.createElement('td');
+            playerCell.className = 'player-cell';
             const playerName = document.createElement('div');
-            playerName.className = 'player-name';
-            playerName.textContent = player.name;
-            if (player.color) {
-                playerName.style.color = player.color;
+            playerName.className = 'player-name-table';
+            
+            // Add faction icon if available
+            if (player.faction) {
+                const state = window.stateCore.getGameState();
+                const factionDetails = state.factions.find(f => f.name.replace(/^The /, '') === player.faction);
+                if (factionDetails && factionDetails.id) {
+                    const factionIcon = document.createElement('img');
+                    factionIcon.src = `images/factions/${factionDetails.id}.webp`;
+                    factionIcon.alt = player.faction;
+                    factionIcon.className = 'player-faction-icon-table';
+                    playerName.appendChild(factionIcon);
+                }
             }
             
-            const playerFaction = document.createElement('div');
-            playerFaction.className = 'player-faction';
-            playerFaction.textContent = player.faction || 'No Faction';
+            // Add player name text
+            const nameText = document.createElement('span');
+            nameText.textContent = player.name;
+            if (player.color) {
+                nameText.style.color = player.color;
+            }
+            playerName.appendChild(nameText);
             
-            playerInfo.appendChild(playerName);
-            playerInfo.appendChild(playerFaction);
+            playerCell.appendChild(playerName);
             
-            const playerScore = document.createElement('div');
-            playerScore.className = 'player-score';
-            playerScore.innerHTML = `<span class="score-number">${player.score}</span><span class="score-label">pts</span>`;
+            // Faction
+            const factionCell = document.createElement('td');
+            factionCell.className = 'faction-cell';
+            factionCell.textContent = player.faction || 'No Faction';
             
-            playerHeader.appendChild(playerInfo);
-            playerHeader.appendChild(playerScore);
+            // Score
+            const scoreCell = document.createElement('td');
+            scoreCell.className = 'score-cell';
+            const scoreValue = document.createElement('div');
+            scoreValue.className = 'score-value-table';
+            scoreValue.innerHTML = `<span class="score-number-table">${player.score}</span><span class="score-label-table">pts</span>`;
+            scoreCell.appendChild(scoreValue);
             
-            // Player stats details
-            const playerDetails = document.createElement('div');
-            playerDetails.className = 'player-stat-details';
+            // Total Time
+            const timeCell = document.createElement('td');
+            timeCell.className = 'time-cell';
+            timeCell.textContent = formatTime(player.totalTime);
             
-            playerDetails.innerHTML = `
-                <div class="stat-row">
-                    <div class="stat-item">
-                        <div class="stat-label">Total Time</div>
-                        <div class="stat-value">${formatTime(player.totalTime)}</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-label">Secrets</div>
-                        <div class="stat-value">${player.secretObjectives}</div>
-                    </div>
-                </div>
-                <div class="stat-row">
-                    <div class="stat-item">
-                        <div class="stat-label">Support</div>
-                        <div class="stat-value">${player.supportForThrone}</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-label">Other VPs</div>
-                        <div class="stat-value">${player.otherVPs}</div>
-                    </div>
-                </div>
-                ${player.custodians ? '<div class="custodians-indicator"><i class="fas fa-medal"></i> Custodians</div>' : ''}
-            `;
+            // Secrets
+            const secretsCell = document.createElement('td');
+            secretsCell.className = 'secrets-cell';
+            secretsCell.textContent = player.secretObjectives;
             
-            playerCard.appendChild(playerHeader);
-            playerCard.appendChild(playerDetails);
+            // Support
+            const supportCell = document.createElement('td');
+            supportCell.className = 'support-cell';
+            supportCell.textContent = player.supportForThrone;
             
-            playerList.appendChild(playerCard);
+            // Other VPs
+            const otherCell = document.createElement('td');
+            otherCell.className = 'other-cell';
+            otherCell.textContent = player.otherVPs;
+            
+            // Custodians
+            const custodiansCell = document.createElement('td');
+            custodiansCell.className = 'custodians-cell';
+            if (player.custodians) {
+                const indicator = document.createElement('div');
+                indicator.className = 'custodians-indicator-table';
+                indicator.innerHTML = '<i class="fas fa-medal"></i>';
+                custodiansCell.appendChild(indicator);
+            } else {
+                custodiansCell.innerHTML = '<span class="no-custodians">—</span>';
+            }
+            
+            // Append all cells to row
+            row.appendChild(rankCell);
+            row.appendChild(playerCell);
+            row.appendChild(factionCell);
+            row.appendChild(scoreCell);
+            row.appendChild(timeCell);
+            row.appendChild(secretsCell);
+            row.appendChild(supportCell);
+            row.appendChild(otherCell);
+            row.appendChild(custodiansCell);
+            
+            tbody.appendChild(row);
         });
         
+        table.appendChild(thead);
+        table.appendChild(tbody);
+        tableContainer.appendChild(table);
+        
         playerSection.appendChild(playerTitle);
-        playerSection.appendChild(playerList);
+        playerSection.appendChild(tableContainer);
         
         // Action buttons
         const actionSection = document.createElement('div');

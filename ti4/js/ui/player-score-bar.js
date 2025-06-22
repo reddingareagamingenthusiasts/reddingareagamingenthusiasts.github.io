@@ -78,18 +78,42 @@ function renderPlayerScoreBar(container, options = {}) {
 
         // Strategy Card Display
         let scDisplayHTML = '';
-        if (mergedOptions.showStrategyCards && player.strategyCard) {
-            const scData = state.strategyCards.find(sc => sc.name === player.strategyCard);
-            if (scData) {
-                const cardIconClass = getStrategyCardIcon(scData.name);                scDisplayHTML = `
-                    <div class="player-sc ${player.strategyCardUsed ? 'used' : ''}" data-card="${scData.name}" title="${scData.name} (Initiative: ${scData.initiative})">
-                        <i class="fas ${cardIconClass} sc-icon"></i>
-                        <span class="sc-initiative">${scData.initiative}</span>
-                        <span class="sc-name">${scData.name}</span>
-                    </div>
-                `;
-            } else {
-                scDisplayHTML = `<div class="player-sc-none">Unknown SC: ${player.strategyCard}</div>`;
+        if (mergedOptions.showStrategyCards) {
+            const needsDualCards = state.players.length <= 4;
+            
+            if (needsDualCards && player.strategyCards && player.strategyCards.length > 0) {
+                // Display multiple strategy cards for 4 or fewer players
+                scDisplayHTML = '<div class="player-sc-container">';
+                player.strategyCards.forEach(cardName => {
+                    const scData = state.strategyCards.find(sc => sc.name === cardName);
+                    if (scData) {
+                        const cardIconClass = getStrategyCardIcon(scData.name);
+                        const isUsed = player.strategyCardsUsed && player.strategyCardsUsed.includes(cardName);
+                        scDisplayHTML += `
+                            <div class="player-sc ${isUsed ? 'used' : ''}" data-card="${scData.name}" title="${scData.name} (Initiative: ${scData.initiative})">
+                                <i class="fas ${cardIconClass} sc-icon"></i>
+                                <span class="sc-initiative">${scData.initiative}</span>
+                                <span class="sc-name">${scData.name}</span>
+                            </div>
+                        `;
+                    }
+                });
+                scDisplayHTML += '</div>';
+            } else if (!needsDualCards && player.strategyCard) {
+                // Standard single strategy card display
+                const scData = state.strategyCards.find(sc => sc.name === player.strategyCard);
+                if (scData) {
+                    const cardIconClass = getStrategyCardIcon(scData.name);
+                    scDisplayHTML = `
+                        <div class="player-sc ${player.strategyCardUsed ? 'used' : ''}" data-card="${scData.name}" title="${scData.name} (Initiative: ${scData.initiative})">
+                            <i class="fas ${cardIconClass} sc-icon"></i>
+                            <span class="sc-initiative">${scData.initiative}</span>
+                            <span class="sc-name">${scData.name}</span>
+                        </div>
+                    `;
+                } else {
+                    scDisplayHTML = `<div class="player-sc-none">Unknown SC: ${player.strategyCard}</div>`;
+                }
             }
         }
           // Build the player card HTML

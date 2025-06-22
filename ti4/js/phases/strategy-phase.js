@@ -50,11 +50,44 @@ function getNextPlayerInOrder() {
     initializeStrategyPhaseTurnOrder(); // Make sure turn order is initialized
     
     const state = window.stateCore.getGameState();
-    const unselectedPlayers = state.turnOrder.filter(
-        playerId => !state.selectedCards[playerId]
-    );
-    console.log('Unselected players:', unselectedPlayers);
-    return unselectedPlayers[0] || null;
+    
+    // Check if we need dual strategy cards (4 or fewer players)
+    const needsDualCards = state.players.length <= 4;
+    
+    if (needsDualCards) {
+        // For dual cards, we need to go through the selection process twice
+        // First, check if any player hasn't selected their first card
+        let playersWithoutFirstCard = state.turnOrder.filter(playerId => {
+            const player = state.players.find(p => p.id === playerId);
+            return !player.strategyCards || player.strategyCards.length === 0;
+        });
+        
+        if (playersWithoutFirstCard.length > 0) {
+            console.log('First round - players without first card:', playersWithoutFirstCard);
+            return playersWithoutFirstCard[0];
+        }
+        
+        // If all players have their first card, proceed with second round
+        let playersWithoutSecondCard = state.turnOrder.filter(playerId => {
+            const player = state.players.find(p => p.id === playerId);
+            return player.strategyCards.length < 2;
+        });
+        
+        if (playersWithoutSecondCard.length > 0) {
+            console.log('Second round - players without second card:', playersWithoutSecondCard);
+            return playersWithoutSecondCard[0];
+        }
+        
+        // All players have both cards
+        return null;
+    } else {
+        // Standard single card selection
+        const unselectedPlayers = state.turnOrder.filter(
+            playerId => !state.selectedCards[playerId]
+        );
+        console.log('Unselected players:', unselectedPlayers);
+        return unselectedPlayers[0] || null;
+    }
 }
 
 function updateTurnOrderByInitiative() {
@@ -113,14 +146,67 @@ function selectStrategyCard(playerId, cardName) {
         }
     }
     
-    if (Object.values(state.selectedCards).includes(cardName)) {
+    // Check if card is already selected by another player
+    const needsDualCards = state.players.length <= 4;
+    const isCardTaken = state.players.some(player => 
+        player.id !== playerId && // Don't check the current player
+        player.strategyCards && player.strategyCards.includes(cardName)
+    );
+    
+    if (isCardTaken) {
         console.warn('Card already selected by another player');
         return false;
     }
     
+    const player = state.players.find(p => p.id === playerId);
+    if (!player) {
+        console.warn('Player not found');
+        return false;
+    }
+    
+    // Check if player already has this card (prevent duplicates)
+    if (player.strategyCards && player.strategyCards.includes(cardName)) {
+        console.warn('Player already has this strategy card');
+        return false;
+    }
+    
     if (cardName) {
-        state.selectedCards[playerId] = cardName;
+        // Initialize strategy cards array if it doesn't exist
+        if (!player.strategyCards) {
+            player.strategyCards = [];
+        }
+        
+        if (needsDualCards) {
+            // For dual cards, add to the array (max 2 cards)
+            if (player.strategyCards.length < 2) {
+                player.strategyCards.push(cardName);
+                console.log(`Player ${player.name} selected ${cardName} (${player.strategyCards.length}/2)`);
+            }
+        } else {
+            // For standard play, replace the single card
+            player.strategyCards = [cardName];
+            // Keep backwards compatibility
+            state.selectedCards[playerId] = cardName;
+        }
+        
+        // For dual cards, also maintain backwards compatibility by setting the primary strategy card
+        // Use the lower initiative card as the primary for turn order
+        if (player.strategyCards.length > 0) {
+            const cardInitiatives = player.strategyCards.map(card => {
+                const cardData = state.strategyCards.find(c => c.name === card);
+                return { name: card, initiative: cardData ? cardData.initiative : Infinity };
+            });
+            
+            const primaryCard = cardInitiatives.sort((a, b) => a.initiative - b.initiative)[0];
+            player.strategyCard = primaryCard.name;
+            state.selectedCards[playerId] = primaryCard.name;
+        }
     } else {
+        // Remove card selection
+        if (needsDualCards && player.strategyCards) {
+            player.strategyCards = [];
+        }
+        player.strategyCard = null;
         delete state.selectedCards[playerId];
     }
     
@@ -152,16 +238,37 @@ function proceedToActivePhase() {
     const state = window.stateCore.getGameState();
     
     if (state.stage === 'strategy-selection') {
-        const allPlayersSelected = state.players.every(
-            p => state.selectedCards[p.id]
-        );
+        const needsDualCards = state.players.length <= 4;
+        
+        let allPlayersSelected = false;
+        if (needsDualCards) {
+            // For dual cards, all players need exactly 2 strategy cards
+            allPlayersSelected = state.players.every(p => 
+                p.strategyCards && p.strategyCards.length === 2
+            );
+        } else {
+            // For standard play, all players need 1 strategy card
+            allPlayersSelected = state.players.every(
+                p => state.selectedCards[p.id]
+            );
+        }
         
         if (allPlayersSelected) {
             window.stateCore.recordHistory();
 
-            // Use selectedCards to store strategy card names
+            // Set up strategy cards for action phase
             state.players.forEach(player => {
-                player.strategyCard = state.selectedCards[player.id] || null;
+                if (needsDualCards) {
+                    // Keep the array of cards and initialize usage tracking
+                    if (!player.strategyCardsUsed) {
+                        player.strategyCardsUsed = [];
+                    }
+                    // Also maintain backwards compatibility
+                    player.strategyCard = player.strategyCards[0]; // Primary card for display
+                } else {
+                    // Standard single card setup
+                    player.strategyCard = state.selectedCards[player.id] || null;
+                }
                 player.strategyCardUsed = false;
             });
 
@@ -185,7 +292,11 @@ function proceedToActivePhase() {
             
             window.stateCore.saveGameState();
         } else {
-            console.warn("Not all players have selected strategy cards.");
+            if (needsDualCards) {
+                console.warn("Not all players have selected both strategy cards.");
+            } else {
+                console.warn("Not all players have selected strategy cards.");
+            }
         }
     }
 }
