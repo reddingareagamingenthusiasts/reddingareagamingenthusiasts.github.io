@@ -34,6 +34,8 @@ function renderPlayerScoreBar(container, options = {}) {
     // Merge default options with provided options
     const mergedOptions = { ...defaultOptions, ...options };
     
+    console.log('renderPlayerScoreBar called with currentPlayerId:', mergedOptions.currentPlayerId);
+    
     // Create the score bar container
     const scoreBarContainer = document.createElement('div');
     scoreBarContainer.className = 'player-score-bar';
@@ -54,6 +56,7 @@ function renderPlayerScoreBar(container, options = {}) {
         }
 
         const isCurrentPlayer = player.id === mergedOptions.currentPlayerId;
+        console.log(`Player ${player.name} (${playerId}): isCurrentPlayer = ${isCurrentPlayer} (comparing with ${mergedOptions.currentPlayerId})`);
 
         if (mergedOptions.showPassedState && player.passed) {
             playerEl.classList.add('passed-player');
@@ -61,6 +64,7 @@ function renderPlayerScoreBar(container, options = {}) {
         
         if (isCurrentPlayer) {
             playerEl.classList.add('active-player');
+            console.log(`Applied active-player class to ${player.name}`);
             // Add a subtle highlight for the current player without animations
             playerEl.style.boxShadow = `0 0 5px 2px ${player.color || 'var(--accent-color)'}`;
             // No animation

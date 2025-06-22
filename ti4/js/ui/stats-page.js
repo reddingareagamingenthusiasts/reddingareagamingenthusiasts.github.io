@@ -50,6 +50,35 @@
         return currentTime;
     }
 
+    // Calculate public objective points for a player
+    function calculatePublicObjectivePoints(playerId) {
+        const state = window.stateCore.getGameState();
+        if (!state.publicObjectiveScores) return 0;
+        
+        let totalPoints = 0;
+        
+        // Check all objectives to see if player has scored them
+        Object.keys(state.publicObjectiveScores).forEach(objectiveId => {
+            const scorers = state.publicObjectiveScores[objectiveId];
+            if (scorers && scorers.includes(playerId)) {
+                // Find the objective to get its point value
+                let objective = null;
+                if (typeof ALL_STAGE_I_OBJECTIVES !== 'undefined') {
+                    objective = ALL_STAGE_I_OBJECTIVES.find(obj => obj.id === objectiveId);
+                }
+                if (!objective && typeof ALL_STAGE_II_OBJECTIVES !== 'undefined') {
+                    objective = ALL_STAGE_II_OBJECTIVES.find(obj => obj.id === objectiveId);
+                }
+                
+                if (objective) {
+                    totalPoints += objective.points || 0;
+                }
+            }
+        });
+        
+        return totalPoints;
+    }
+
     // Get player statistics with timing data
     function getPlayerStats() {
         const state = window.stateCore.getGameState();
@@ -73,6 +102,7 @@
                 supportForThrone: player.supportForThrone || 0,
                 custodians: player.custodians || false,
                 otherVPs: player.otherVPs || 0,
+                objectivePoints: calculatePublicObjectivePoints(player.id),
                 totalTime: totalTime
             };
         }).sort((a, b) => b.score - a.score); // Sort by score descending
@@ -188,6 +218,7 @@
             <th class="faction-header">Faction</th>
             <th class="score-header">Score</th>
             <th class="time-header">Total Time</th>
+            <th class="objectives-header">Objectives</th>
             <th class="secrets-header">Secrets</th>
             <th class="support-header">Support</th>
             <th class="other-header">Other VPs</th>
@@ -257,6 +288,11 @@
             timeCell.className = 'time-cell';
             timeCell.textContent = formatTime(player.totalTime);
             
+            // Objective Points
+            const objectivesCell = document.createElement('td');
+            objectivesCell.className = 'objectives-cell';
+            objectivesCell.textContent = player.objectivePoints;
+            
             // Secrets
             const secretsCell = document.createElement('td');
             secretsCell.className = 'secrets-cell';
@@ -290,6 +326,7 @@
             row.appendChild(factionCell);
             row.appendChild(scoreCell);
             row.appendChild(timeCell);
+            row.appendChild(objectivesCell);
             row.appendChild(secretsCell);
             row.appendChild(supportCell);
             row.appendChild(otherCell);

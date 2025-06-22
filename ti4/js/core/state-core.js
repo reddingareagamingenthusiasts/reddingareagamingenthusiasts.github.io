@@ -322,3 +322,44 @@ window.stateCore = {
     importGameState,
     promptImportGameState
 };
+
+// Function to get secondary action data for strategy cards
+function getSecondaryActionData(card, activePlayerId) {
+    const state = getGameState();
+    if (!state) return { currentPlayerForSecondary: null };
+    
+    // Get players who can participate in secondary actions (excluding active player and passed players)
+    const eligiblePlayers = state.players.filter(p => p.id !== activePlayerId && !p.passed);
+    
+    // If no eligible players, return null
+    if (eligiblePlayers.length === 0) {
+        return { currentPlayerForSecondary: null };
+    }
+    
+    // Order players clockwise from the active player
+    const activePlayerIndex = state.players.findIndex(p => p.id === activePlayerId);
+    const orderedPlayers = [];
+    
+    for (let i = 1; i < state.players.length; i++) {
+        const playerIndex = (activePlayerIndex + i) % state.players.length;
+        const player = state.players[playerIndex];
+        if (!player.passed) {
+            orderedPlayers.push(player);
+        }
+    }
+    
+    // Return the first player in clockwise order as the current player for secondary
+    return {
+        currentPlayerForSecondary: orderedPlayers.length > 0 ? orderedPlayers[0] : null,
+        allSecondaryPlayers: orderedPlayers
+    };
+}
+
+// Add to TI4 namespace
+if (!window.TI4) {
+    window.TI4 = {};
+}
+if (!window.TI4.Core) {
+    window.TI4.Core = {};
+}
+window.TI4.Core.getSecondaryActionData = getSecondaryActionData;

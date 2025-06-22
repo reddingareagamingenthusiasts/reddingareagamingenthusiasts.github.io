@@ -923,29 +923,8 @@ function updateStrategySelectionUI(container) { // Changed from state.js, now ta
 function populateCardDetails(card, objective, stageTypeStr) {
     card.innerHTML = ''; // Clear any placeholder text or previous content
     const h4 = document.createElement('h4');
-    // Use stageTypeStr directly as it will be 'Stage I' or 'Stage II'
-    h4.textContent = (objective.name || 'Unknown Objective') + ` (${stageTypeStr})`;
-    card.appendChild(h4);
-    const pText = document.createElement('p');
-    pText.className = 'objective-text';
-    pText.textContent = objective.text || 'No description available.';
-    card.appendChild(pText);
-    const pPoints = document.createElement('p');
-    pPoints.className = 'objective-points';
-    const strongPoints = document.createElement('strong');
-    strongPoints.textContent = (objective.points || '0') + ' VP';
-    pPoints.appendChild(strongPoints);
-    card.appendChild(pPoints);
-}
-
-
-
-// Helper to populate objective card details (moved from renderObjectiveCards)
-function populateCardDetails(card, objective, stageTypeStr) {
-    card.innerHTML = ''; // Clear any placeholder text or previous content
-    const h4 = document.createElement('h4');
-    // Use stageTypeStr directly as it will be 'Stage I' or 'Stage II'
-    h4.textContent = (objective.name || 'Unknown Objective') + ` (${stageTypeStr})`;
+    // Remove the stage type text from the title - just use the objective name
+    h4.textContent = objective.name || 'Unknown Objective';
     card.appendChild(h4);
     const pText = document.createElement('p');
     pText.className = 'objective-text';

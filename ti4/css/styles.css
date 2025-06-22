@@ -1856,7 +1856,14 @@ gap: 0.5rem;
 }
 
 .stage.active {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - 100px); /* Account for top bar and other elements */
+    overflow: hidden; /* Prevent scrolling on the stage itself */
+}
+
+#active-stage {
+    min-height: calc(100vh - 100px); /* Ensure active stage uses most of the height */
 }
 
 .setup-header {
@@ -2846,43 +2853,37 @@ input::placeholder {
 
 /* Action Phase - Objective Cards */
 /* Shared container styles for content sections */
-.objective-cards-container,
-.action-phase-players-container {
+.objective-cards-container {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 1rem;
+    gap: 0; /* Remove gap to eliminate spacing */
     width: 100%;
-    max-width: 1920px;
-    margin: 0.75rem auto; /* Reduced from 1.5rem */
-    padding: 0.5rem; /* Reduced from 1rem */
-    background-color: rgba(var(--secondary-color-rgb), 0.5);
-    border-radius: 8px;
-    border: 1px solid rgba(var(--border-color-rgb), 0.5);
+    flex: 0 0 auto; /* Don't grow, just take needed space */
+    min-height: 200px; /* Minimum height to ensure objectives are visible */
+    max-width: 100%;
+    margin: 0; /* Remove margins */
+    padding: 0; /* Remove padding to eliminate bounding box */
+    background: transparent; /* Remove background */
+    border: none; /* Remove border */
     box-sizing: border-box;
 }
 
-/* Specific overrides for action-phase-players-container */
-.action-phase-players-container {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    padding: 0.5rem 0; /* Reduced vertical padding */
-    width: 100%; /* Ensure full width */
-    max-width: 100%; /* Prevent any max-width constraints */
-}
-
-/* Action Phase - Players in Turn Order */
 .action-phase-players-container {
     display: flex;
     flex-wrap: nowrap; /* Players should stay in a single row, allow horizontal scroll if needed */
     justify-content: flex-start; /* Align players to the start */
     gap: 1.5rem; /* Space between player elements */
+    width: 100%;
+    max-width: 1920px;
+    margin: -1rem auto 0.75rem auto; /* Negative top margin to bring closer to objectives */
     padding: 0.75rem 0; /* Reduced vertical padding */
-    margin: 0 0 0.75rem 0; /* Reduced bottom margin */
+    background-color: rgba(var(--secondary-color-rgb), 0.5);
+    border-radius: 8px;
+    border: 1px solid rgba(var(--border-color-rgb), 0.5);
+    box-sizing: border-box;
     overflow-x: auto; /* Allow horizontal scrolling if players overflow */
     min-height: 180px; /* Increased height to accommodate glow */
-    width: 100%; /* Ensure full width */
-    /* Removed visible box styles */
 }
 
 /* Individual Objective Card (placeholder style) */
@@ -2961,12 +2962,15 @@ input::placeholder {
     display: flex;
     flex-wrap: nowrap; /* Ensures all cards stay in one line */
     justify-content: center; /* Center cards if they don't fill the width, or center the scrollable area if possible */
-    gap: 0.5rem;
+    gap: 0.5%; /* Smaller gap for better fit */
     width: 100%; /* Takes full width, scrolling handles overflow */
-    margin-bottom: 1rem;
-    padding: 0.5rem; /* Padding around the scrollable content */
+    height: 100%; /* Fill vertical space */
+    margin: 0; /* Remove margins */
+    padding: 0; /* Remove padding to eliminate bounding box visibility */
     overflow-x: auto; /* Enables horizontal scrolling if cards overflow */
     box-sizing: border-box; /* Ensure padding is included in width calculation */
+    border: none; /* Ensure no border */
+    background: transparent; /* Remove any background */
 }
 
 /* .objective-stage-header is no longer used and can be removed if desired */
@@ -2980,10 +2984,12 @@ input::placeholder {
     border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 0.75rem;
-    min-width: 130px; /* Narrower to fit more cards, adjust as needed */
-    width: calc(9% - 0.5rem); /* Approx 10 across with gap, might need further tweaking */
-    max-width: 160px; /* Max width for a single card */
-    min-height: 110px; /* Adjusted min-height */
+    min-width: 8%; /* Use percentage for responsive design */
+    width: 9.55%; /* Calculated: (100% - 9 * 0.5%) / 10 = 95.5% / 10 = 9.55% */
+    max-width: none; /* Remove max-width constraint */
+    min-height: 180px; /* Increased min-height to use more vertical space */
+    max-height: 300px; /* Prevent cards from becoming too tall */
+    height: auto; /* Allow height to grow with content */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -2995,12 +3001,12 @@ input::placeholder {
 }
 
 .objective-card-slot.empty-slot {
-    background-color: rgba(var(--primary-color-rgb), 0.5);
-    border-style: dashed;
+    background-color: rgba(var(--primary-color-rgb), 0.3); /* More subtle background */
+    border: 1px solid rgba(var(--border-color-rgb), 0.5); /* Solid border instead of dashed */
     align-items: center;
     justify-content: center;
     font-size: 0.75rem; /* Smaller for placeholder text */
-    opacity: 0.6;
+    opacity: 0.7; /* Slightly more visible */
     color: var(--text-color);
 }
 
@@ -3011,8 +3017,8 @@ input::placeholder {
 }
 
 .objective-card-slot .objective-text {
-    font-size: 0.7rem; /* Adjusted for smaller cards */
-    line-height: 1.3;  /* Improve readability in smaller space */
+    font-size: 1.0rem; /* Increased from 0.7rem for better visibility at the table */
+    line-height: 1.4;  /* Improved line height for better readability */
     margin-bottom: 0.2rem; /* Adjusted */
     opacity: 0.9;
     flex-grow: 1;
@@ -3744,13 +3750,13 @@ input::placeholder {
 /* Styles for Hidden and Red-Taped Objectives */
 .objective-card-slot.hidden-objective {
     background-color: var(--secondary-color-darker, #131a26);
-    border: 2px dashed var(--accent-color-muted, #ff9a9a);
+    border: 1px solid rgba(var(--accent-color-muted, #ff9a9a), 0.5); /* Solid border with transparency */
     color: var(--text-color-muted, #a0b0c0);
     display: flex;
     align-items: center;
     justify-content: center;
     font-style: italic;
-    min-height: 120px; /* Ensure consistent height with revealed cards */
+    min-height: 180px; /* Match the updated min-height */
     padding: 10px;
     text-align: center;
 }
@@ -3819,7 +3825,7 @@ input::placeholder {
     list-style: none;
     padding: 0;
     margin: 0 0 20px 0;
-    max-height: 300px; /* Scroll if many players */
+    max-height: 500px; /* Increased from 300px to accommodate more players without scrolling */
     overflow-y: auto;
 }
 

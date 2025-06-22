@@ -18,7 +18,8 @@
     justify-content: flex-start;
     gap: 1.5rem;
     overflow-x: auto;
-    padding-bottom: 0.5rem; /* Reduced from 1rem */
+    padding: 0.75rem 0 0.5rem 0; /* Add top padding, keep reduced bottom padding */
+    margin-top: -1rem; /* Negative top margin to bring closer to objectives */
     scrollbar-width: thin;
     scrollbar-color: var(--accent-secondary) var(--secondary-color);
 }

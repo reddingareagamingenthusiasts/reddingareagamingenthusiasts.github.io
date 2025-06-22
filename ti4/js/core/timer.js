@@ -672,9 +672,10 @@
                 }
             };
             localStorage.setItem(TIMER_STORAGE_KEY, JSON.stringify(timerState));
-            console.log('[TIMER] Saved timer state to localStorage:', 
-                Math.floor(currentTime/1000) + 's', 
-                sharedTimerState.isRunning ? 'running' : 'paused');
+            // Removed frequent logging to prevent console spam
+            // console.log('[TIMER] Saved timer state to localStorage:', 
+            //     Math.floor(currentTime/1000) + 's', 
+            //     sharedTimerState.isRunning ? 'running' : 'paused');
             
             // Track when we last saved
             sharedTimerState.lastSavedTime = Date.now();
@@ -712,6 +713,21 @@
         resetTimer,
         saveTimerState,
         startPlayerTurn,
+        endCurrentPlayerTurn,
+        pausePlayerTurn,
+        resumePlayerTurn,
+        getCurrentPlayerTotalTime
+    };
+
+    // Also export to TI4 namespace for strategy card modal
+    if (!window.TI4) {
+        window.TI4 = {};
+    }
+    if (!window.TI4.Core) {
+        window.TI4.Core = {};
+    }
+    window.TI4.Core.Timer = {
+        startPlayerTimer: startPlayerTurn,
         endCurrentPlayerTurn,
         pausePlayerTurn,
         resumePlayerTurn,

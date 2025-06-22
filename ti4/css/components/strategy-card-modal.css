@@ -1,0 +1,336 @@
+/* Strategy Card Full-Screen Modal */
+.strategy-card-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 2rem;
+    box-sizing: border-box;
+}
+
+.strategy-card-modal-content {
+    background: linear-gradient(135deg, rgba(26, 35, 50, 0.95) 0%, rgba(20, 28, 40, 0.95) 100%);
+    border: 2px solid var(--accent-secondary);
+    border-radius: var(--border-radius-lg);
+    width: 100%;
+    max-width: 1200px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.strategy-card-modal-header {
+    background: var(--card-header-bg);
+    border-bottom: 2px solid var(--accent-secondary);
+    padding: 2rem;
+    text-align: center;
+    position: relative;
+}
+
+.strategy-card-modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    color: var(--text-color);
+    font-size: 2rem;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity var(--transition-normal);
+}
+
+.strategy-card-modal-close:hover {
+    opacity: 1;
+}
+
+.strategy-card-modal-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin: 0;
+    font-family: var(--header-font);
+    font-size: 3rem;
+    color: var(--text-color);
+}
+
+.strategy-card-modal-initiative {
+    background: var(--accent-secondary);
+    color: var(--card-bg);
+    border-radius: 50%;
+    width: 4rem;
+    height: 4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.strategy-card-modal-player {
+    margin-top: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.strategy-card-modal-player-faction-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: contain;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border-color);
+}
+
+.strategy-card-modal-player-details {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.strategy-card-modal-player-name-text {
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.strategy-card-modal-player-faction-text {
+    font-size: 1rem;
+    opacity: 0.8;
+}
+
+.strategy-card-modal-body {
+    padding: 2rem;
+}
+
+.strategy-card-modal-phase {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.strategy-card-modal-phase-title {
+    font-size: 2rem;
+    color: var(--accent-secondary);
+    margin-bottom: 1rem;
+    font-family: var(--header-font);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.strategy-card-ability {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    text-align: left;
+}
+
+.strategy-card-ability-title {
+    color: var(--accent-secondary);
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.strategy-card-ability-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.strategy-card-ability-list li {
+    font-size: 1.4rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
+    position: relative;
+    color: var(--text-color);
+}
+
+.strategy-card-ability-list li:before {
+    content: '•';
+    color: var(--accent-secondary);
+    font-weight: bold;
+    position: absolute;
+    left: 0;
+}
+
+.strategy-card-modal-controls {
+    background: rgba(0, 0, 0, 0.2);
+    border-top: 1px solid var(--border-color);
+    padding: 2rem;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.strategy-card-modal-controls .btn {
+    min-width: 200px;
+    font-size: 1.1rem;
+    padding: 1rem 2rem;
+}
+
+/* Secondary Action Phase */
+.secondary-action-phase {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 2px solid var(--border-color);
+}
+
+.secondary-action-phase-title {
+    text-align: center;
+    font-size: 1.8rem;
+    color: var(--accent-secondary);
+    margin-bottom: 1.5rem;
+    font-family: var(--header-font);
+}
+
+.secondary-action-players {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.secondary-action-player {
+    background: rgba(0, 0, 0, 0.3);
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    padding: 1rem 1.5rem;
+    transition: all var(--transition-normal);
+}
+
+.secondary-action-player.current {
+    border-color: var(--accent-secondary);
+    background: rgba(78, 124, 255, 0.1);
+    transform: scale(1.02);
+}
+
+.secondary-action-player.completed {
+    opacity: 0.6;
+    border-color: #28a745;
+}
+
+.secondary-action-player.skipped {
+    opacity: 0.6;
+    border-color: #6c757d;
+}
+
+.secondary-action-player-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 0.5rem;
+}
+
+.secondary-action-player-name {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-grow: 1;
+}
+
+.secondary-action-player-faction-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: contain;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border-color);
+}
+
+.secondary-action-player-details {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.secondary-action-player-name-text {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--text-color);
+}
+
+.secondary-action-player-faction {
+    font-size: 0.9rem;
+    opacity: 0.7;
+}
+
+.secondary-action-player-controls {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.secondary-action-player-controls .btn {
+    flex: 1;
+    padding: 0.75rem 1rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .strategy-card-modal {
+        padding: 1rem;
+    }
+    
+    .strategy-card-modal-title {
+        font-size: 2rem;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .strategy-card-modal-initiative {
+        width: 3rem;
+        height: 3rem;
+        font-size: 1.5rem;
+    }
+    
+    .strategy-card-ability-list li {
+        font-size: 1rem;
+    }
+    
+    .secondary-action-players {
+        grid-template-columns: 1fr;
+    }
+    
+    .strategy-card-modal-controls {
+        flex-direction: column;
+    }
+    
+    .strategy-card-modal-controls .btn {
+        min-width: auto;
+    }
+}
+
+/* Animation for modal appearance */
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.strategy-card-modal-content {
+    animation: modalFadeIn 0.3s ease-out;
+}

@@ -13,6 +13,14 @@ function renderActionPhasePlayers(container) {
     }
 
     const currentPlayerIdInActionPhase = state.turnOrder[state.actionPhasePlayerIndex];
+    console.log('renderActionPhasePlayers called');
+    console.log('Current actionPhasePlayerIndex:', state.actionPhasePlayerIndex);
+    console.log('Turn order:', state.turnOrder);
+    console.log('Current player ID:', currentPlayerIdInActionPhase);
+    
+    // Find the actual player object to log their name
+    const currentPlayer = state.players.find(p => p.id === currentPlayerIdInActionPhase);
+    console.log('Current player name:', currentPlayer ? currentPlayer.name : 'NOT FOUND');
     
     // Use the shared player score bar component
     window.playerScoreBar.renderPlayerScoreBar(container, {

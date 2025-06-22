@@ -1,6 +1,7 @@
 // Action Phase logic for TI4 Scoreboard
 
 function advanceActionPhaseTurn() {
+    console.log('advanceActionPhaseTurn called');
     const state = window.stateCore.getGameState();
     window.stateCore.recordHistory();
 
@@ -9,16 +10,17 @@ function advanceActionPhaseTurn() {
         window.gameTimer.endCurrentPlayerTurn();
     }
 
-    // Clear any staged action when advancing turns
-    clearStagedAction();
-
     // Find the next unPassed player
     let nextPlayerFound = false;
     let currentIndex = state.actionPhasePlayerIndex;
     
+    console.log('Current action phase player index:', currentIndex);
+    
     // Start by incrementing the index once to move from current player
     currentIndex = (currentIndex + 1) % state.turnOrder.length;
     const startingIndex = currentIndex; // Remember where we started
+    
+    console.log('Looking for next player starting at index:', currentIndex);
     
     // Loop until we find an unPassed player or come back to where we started
     do {
@@ -27,9 +29,12 @@ function advanceActionPhaseTurn() {
         // Find the actual player object
         const player = state.players.find(p => p.id === playerId);
         
+        console.log(`Checking player at index ${currentIndex}: ${player ? player.name : 'not found'}, passed: ${player ? player.passed : 'N/A'}`);
+        
         if (player && !player.passed) {
             nextPlayerFound = true;
             state.actionPhasePlayerIndex = currentIndex;
+            console.log(`Next player found: ${player.name} at index ${currentIndex}`);
             break;
         }
         
@@ -39,6 +44,7 @@ function advanceActionPhaseTurn() {
 
     if (!nextPlayerFound) {
         // If we couldn't find an unPassed player, the round is over
+        console.log('No unpassed players found, proceeding to status phase');
         proceedToStatusPhase();
         return;
     }
@@ -48,11 +54,16 @@ function advanceActionPhaseTurn() {
     
     // Start the new player's turn timer
     const newCurrentPlayerId = state.turnOrder[state.actionPhasePlayerIndex];
+    console.log('Starting timer for new current player:', newCurrentPlayerId);
     if (window.gameTimer && typeof window.gameTimer.startPlayerTurn === 'function') {
         window.gameTimer.startPlayerTurn(newCurrentPlayerId);
     }
     
+    console.log('Calling saveGameState to update UI');
     window.stateCore.saveGameState();
+
+    // Clear any staged action when advancing turns (moved to end)
+    clearStagedAction();
 }
 
 function playerPlaysStrategyCard(playerId, cardName = null) {
@@ -168,31 +179,44 @@ function confirmCurrentPlayerAction() {
     const player = state.players.find(p => p.id === state.stagedPlayerAction.playerId);
     if (!player) return;
 
-    // Mark the action as confirmed
-    state.stagedPlayerAction.confirmed = true;
-
     const needsDualCards = state.players.length <= 4;
 
     // Process the action based on its type
     switch (state.stagedPlayerAction.actionType.type) {
         case 'strategy':
-            if (needsDualCards) {
-                // For dual cards, mark the specific card as used
-                if (!player.strategyCardsUsed) {
-                    player.strategyCardsUsed = [];
-                }
-                player.strategyCardsUsed.push(state.stagedPlayerAction.actionType.card);
-                console.log(`Player ${player.name} used strategy card: ${state.stagedPlayerAction.actionType.card}`);
+            // Show strategy card modal instead of immediately confirming
+            if (window.strategyCardModal && window.strategyCardModal.showStrategyCardModal) {
+                window.strategyCardModal.showStrategyCardModal(
+                    state.stagedPlayerAction.actionType.card,
+                    player,
+                    'primary'
+                );
+                return; // Modal will handle the rest of the flow
             } else {
-                // Standard single card logic
-                player.strategyCardUsed = true;
-            }
-            
-            // Check if this is the Politics strategy card
-            if (state.stagedPlayerAction.actionType.card === 'Politics') {
-                // Prompt to select a new speaker
-                promptForNewSpeaker(player.id);
-                return; // Don't advance turn yet, wait for speaker selection
+                // Fallback to old behavior if modal not available
+                state.stagedPlayerAction.confirmed = true;
+                if (needsDualCards) {
+                    // For dual cards, mark the specific card as used
+                    if (!player.strategyCardsUsed) {
+                        player.strategyCardsUsed = [];
+                    }
+                    player.strategyCardsUsed.push(state.stagedPlayerAction.actionType.card);
+                    console.log(`Player ${player.name} used strategy card: ${state.stagedPlayerAction.actionType.card}`);
+                } else {
+                    // Standard single card logic
+                    player.strategyCardUsed = true;
+                }
+                
+                // Check if this is the Politics strategy card
+                if (state.stagedPlayerAction.actionType.card === 'Politics') {
+                    // Prompt to select a new speaker
+                    promptForNewSpeaker(player.id);
+                    return; // Don't advance turn yet, wait for speaker selection
+                }
+                
+                // Strategy card played, advance to next player
+                advanceActionPhaseTurn();
+                return;
             }
             break;
         case 'pass':
@@ -220,18 +244,27 @@ function confirmCurrentPlayerAction() {
             // Mark the player as passed
             player.passed = true;
             state.passedPlayerCount++;
+            state.stagedPlayerAction.confirmed = true;
             break;
-        // Component actions don't require additional processing
+        case 'component':
+            // Component actions are simple, just confirm them.
+            state.stagedPlayerAction.confirmed = true;
+            break;
     }
 
-    // After confirming an action, advance to the next player
-    advanceActionPhaseTurn();
+    // Advance turn for pass actions and component actions
+    // Strategy card actions are handled by the modal or fallback logic above
+    if (state.stagedPlayerAction.actionType.type === 'pass' || state.stagedPlayerAction.actionType.type === 'component') {
+        advanceActionPhaseTurn();
+    }
 
     window.stateCore.saveGameState();
 }
 
 function clearStagedAction() {
+    console.log('clearStagedAction called');
     const state = window.stateCore.getGameState();
+    console.log('Current staged action:', state.stagedPlayerAction);
     state.stagedPlayerAction = null;
     window.stateCore.saveGameState();
 }
@@ -544,6 +577,67 @@ function showSupportForTheThroneModal(playerId) {
     document.body.appendChild(modal);
 }
 
+/**
+ * Complete strategy card action from the modal
+ * This function is called when the strategy card modal is completed
+ */
+function completeStrategyCardAction() {
+    console.log('completeStrategyCardAction called');
+    const state = window.stateCore.getGameState();
+    
+    if (!state.stagedPlayerAction) {
+        console.log('No staged action found');
+        return;
+    }
+    
+    if (state.stagedPlayerAction.confirmed) {
+        console.log('Action already confirmed');
+        return;
+    }
+    
+    const player = state.players.find(p => p.id === state.stagedPlayerAction.playerId);
+    if (!player) {
+        console.log('Player not found');
+        return;
+    }
+    
+    console.log('Processing strategy card completion for player:', player.name);
+    
+    // Mark the action as confirmed
+    state.stagedPlayerAction.confirmed = true;
+    
+    const needsDualCards = state.players.length <= 4;
+    
+    // Mark the strategy card as used
+    if (needsDualCards) {
+        // For dual cards, mark the specific card as used
+        if (!player.strategyCardsUsed) {
+            player.strategyCardsUsed = [];
+        }
+        if (!player.strategyCardsUsed.includes(state.stagedPlayerAction.actionType.card)) {
+            player.strategyCardsUsed.push(state.stagedPlayerAction.actionType.card);
+        }
+        console.log(`Player ${player.name} used strategy card: ${state.stagedPlayerAction.actionType.card}`);
+    } else {
+        // Standard single card logic
+        player.strategyCardUsed = true;
+        console.log(`Player ${player.name} used strategy card (single card mode)`);
+    }
+    
+    // Check if this is the Politics strategy card
+    if (state.stagedPlayerAction.actionType.card === 'Politics') {
+        // Prompt to select a new speaker
+        promptForNewSpeaker(player.id);
+        return; // Don't advance turn yet, wait for speaker selection
+    }
+    
+    // After playing a strategy card, the turn advances to the next player
+    console.log('Strategy card played, advancing to next player');
+    
+    // Advance the turn (this will also clear the staged action)
+    advanceActionPhaseTurn();
+}
+
 // Export all functions that will be used by other modules
 window.actionPhase = {
     advanceActionPhaseTurn,
@@ -559,5 +653,6 @@ window.actionPhase = {
     selectNewSpeaker,
     addSupportForTheThrone,
     removeSupportForTheThrone,
-    showSupportForTheThroneModal
+    showSupportForTheThroneModal,
+    completeStrategyCardAction
 };
