@@ -1,0 +1,53 @@
+{
+  "_comment": "RAGE Events Data - Edit this file to update events on the website. Set 'featured: true' for highlighted events. Use YYYY-MM-DD for dates and HH:MM for times (24-hour format).",
+  "events": [
+    {
+      "id": 1,
+      "title": "Friday Night Board Games",
+      "description": "Join us for our weekly board game night! Bring your favorites or try something new.",
+      "date": "2025-06-28",
+      "time": "18:00",
+      "type": "board-games",
+      "typeLabel": "Board Games",
+      "location": "Local Game Store, Redding",
+      "attending": 12,
+      "featured": true
+    },
+    {
+      "id": 2,
+      "title": "D&D Campaign: Curse of Strahd",
+      "description": "Continue the epic adventure in Barovia. New players welcome!",
+      "date": "2025-06-30",
+      "time": "14:00",
+      "type": "dnd",
+      "typeLabel": "D&D",
+      "location": "Community Center",
+      "attending": 6,
+      "featured": false
+    },
+    {
+      "id": 3,
+      "title": "Settlers of Catan Tournament",
+      "description": "Compete for glory and prizes in our monthly Catan championship!",
+      "date": "2025-07-05",
+      "time": "12:00",
+      "type": "tournament",
+      "typeLabel": "Tournament",
+      "location": "Local Game Store, Redding",
+      "attending": 8,
+      "featured": false
+    },
+    {
+      "id": 4,
+      "title": "Game Night & Pizza Social",
+      "description": "Casual gaming with pizza and drinks. Perfect for newcomers!",
+      "date": "2025-07-12",
+      "time": "19:00",
+      "type": "social",
+      "typeLabel": "Social",
+      "location": "RAGE Member's House",
+      "attending": 15,
+      "featured": false
+    }
+  ]
+}

@@ -191,97 +191,11 @@
                 <p class="section-subtitle">Don't miss out on the action - RSVP on AfterGame!</p>
             </div>
             
-            <div class="events-grid">
-                <!-- Event 1 -->
-                <div class="event-card featured">
-                    <div class="event-date">
-                        <span class="month">JUN</span>
-                        <span class="day">28</span>
-                    </div>
-                    <div class="event-content">
-                        <div class="event-meta">
-                            <span class="event-type board-games">Board Games</span>
-                            <span class="event-time">6:00 PM</span>
-                        </div>
-                        <h3 class="event-title">Friday Night Board Games</h3>
-                        <p class="event-description">Join us for our weekly board game night! Bring your favorites or try something new.</p>
-                        <div class="event-location">📍 Local Game Store, Redding</div>
-                        <div class="event-rsvp">
-                            <span class="rsvp-count">12 attending</span>
-                            <div class="countdown" data-date="2025-06-28T18:00:00">
-                                <span class="countdown-text">Starts in 4 days</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Event 2 -->
-                <div class="event-card">
-                    <div class="event-date">
-                        <span class="month">JUN</span>
-                        <span class="day">30</span>
-                    </div>
-                    <div class="event-content">
-                        <div class="event-meta">
-                            <span class="event-type dnd">D&D</span>
-                            <span class="event-time">2:00 PM</span>
-                        </div>
-                        <h3 class="event-title">D&D Campaign: Curse of Strahd</h3>
-                        <p class="event-description">Continue the epic adventure in Barovia. New players welcome!</p>
-                        <div class="event-location">📍 Community Center</div>
-                        <div class="event-rsvp">
-                            <span class="rsvp-count">6 attending</span>
-                            <div class="countdown" data-date="2025-06-30T14:00:00">
-                                <span class="countdown-text">Starts in 6 days</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Event 3 -->
-                <div class="event-card">
-                    <div class="event-date">
-                        <span class="month">JUL</span>
-                        <span class="day">05</span>
-                    </div>
-                    <div class="event-content">
-                        <div class="event-meta">
-                            <span class="event-type tournament">Tournament</span>
-                            <span class="event-time">12:00 PM</span>
-                        </div>
-                        <h3 class="event-title">Settlers of Catan Tournament</h3>
-                        <p class="event-description">Compete for glory and prizes in our monthly Catan championship!</p>
-                        <div class="event-location">📍 Local Game Store, Redding</div>
-                        <div class="event-rsvp">
-                            <span class="rsvp-count">8 attending</span>
-                            <div class="countdown" data-date="2025-07-05T12:00:00">
-                                <span class="countdown-text">Starts in 11 days</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Event 4 -->
-                <div class="event-card">
-                    <div class="event-date">
-                        <span class="month">JUL</span>
-                        <span class="day">12</span>
-                    </div>
-                    <div class="event-content">
-                        <div class="event-meta">
-                            <span class="event-type social">Social</span>
-                            <span class="event-time">7:00 PM</span>
-                        </div>
-                        <h3 class="event-title">Game Night & Pizza Social</h3>
-                        <p class="event-description">Casual gaming with pizza and drinks. Perfect for newcomers!</p>
-                        <div class="event-location">📍 RAGE Member's House</div>
-                        <div class="event-rsvp">
-                            <span class="rsvp-count">15 attending</span>
-                            <div class="countdown" data-date="2025-07-12T19:00:00">
-                                <span class="countdown-text">Starts in 18 days</span>
-                            </div>
-                        </div>
-                    </div>
+            <div class="events-grid" id="events-container">
+                <!-- Events will be loaded dynamically -->
+                <div class="loading-placeholder">
+                    <div class="loading-spinner"></div>
+                    <p>Loading upcoming events...</p>
                 </div>
             </div>
 
@@ -387,7 +301,112 @@
     </footer>
 
     <script>
-        // Simple countdown functionality
+        // Dynamic Event Loading
+        async function loadEvents() {
+            try {
+                console.log('🎲 Loading events from events.json...');
+                const response = await fetch('events.json');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                console.log('✅ Events loaded successfully:', data);
+                
+                if (!data.events || !Array.isArray(data.events)) {
+                    throw new Error('Invalid events data structure');
+                }
+                
+                if (data.events.length === 0) {
+                    console.warn('⚠️ No events found in data');
+                    showNoEventsMessage();
+                    return;
+                }
+                
+                renderEvents(data.events);
+                console.log(`🎯 Rendered ${data.events.length} events`);
+                
+            } catch (error) {
+                console.error('❌ Error loading events:', error);
+                showEventError(error.message);
+            }
+        }
+
+        function renderEvents(events) {
+            const container = document.getElementById('events-container');
+            container.innerHTML = '';
+
+            events.forEach(event => {
+                const eventCard = createEventCard(event);
+                container.appendChild(eventCard);
+            });
+        }
+
+        function createEventCard(event) {
+            const eventDate = new Date(event.date + 'T' + event.time);
+            const month = eventDate.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
+            const day = eventDate.getDate();
+            const time = formatTime(event.time);
+
+            const card = document.createElement('div');
+            card.className = `event-card${event.featured ? ' featured' : ''}`;
+            
+            card.innerHTML = `
+                <div class="event-date">
+                    <span class="month">${month}</span>
+                    <span class="day">${day}</span>
+                </div>
+                <div class="event-content">
+                    <div class="event-meta">
+                        <span class="event-type ${event.type}">${event.typeLabel}</span>
+                        <span class="event-time">${time}</span>
+                    </div>
+                    <h3 class="event-title">${event.title}</h3>
+                    <p class="event-description">${event.description}</p>
+                    <div class="event-location">📍 ${event.location}</div>
+                    <div class="event-rsvp">
+                        <span class="rsvp-count">${event.attending} attending</span>
+                        <div class="countdown" data-date="${event.date}T${event.time}:00">
+                            <span class="countdown-text">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            return card;
+        }
+
+        function formatTime(time24) {
+            const [hours, minutes] = time24.split(':');
+            const hour = parseInt(hours);
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            const hour12 = hour % 12 || 12;
+            return `${hour12}:${minutes} ${ampm}`;
+        }
+
+        function showEventError(errorMessage = 'Unknown error') {
+            const container = document.getElementById('events-container');
+            container.innerHTML = `
+                <div class="error-placeholder">
+                    <p>⚠️ Unable to load events. ${errorMessage}</p>
+                    <p>Please check back later or visit our <a href="https://discord.gg/7NVZjZG" target="_blank">Discord</a> for updates.</p>
+                    <p><small>Tip: If viewing locally, make sure to serve the site with <code>npm run serve</code> instead of opening the HTML file directly.</small></p>
+                </div>
+            `;
+        }
+
+        function showNoEventsMessage() {
+            const container = document.getElementById('events-container');
+            container.innerHTML = `
+                <div class="error-placeholder">
+                    <p>📅 No upcoming events scheduled at the moment.</p>
+                    <p>Check our <a href="https://aftergame.app/groups/rage" target="_blank">AfterGame page</a> or <a href="https://discord.gg/7NVZjZG" target="_blank">Discord</a> for the latest updates!</p>
+                </div>
+            `;
+        }
+
+        // Countdown functionality
         function updateCountdowns() {
             const countdowns = document.querySelectorAll('.countdown');
             countdowns.forEach(countdown => {
@@ -409,26 +428,39 @@
                     }
                     
                     countdown.querySelector('.countdown-text').textContent = text;
+                } else {
+                    countdown.querySelector('.countdown-text').textContent = 'Event passed';
                 }
             });
         }
         
-        // Update countdowns every minute
-        updateCountdowns();
-        setInterval(updateCountdowns, 60000);
-        
         // Smooth scrolling for navigation links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
+        function initSmoothScrolling() {
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
             });
+        }
+
+        // Initialize everything when the page loads
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Load events first
+            await loadEvents();
+            
+            // Then start countdowns
+            updateCountdowns();
+            setInterval(updateCountdowns, 60000);
+            
+            // Initialize smooth scrolling
+            initSmoothScrolling();
         });
     </script>
 </body>
