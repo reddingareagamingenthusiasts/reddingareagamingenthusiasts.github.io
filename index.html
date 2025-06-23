@@ -31,11 +31,11 @@
         <div class="hero-overlay"></div>
         <div class="hero-container">
             <div class="hero-content">
-                <div class="hero-badge">
-                    <img src="assets/476339/images/logo1-h_l25lhun7.png" alt="RAGE Logo" class="hero-logo">
-                </div>
                 <h1 class="hero-title">
-                    <span class="rage-highlight">RAGE</span>
+                    <div class="hero-title-main">
+                        <img src="assets/476339/images/logo1-h_l25lhun7.png" alt="RAGE Logo" class="hero-logo-inline">
+                        <span class="rage-highlight">RAGE</span>
+                    </div>
                     <span class="hero-subtitle-inline">Redding Area Gaming Enthusiasts</span>
                 </h1>
                 <p class="hero-description">
@@ -44,16 +44,16 @@
                 </p>
                 <div class="hero-stats">
                     <div class="stat">
-                        <span class="stat-number">200+</span>
+                        <span class="stat-number">250+</span>
                         <span class="stat-label">Discord Members</span>
                     </div>
                     <div class="stat">
-                        <span class="stat-number">7</span>
+                        <span class="stat-number">7+</span>
                         <span class="stat-label">Years Running</span>
                     </div>
                     <div class="stat">
                         <span class="stat-number">Monthly</span>
-                        <span class="stat-label">Events</span>
+                        <span class="stat-label">Meetups</span>
                     </div>
                 </div>
                 <div class="hero-actions">
@@ -249,9 +249,9 @@
                             <div class="avatar">👤</div>
                             <div class="avatar">👤</div>
                             <div class="avatar">👤</div>
-                            <div class="avatar more">+146</div>
+                            <div class="avatar more">+96</div>
                         </div>
-                        <p class="community-text">Join 150+ active members</p>
+                        <p class="community-text">Join 100+ active members</p>
                     </div>
                 </div>
             </div>
@@ -352,6 +352,23 @@
             const card = document.createElement('div');
             card.className = `event-card${event.featured ? ' featured' : ''}`;
             
+            // Make the card clickable if it has a URL
+            if (event.url) {
+                card.style.cursor = 'pointer';
+                card.setAttribute('data-url', event.url);
+                card.addEventListener('click', function() {
+                    window.open(event.url, '_blank');
+                });
+                
+                // Add hover effect for clickable cards
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                });
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            }
+            
             card.innerHTML = `
                 <div class="event-date">
                     <span class="month">${month}</span>
@@ -371,6 +388,7 @@
                             <span class="countdown-text">Loading...</span>
                         </div>
                     </div>
+                    ${event.url ? '<div class="event-link-hint">🎲 Reserve Your Spot!</div>' : ''}
                 </div>
             `;
 

@@ -135,6 +135,8 @@ async function addEvent(events, eventId) {
         attending = parseInt(attendingInput);
     }
     
+    const eventUrl = await askQuestion('AfterGame event URL (optional, press Enter to skip): ');
+    
     const featured = await askQuestion('Is this a featured event? (y/n): ');
     
     const eventType = determineEventType(title, description);
@@ -152,6 +154,11 @@ async function addEvent(events, eventId) {
         featured: featured.toLowerCase().startsWith('y')
     };
     
+    // Add URL if provided
+    if (eventUrl && eventUrl.trim()) {
+        event.url = eventUrl.trim();
+    }
+    
     console.log('\n📋 Event Summary:');
     console.log(`   Title: ${event.title}`);
     console.log(`   Date: ${event.date} at ${event.time}`);
@@ -159,6 +166,9 @@ async function addEvent(events, eventId) {
     console.log(`   Attending: ${event.attending}`);
     console.log(`   Type: ${event.typeLabel}`);
     console.log(`   Featured: ${event.featured ? 'Yes' : 'No'}`);
+    if (event.url) {
+        console.log(`   URL: ${event.url}`);
+    }
     
     const confirm = await askQuestion('\n✅ Add this event? (y/n): ');
     if (confirm.toLowerCase().startsWith('y')) {

@@ -16,7 +16,8 @@
     "typeLabel": "Board Games|D&D|Tournament|Social",
     "location": "Venue name and address (e.g., Fratelli's Pizza Parlour, 1774 California St, Redding)",
     "attending": "number (total going + interested)",
-    "featured": "true|false (set first/most important event to true)"
+    "featured": "true|false (set first/most important event to true)",
+    "url": "https://aftergame.app/events/[EVENT_ID] (optional - direct link to the AfterGame event page)"
   },
   "_realEventExamples": [
     {
@@ -41,7 +42,8 @@
       "typeLabel": "Board Games",
       "location": "Fratelli's Pizza Parlour, Redding",
       "attending": 3,
-      "featured": true
+      "featured": true,
+      "url": "https://aftergame.app/events/33a235ba-25cc-4612-bf2c-60ca09718ccf"
     },
     {
       "id": 2,
@@ -53,7 +55,8 @@
       "typeLabel": "Board Games",
       "location": "Fratelli's Pizza Parlour, Redding",
       "attending": 5,
-      "featured": false
+      "featured": false,
+      "url": "https://aftergame.app/events/3a79ab67-8d34-4f6a-99d6-e14318ebb7a1"
     },
     {
       "id": 3,
@@ -65,7 +68,8 @@
       "typeLabel": "Board Games",
       "location": "Fratelli's Pizza Parlour, Redding",
       "attending": 4,
-      "featured": false
+      "featured": false,
+      "url": "https://aftergame.app/events/eccab970-2140-4ea3-86b4-18ac8fae0584"
     }
   ]
 }
