@@ -1016,6 +1016,12 @@ body {
     position: relative;
 }
 
+.aftergame-header-full {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
 .aftergame-section::before {
     content: '';
     position: absolute;
@@ -1030,83 +1036,94 @@ body {
 .aftergame-content {
     position: relative;
     z-index: 1;
+    display: grid;
+    grid-template-columns: 45% 55%;
+    gap: 4rem;
+    margin-top: 3.5rem;
+    align-items: start;
+}
+
+.aftergame-info {
+    max-width: 80%;
+}
+
+.aftergame-widget {
+    height: 100%;
 }
 
 .aftergame-header {
     display: flex;
-    align-items: flex-start;
-    gap: 2rem;
+    align-items: center;
+    gap: 1rem;
     margin-bottom: 3rem;
     text-align: left;
 }
 
-.aftergame-logo {
-    flex-shrink: 0;
-}
-
-.aftergame-logo img {
-    width: 80px;
-    height: 80px;
-    object-fit: cover;
-    border-radius: 16px;
+.aftergame-icon {
+    width: 60px;
+    height: 60px;
     background: white;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid rgba(255, 255, 255, 0.3);
     padding: 6px;
-    border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
-.aftergame-intro {
-    flex: 1;
+.aftergame-icon img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
 }
 
 .aftergame-title {
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 2.5rem;
+    font-size: 2.2rem;
     font-weight: 700;
     color: white;
-    margin: 0 0 1rem 0;
-    line-height: 1.2;
+    margin: 0;
 }
 
 .aftergame-subtitle {
-    font-size: 1.2rem;
     color: rgba(255, 255, 255, 0.9);
-    margin: 0;
-    line-height: 1.4;
+    margin: 0.5rem 0 0 0;
+    font-size: 1rem;
 }
 
-.aftergame-description {
-    margin-bottom: 3rem;
-    text-align: center;
-}
-
-.aftergame-description p {
-    font-size: 1.1rem;
-    color: rgba(255, 255, 255, 0.9);
-    line-height: 1.6;
-    max-width: 800px;
-    margin: 0 auto;
-}
-
-.feature-grid {
+.aftergame-features {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-    margin-bottom: 3rem;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+    margin-top: 2.5rem;
 }
 
 .aftergame-feature {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-    padding: 2rem;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    transition: all 0.3s ease;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
 }
 
-.aftergame-feature:hover {
-    transform: translateY(-4px);
-    background: rgba(255, 255, 255, 0.15);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+.feature-emoji {
+    font-size: 1.5rem;
+    margin-top: 0.1rem;
+    flex-shrink: 0;
+}
+
+.aftergame-feature h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: white;
+    margin: 0 0 0.5rem 0;
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+.aftergame-feature p {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.85);
+    margin: 0;
+    line-height: 1.4;
 }
 
 .feature-icon {
@@ -1219,9 +1236,10 @@ body {
 }
 
 .aftergame-note {
+    color: rgba(255, 255, 255, 0.8);
     font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.7);
-    margin: 0;
+    margin-top: 1rem;
+    line-height: 1.4;
 }
 
 /* Responsive Design */
@@ -1271,12 +1289,34 @@ body {
         gap: 2rem;
     }
     
+    .aftergame-content {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    
     .discord-features {
         grid-template-columns: 1fr;
         gap: 1rem;
     }
     
+    .aftergame-features {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
     .discord-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+    
+    .aftergame-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+    
+    .aftergame-header-full {
         flex-direction: column;
         text-align: center;
         gap: 1rem;
