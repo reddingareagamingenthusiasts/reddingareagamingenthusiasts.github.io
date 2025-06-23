@@ -1,0 +1,20 @@
+# macOS
+.DS_Store
+
+# Node.js
+node_modules/
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# Backup files
+*.backup
+*.bak
+
+# Development artifacts
+debug*.png
+screenshot*.png
