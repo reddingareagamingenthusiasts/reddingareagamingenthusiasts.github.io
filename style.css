@@ -520,7 +520,7 @@ body {
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
     border: 1px solid #40444b;
     max-width: 100%;
-    min-height: 400px;
+    min-height: 500px;
     height: 100%;
 }
 
@@ -530,7 +530,6 @@ body {
     max-width: 100%;
     width: 100%;
     box-sizing: border-box;
-    min-height: 400px;
     height: 100%;
 }
 
