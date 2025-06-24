@@ -519,11 +519,16 @@ body {
     overflow: hidden;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
     border: 1px solid #40444b;
+    max-width: 100%;
 }
 
 .widget-container iframe {
     border-radius: 12px;
     background: transparent;
+    max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
+    height: 550px;
 }
 
 /* Remove or comment out the overlay that's covering the widget */
@@ -1037,10 +1042,11 @@ body {
     position: relative;
     z-index: 1;
     display: grid;
-    grid-template-columns: 45% 55%;
+    grid-template-columns: 0.45fr 0.55fr;
     gap: 4rem;
     margin-top: 3.5rem;
     align-items: start;
+    height: 650px;
 }
 
 .aftergame-info {
@@ -1049,6 +1055,8 @@ body {
 
 .aftergame-widget {
     height: 100%;
+    max-width: 100%;
+    overflow: hidden;
 }
 
 .aftergame-header {
