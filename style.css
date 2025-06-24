@@ -529,6 +529,7 @@ body {
     max-width: 100%;
     width: 100%;
     box-sizing: border-box;
+    min-height: 400 px;
     height: 100%;
 }
 
