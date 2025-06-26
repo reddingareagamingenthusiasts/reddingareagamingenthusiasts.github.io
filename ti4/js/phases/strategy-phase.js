@@ -103,11 +103,24 @@ function updateTurnOrderByInitiative() {
             (index - speakerIndex + state.players.length) % state.players.length : 
             index;
         
+        let initiative = Infinity;
+        if (state.selectedCards[p.id]) {
+            const cardData = state.strategyCards.find(c => c.name === state.selectedCards[p.id]);
+            if (cardData) {
+                // Check if Gift of Prescience is active (takes precedence over Naalu token)
+                if (p.giftOfPrescience) {
+                    initiative = 0; // Gift of Prescience makes initiative 0
+                } else if (p.naaluToken && (state.phase === 'Action' || state.phase === 'Status')) {
+                    initiative = 0; // Naalu token makes initiative 0
+                } else {
+                    initiative = cardData.initiative;
+                }
+            }
+        }
+        
         return {
             id: p.id,
-            initiative: state.selectedCards[p.id] ? 
-                state.strategyCards.find(c => c.name === state.selectedCards[p.id]).initiative : 
-                Infinity,
+            initiative: initiative,
             distanceFromSpeaker: distanceFromSpeaker
         };
     });
@@ -201,6 +214,9 @@ function selectStrategyCard(playerId, cardName) {
             player.strategyCard = primaryCard.name;
             state.selectedCards[playerId] = primaryCard.name;
         }
+        
+        // Auto-place Naalu token after strategy card selection
+        autoPlaceNaaluTokenAfterSelection(playerId);
     } else {
         // Remove card selection
         if (needsDualCards && player.strategyCards) {
@@ -208,6 +224,11 @@ function selectStrategyCard(playerId, cardName) {
         }
         player.strategyCard = null;
         delete state.selectedCards[playerId];
+        
+        // Remove Naalu token if card is deselected
+        if (player.naaluToken) {
+            removeNaaluToken(playerId);
+        }
     }
     
     // End current player's turn timer and start next player's turn timer
@@ -282,6 +303,9 @@ function proceedToActivePhase() {
             state.stage = 'active';
             state.phase = 'Action';
             
+            // Update turn order to account for Naalu tokens in action phase
+            updateTurnOrderByInitiative();
+            
             // Start the turn timer for the first player in the action phase
             if (state.turnOrder && state.turnOrder.length > 0) {
                 const firstPlayerId = state.turnOrder[0];
@@ -301,11 +325,205 @@ function proceedToActivePhase() {
     }
 }
 
+// Naalu Faction Special Ability: "0" Token
+function placeNaaluToken(playerId) {
+    const state = window.stateCore.getGameState();
+    const player = state.players.find(p => p.id === playerId);
+    
+    if (!player) {
+        console.warn('Player not found for Naalu token placement');
+        return false;
+    }
+    
+    // Check if player is Naalu faction
+    if (!player.faction || !player.faction.includes('Naalu')) {
+        console.warn('Only Naalu Collective can place the "0" token');
+        return false;
+    }
+    
+    // Check if player has a strategy card
+    if (!player.strategyCard && (!player.strategyCards || player.strategyCards.length === 0)) {
+        console.warn('Player must have a strategy card to place Naalu token');
+        return false;
+    }
+    
+    player.naaluToken = true;
+    window.stateCore.saveGameState();
+    console.log(`Naalu token placed for player ${player.name}`);
+    return true;
+}
+
+function removeNaaluToken(playerId) {
+    const state = window.stateCore.getGameState();
+    const player = state.players.find(p => p.id === playerId);
+    
+    if (!player) {
+        console.warn('Player not found for Naalu token removal');
+        return false;
+    }
+    
+    player.naaluToken = false;
+    window.stateCore.saveGameState();
+    console.log(`Naalu token removed for player ${player.name}`);
+    return true;
+}
+
+function autoPlaceNaaluTokenAfterSelection(playerId) {
+    const state = window.stateCore.getGameState();
+    const player = state.players.find(p => p.id === playerId);
+    
+    if (!player) return false;
+    
+    // Auto-place token if this is Naalu and they just selected a strategy card
+    if (player.faction && player.faction.includes('Naalu') && 
+        (player.strategyCard || (player.strategyCards && player.strategyCards.length > 0))) {
+        return placeNaaluToken(playerId);
+    }
+    
+    return false;
+}
+
+function removeAllNaaluTokens() {
+    const state = window.stateCore.getGameState();
+    
+    state.players.forEach(player => {
+        if (player.naaluToken) {
+            player.naaluToken = false;
+        }
+    });
+    
+    window.stateCore.saveGameState();
+    console.log('All Naalu tokens removed for new strategy phase');
+}
+
+// Toggle Naalu token
+function toggleNaaluToken(playerId) {
+    const state = window.stateCore.getGameState();
+    const player = state.players.find(p => p.id === playerId);
+    
+    if (!player) {
+        console.warn('Player not found for Naalu token toggle');
+        return false;
+    }
+    
+    // Check if player is Naalu faction
+    if (!player.faction || !player.faction.includes('Naalu')) {
+        console.warn('Only Naalu Collective can use the "0" token');
+        return false;
+    }
+    
+    // Check if player has a strategy card
+    if (!player.strategyCard && (!player.strategyCards || player.strategyCards.length === 0)) {
+        console.warn('Player must have a strategy card to use Naalu token');
+        return false;
+    }
+    
+    player.naaluToken = !player.naaluToken;
+    window.stateCore.saveGameState();
+    
+    // Update turn order if we're in action or status phase
+    if (state.phase === 'Action' || state.phase === 'Status') {
+        updateTurnOrderByInitiative();
+    }
+    
+    console.log(`Naalu token ${player.naaluToken ? 'activated' : 'deactivated'} for player ${player.name}`);
+    return true;
+}
+
+// Gift of Prescience Promissory Note Functions
+function playGiftOfPrescience(playerId) {
+    const state = window.stateCore.getGameState();
+    window.stateCore.recordHistory();
+    
+    const player = state.players.find(p => p.id === playerId);
+    if (!player) {
+        console.warn('Player not found for Gift of Prescience');
+        return false;
+    }
+    
+    // Check if player has a strategy card
+    if (!player.strategyCard && (!player.strategyCards || player.strategyCards.length === 0)) {
+        console.warn('Player must have a strategy card to play Gift of Prescience');
+        return false;
+    }
+    
+    // Check if any player already has Gift of Prescience active
+    const existingGiftPlayer = state.players.find(p => p.giftOfPrescience);
+    if (existingGiftPlayer) {
+        console.warn('Gift of Prescience is already active for another player');
+        return false;
+    }
+    
+    // Remove any existing Naalu tokens (Gift of Prescience takes precedence)
+    state.players.forEach(p => {
+        if (p.naaluToken) {
+            p.naaluToken = false;
+        }
+    });
+    
+    // Activate Gift of Prescience for this player
+    player.giftOfPrescience = true;
+    
+    // Update turn order to put this player first
+    updateTurnOrderByInitiative();
+    
+    window.stateCore.saveGameState();
+    console.log(`Gift of Prescience activated for player ${player.name}`);
+    return true;
+}
+
+function removeGiftOfPrescience(playerId) {
+    const state = window.stateCore.getGameState();
+    const player = state.players.find(p => p.id === playerId);
+    
+    if (!player) {
+        console.warn('Player not found for Gift of Prescience removal');
+        return false;
+    }
+    
+    player.giftOfPrescience = false;
+    window.stateCore.saveGameState();
+    console.log(`Gift of Prescience removed for player ${player.name}`);
+    return true;
+}
+
+function removeAllGiftOfPrescience() {
+    const state = window.stateCore.getGameState();
+    
+    state.players.forEach(player => {
+        if (player.giftOfPrescience) {
+            player.giftOfPrescience = false;
+        }
+    });
+    
+    window.stateCore.saveGameState();
+    console.log('All Gift of Prescience promissory notes removed for new round');
+}
+
+function checkIfNaaluInGame() {
+    const state = window.stateCore.getGameState();
+    return state.players.some(player => 
+        player.faction && (
+            player.faction === 'The Naalu Collective' || 
+            player.faction === 'Naalu Collective' ||
+            player.faction.includes('Naalu')
+        )
+    );
+}
+
 // Export all functions that will be used by other modules
 window.strategyPhase = {
     initializeStrategyPhaseTurnOrder,
     getNextPlayerInOrder,
     updateTurnOrderByInitiative,
     selectStrategyCard,
-    proceedToActivePhase
+    proceedToActivePhase,
+    placeNaaluToken,
+    removeNaaluToken,
+    autoPlaceNaaluTokenAfterSelection,
+    removeAllNaaluTokens,
+    playGiftOfPrescience,
+    removeGiftOfPrescience,
+    removeAllGiftOfPrescience,
+    checkIfNaaluInGame
 };

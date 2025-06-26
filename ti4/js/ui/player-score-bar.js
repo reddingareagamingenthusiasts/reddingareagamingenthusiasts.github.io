@@ -93,11 +93,33 @@ function renderPlayerScoreBar(container, options = {}) {
                     if (scData) {
                         const cardIconClass = getStrategyCardIcon(scData.name);
                         const isUsed = player.strategyCardsUsed && player.strategyCardsUsed.includes(cardName);
+                        
+                        // Check if Gift of Prescience or Naalu token is active and show "0" initiative during action/status phases
+                        const displayInitiative = (player.giftOfPrescience || 
+                                                 (player.naaluToken && player.faction && player.faction.includes('Naalu') && 
+                                                  (state.phase === 'Action' || state.phase === 'Status'))) ? 
+                                                '0' : scData.initiative;
+                        
+                        // Add visual indicator for active abilities
+                        const specialAbilityClass = (player.giftOfPrescience ? 'gift-prescience-active' : 
+                                                   (player.naaluToken && player.faction && player.faction.includes('Naalu')) ? 
+                                                   'naalu-token-active' : '');
+                        
+                        // Determine tooltip text
+                        let tooltipExtra = '';
+                        if (player.giftOfPrescience) {
+                            tooltipExtra = ' - Gift of Prescience Active';
+                        } else if (player.naaluToken && player.faction && player.faction.includes('Naalu')) {
+                            tooltipExtra = ' - Naalu Token Active';
+                        }
+                        
                         scDisplayHTML += `
-                            <div class="player-sc ${isUsed ? 'used' : ''}" data-card="${scData.name}" title="${scData.name} (Initiative: ${scData.initiative})">
+                            <div class="player-sc ${isUsed ? 'used' : ''} ${specialAbilityClass}" data-card="${scData.name}" title="${scData.name} (Initiative: ${displayInitiative})${tooltipExtra}">
                                 <i class="fas ${cardIconClass} sc-icon"></i>
-                                <span class="sc-initiative">${scData.initiative}</span>
+                                <span class="sc-initiative">${displayInitiative}</span>
                                 <span class="sc-name">${scData.name}</span>
+                                ${player.giftOfPrescience ? '<span class="gift-prescience-indicator">🔮</span>' : 
+                                  (player.naaluToken && player.faction && player.faction.includes('Naalu') ? '<span class="naalu-token-indicator">⚡</span>' : '')}
                             </div>
                         `;
                     }
@@ -108,11 +130,33 @@ function renderPlayerScoreBar(container, options = {}) {
                 const scData = state.strategyCards.find(sc => sc.name === player.strategyCard);
                 if (scData) {
                     const cardIconClass = getStrategyCardIcon(scData.name);
+                    
+                    // Check if Gift of Prescience or Naalu token is active and show "0" initiative during action/status phases
+                    const displayInitiative = (player.giftOfPrescience || 
+                                             (player.naaluToken && player.faction && player.faction.includes('Naalu') && 
+                                              (state.phase === 'Action' || state.phase === 'Status'))) ? 
+                                            '0' : scData.initiative;
+                    
+                    // Add visual indicator for active abilities
+                    const specialAbilityClass = (player.giftOfPrescience ? 'gift-prescience-active' : 
+                                               (player.naaluToken && player.faction && player.faction.includes('Naalu')) ? 
+                                               'naalu-token-active' : '');
+                    
+                    // Determine tooltip text
+                    let tooltipExtra = '';
+                    if (player.giftOfPrescience) {
+                        tooltipExtra = ' - Gift of Prescience Active';
+                    } else if (player.naaluToken && player.faction && player.faction.includes('Naalu')) {
+                        tooltipExtra = ' - Naalu Token Active';
+                    }
+                    
                     scDisplayHTML = `
-                        <div class="player-sc ${player.strategyCardUsed ? 'used' : ''}" data-card="${scData.name}" title="${scData.name} (Initiative: ${scData.initiative})">
+                        <div class="player-sc ${player.strategyCardUsed ? 'used' : ''} ${specialAbilityClass}" data-card="${scData.name}" title="${scData.name} (Initiative: ${displayInitiative})${tooltipExtra}">
                             <i class="fas ${cardIconClass} sc-icon"></i>
-                            <span class="sc-initiative">${scData.initiative}</span>
+                            <span class="sc-initiative">${displayInitiative}</span>
                             <span class="sc-name">${scData.name}</span>
+                            ${player.giftOfPrescience ? '<span class="gift-prescience-indicator">🔮</span>' : 
+                              (player.naaluToken && player.faction && player.faction.includes('Naalu') ? '<span class="naalu-token-indicator">⚡</span>' : '')}
                         </div>
                     `;
                 } else {
@@ -168,7 +212,7 @@ function renderPlayerScoreBar(container, options = {}) {
                     
                     <div class="score-component-row menu-row">
                         <button class="score-menu-btn" onclick="event.stopPropagation(); toggleScoreMenu('${player.id}')">
-                            <i class="fas fa-cog"></i> Adjust Score
+                            <i class="fas fa-cog"></i> Options
                         </button>
                     </div>
                 </div>
@@ -290,6 +334,12 @@ function createScoreMenu(player) {
     
     const state = window.stateCore.getGameState();
     const canClaimCustodians = !player.custodians && !state.players.some(p => p.custodians);
+    const isNaaluInGame = state.players.some(p => p.faction && p.faction.includes('Naalu'));
+    const isNaaluPlayer = player.faction && player.faction.includes('Naalu');
+    const hasGiftOfPrescience = player.giftOfPrescience;
+    const someoneHasGiftOfPrescience = state.players.some(p => p.giftOfPrescience);
+    const canPlayGiftOfPrescience = isNaaluInGame && !isNaaluPlayer && !someoneHasGiftOfPrescience && !hasGiftOfPrescience &&
+                                   (player.strategyCard || (player.strategyCards && player.strategyCards.length > 0));
     
     overlay.innerHTML = `
         <div class="score-menu-content">
@@ -355,6 +405,28 @@ function createScoreMenu(player) {
                     </button>
                 </div>
                 ` : ''}
+                
+                ${canPlayGiftOfPrescience ? `
+                <div class="score-menu-item gift-prescience-item">
+                    <button class="gift-prescience-btn" onclick="playGiftOfPresciencePromNote('${player.id}'); closeScoreMenu();">
+                        <i class="fas fa-magic"></i> Play Gift of Prescience
+                    </button>
+                    <div class="gift-prescience-description">
+                        Naalu promissory note - Sets initiative to 0 and places you first in turn order
+                    </div>
+                </div>
+                ` : ''}
+                
+                ${hasGiftOfPrescience ? `
+                <div class="score-menu-item gift-prescience-active-item">
+                    <button class="gift-prescience-remove-btn" onclick="removeGiftOfPresciencePromNote('${player.id}'); closeScoreMenu();">
+                        <i class="fas fa-times"></i> Remove Gift of Prescience
+                    </button>
+                    <div class="gift-prescience-active-description">
+                        Gift of Prescience is currently active
+                    </div>
+                </div>
+                ` : ''}
             </div>
         </div>
     `;
@@ -404,15 +476,37 @@ function updateScoreMenuDisplay(playerId) {
     }
 }
 
-// Export all UI functions - Hybrid approach for ES Modules migration
-// 1. Export to window for backward compatibility
+// Gift of Prescience Promissory Note Functions
+function playGiftOfPresciencePromNote(playerId) {
+    if (window.strategyPhase && window.strategyPhase.playGiftOfPrescience) {
+        const success = window.strategyPhase.playGiftOfPrescience(playerId);
+        if (success) {
+            // Force UI update
+            window.dispatchEvent(new CustomEvent('gameStateUpdated'));
+        } else {
+            alert('Unable to play Gift of Prescience. Make sure you have a strategy card and no one else has already played it.');
+        }
+    }
+}
+
+function removeGiftOfPresciencePromNote(playerId) {
+    if (window.strategyPhase && window.strategyPhase.removeGiftOfPrescience) {
+        const success = window.strategyPhase.removeGiftOfPrescience(playerId);
+        if (success) {
+            // Force UI update
+            window.dispatchEvent(new CustomEvent('gameStateUpdated'));
+        }
+    }
+}
+
+// Export all functions that will be used by other modules
 window.playerScoreBar = {
     renderPlayerScoreBar,
-    getContrastTextColor,
-    getStrategyCardIcon,
-    generateDotIndicators,
     toggleScoreMenu,
     createScoreMenu,
     closeScoreMenu,
-    updateScoreMenuDisplay
+    generateDotIndicators,
+    getStrategyCardIcon,
+    playGiftOfPresciencePromNote,
+    removeGiftOfPresciencePromNote
 };

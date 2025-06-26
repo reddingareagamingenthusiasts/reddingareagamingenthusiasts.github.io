@@ -65,7 +65,9 @@ function addPlayer(index, name = '') {
         strategyCardUsed: false,
         strategyCardsUsed: [], // Track which cards have been used
         passed: false,
-        isReady: false
+        isReady: false,
+        naaluToken: false, // Track if Naalu "0" token is placed on strategy card
+        giftOfPrescience: false // Track if Gift of Prescience promissory note is active
     });
     
     // Add to turn order by default

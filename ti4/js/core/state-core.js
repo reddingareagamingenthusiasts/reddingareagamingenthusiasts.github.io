@@ -179,6 +179,14 @@ function migrateGameState() {
                 player.custodians = false;
                 migrationApplied = true;
             }
+            if (typeof player.naaluToken === 'undefined') {
+                player.naaluToken = false;
+                migrationApplied = true;
+            }
+            if (typeof player.giftOfPrescience === 'undefined') {
+                player.giftOfPrescience = false;
+                migrationApplied = true;
+            }
         });
     }
 

@@ -73,6 +73,9 @@ function completeAgendaPhase() {
         player.strategyCardUsed = false;
         player.strategyCardsUsed = []; // Reset used cards tracking
         player.passed = false;
+        player.naaluToken = false; // Reset Naalu "0" token for new strategy phase
+        player.giftOfPrescience = false; // Return Gift of Prescience at end of status phase
+        player.naaluToken = false; // Reset Naalu "0" token for new round
     });
 
     // Ensure the speaker is properly marked with isCurrentSpeaker
