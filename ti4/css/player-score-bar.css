@@ -1102,7 +1102,7 @@ html body .player-score-bar .player-card.active-player,
 .player-sc.gift-prescience-active {
     border: 2px solid rgba(138, 43, 226, 0.8); /* Purple border for Gift of Prescience */
     box-shadow: 0 0 12px rgba(138, 43, 226, 0.6);
-    background: linear-gradient(135deg, rgba(138, 43, 226, 0.3), rgba(75, 0, 130, 0.3));
+    /* Keep original background color, only add border and glow effect */
 }
 
 .gift-prescience-indicator {
