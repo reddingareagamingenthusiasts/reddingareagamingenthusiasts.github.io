@@ -22,14 +22,13 @@ function proceedToAgendaPhase() {
     state.currentAgendaStep = 0; // First step
     state.currentAgendaNumber = 1; // First agenda
     state.agendaVotes = {}; // Initialize votes for the first agenda
-      // Initialize influence counters if they don't exist
-    if (!state.influenceCounters) {
-        state.influenceCounters = {};
-        state.players.forEach(player => {
-            // Default influence is 0, would be calculated based on planets in a full implementation
-            state.influenceCounters[player.id] = 0;
-        });
-    }
+    
+    // Initialize/reset influence counters
+    state.influenceCounters = {};
+    state.players.forEach(player => {
+        // Default influence is 0, would be calculated based on planets in a full implementation
+        state.influenceCounters[player.id] = 0;
+    });
 
     // Ensure the speaker is properly marked with isCurrentSpeaker
     if (state.speaker) {

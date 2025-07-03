@@ -718,6 +718,29 @@ gap: 20px;
     align-items: center;
 }
 
+/* Timer Glow Animation for Paused State */
+@keyframes timer-pulse-glow {
+    0% {
+        box-shadow: 0 0 5px rgba(255, 215, 0, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.8), 0 0 30px rgba(255, 215, 0, 0.6);
+    }
+    100% {
+        box-shadow: 0 0 5px rgba(255, 215, 0, 0.4);
+    }
+}
+
+.game-timer-controls.timer-paused {
+    animation: timer-pulse-glow 2s ease-in-out infinite;
+    transition: box-shadow 0.3s ease;
+}
+
+.timers-wrapper.timer-paused {
+    animation: timer-pulse-glow 2s ease-in-out infinite;
+    transition: box-shadow 0.3s ease;
+}
+
 .round-tracker-widget .fa-clock {
     margin-right: 8px; /* Space between icon and text */
     font-size: 1.4em; /* Adjust icon size if needed */

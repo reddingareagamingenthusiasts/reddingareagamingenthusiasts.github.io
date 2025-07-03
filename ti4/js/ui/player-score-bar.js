@@ -507,6 +507,7 @@ window.playerScoreBar = {
     closeScoreMenu,
     generateDotIndicators,
     getStrategyCardIcon,
+    updateScoreMenuDisplay,
     playGiftOfPresciencePromNote,
     removeGiftOfPresciencePromNote
 };

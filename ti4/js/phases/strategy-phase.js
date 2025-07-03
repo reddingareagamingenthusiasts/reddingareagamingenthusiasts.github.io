@@ -237,18 +237,18 @@ function selectStrategyCard(playerId, cardName) {
             window.gameTimer.endCurrentPlayerTurn();
         }
         
-        // Get the next player before updating turn order (which might change the order)
+        // Get the next player before saving state (don't update turn order during selection)
         const nextPlayerAfterSelection = getNextPlayerInOrder();
         
-        // Update turn order by initiative
-        updateTurnOrderByInitiative(); // This will call saveGameState()
+        // Save state without updating turn order during strategy selection
+        window.stateCore.saveGameState();
         
         // Start timer for next player if there is one
         if (nextPlayerAfterSelection && window.gameTimer && typeof window.gameTimer.startPlayerTurn === 'function') {
             window.gameTimer.startPlayerTurn(nextPlayerAfterSelection);
         }
     } else {
-        // If not in strategy selection phase, just update turn order
+        // If not in strategy selection phase, update turn order by initiative
         updateTurnOrderByInitiative(); // This will call saveGameState()
     }
     

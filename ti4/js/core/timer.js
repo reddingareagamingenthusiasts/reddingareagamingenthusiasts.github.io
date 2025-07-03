@@ -271,6 +271,9 @@
         
         // Update menu button to reflect current state
         updateMenuButton();
+
+        // Apply glow effect if timer is paused
+        updateTimerGlowEffect(!sharedTimerState.isRunning);
         
         // Set up menu button event listener
         const menuTimerButton = document.getElementById('menu-timer-toggle-button');
@@ -301,6 +304,9 @@
             // Also pause the turn timer
             pausePlayerTurn();
             
+            // Add glow effect for paused state
+            updateTimerGlowEffect(true);
+            
             console.log('[TIMER] Timer paused');
         } else {
             // Start the timer
@@ -314,6 +320,9 @@
             if (sharedTimerState.turnTimer.currentPlayer) {
                 resumePlayerTurn();
             }
+            
+            // Remove glow effect when running
+            updateTimerGlowEffect(false);
             
             console.log('[TIMER] Timer started');
         }
@@ -344,6 +353,9 @@
             
             // Update menu button text and icon
             updateMenuButton();
+
+            // Remove glow effect when starting
+            updateTimerGlowEffect(false);
             
             // Save timer state immediately when started
             saveTimerState();
@@ -401,6 +413,52 @@
                 menuButton.title = 'Start Timer';
             }
         }
+    }
+
+        // Update timer glow effect based on pause state
+    function updateTimerGlowEffect(isPaused) {
+        // Find all timer containers and update their glow state
+        const timerContainerElements = document.querySelectorAll('.game-timer-controls');
+        const timersWrapperElements = document.querySelectorAll('.timers-wrapper');
+        
+        timerContainerElements.forEach(container => {
+            if (isPaused) {
+                container.classList.add('timer-paused');
+            } else {
+                container.classList.remove('timer-paused');
+            }
+        });
+        
+        timersWrapperElements.forEach(wrapper => {
+            if (isPaused) {
+                wrapper.classList.add('timer-paused');
+            } else {
+                wrapper.classList.remove('timer-paused');
+            }
+        });
+    }
+
+    // Update timer glow effect based on pause state
+    function updateTimerGlowEffect(isPaused) {
+        // Find all timer containers and update their glow state
+        const timerContainerElements = document.querySelectorAll('.game-timer-controls');
+        const timersWrapperElements = document.querySelectorAll('.timers-wrapper');
+        
+        timerContainerElements.forEach(container => {
+            if (isPaused) {
+                container.classList.add('timer-paused');
+            } else {
+                container.classList.remove('timer-paused');
+            }
+        });
+        
+        timersWrapperElements.forEach(wrapper => {
+            if (isPaused) {
+                wrapper.classList.add('timer-paused');
+            } else {
+                wrapper.classList.remove('timer-paused');
+            }
+        });
     }
     
     // Turn timer management functions
@@ -505,6 +563,9 @@
         
         // Update menu button to show play icon
         updateMenuButton();
+
+        // Remove glow effect when reset
+        updateTimerGlowEffect(false);
         
         // Clear saved timer state in localStorage
         try {

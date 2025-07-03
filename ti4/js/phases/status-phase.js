@@ -134,7 +134,7 @@ function proceedToNextRound() {
     if (custodianTokenTaken) {
         // If Custodians Token is taken, proceed to Agenda Phase
         console.log("Custodians Token has been taken. Proceeding to Agenda Phase.");
-        proceedToAgendaPhase();
+        window.agendaPhase.proceedToAgendaPhase();
     } else {
         // If Custodians Token is not taken, proceed to Strategy Phase for the next round
         console.log("Custodians Token has not been taken. Proceeding to next round.");
@@ -220,17 +220,6 @@ function findObjectiveById(objectiveId, state) {
     return null;
 }
 
-// Function to proceed to the Agenda Phase
-function proceedToAgendaPhase() {
-    const state = window.stateCore.getGameState();
-    
-    state.phase = 'Agenda';
-    console.log("Proceeding to Agenda Phase");
-    
-    // Additional Agenda Phase setup would go here
-    // For now, we'll just set the phase
-}
-
 // Export all functions that will be used by other modules
 window.statusPhase = {
     proceedToStatusPhase,
@@ -238,6 +227,5 @@ window.statusPhase = {
     scoreObjective,
     revealObjective,
     proceedToNextRound,
-    findObjectiveById,
-    proceedToAgendaPhase
+    findObjectiveById
 };
